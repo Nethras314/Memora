@@ -1,0 +1,42 @@
+# Environment and Secrets (CRITICAL)
+.env
+*.env
+backend/.env
+!.env.example
+!backend/.env.example
+
+# Node / Frontend
+frontend/node_modules/
+node_modules/
+frontend/dist/
+frontend/dist-ssr/
+*.local
+
+# Python / Backend
+__pycache__/
+*.py[cod]
+*$py.class
+backend/__pycache__/
+backend/*/__pycache__/
+backend/*/*/__pycache__/
+venv/
+env/
+ENV/
+.venv/
+backend/venv/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Databases & Logs
+*.db
+*.sqlite3
+*.log
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
