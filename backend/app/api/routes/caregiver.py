@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Dict, Any
 from backend.app.models.schemas import CaregiverAnalyticsResponse
 from backend.app.api.routes.patients import MOCK_PATIENTS
-from backend.app.api.routes.routines import MOCK_TASKS
+from backend.app.api.routes.routines import load_patient_tasks
 from backend.app.api.routes.cognitive import COGNITIVE_HISTORY
 from backend.app.services.dda_engine import DynamicDifficultyAdjustmentEngine
 from backend.app.core.database import get_supabase
@@ -17,10 +17,10 @@ async def get_caregiver_analytics(patient_id: int = 1, supabase = Depends(get_su
     """
     patient = next((p for p in MOCK_PATIENTS if p["id"] == patient_id), MOCK_PATIENTS[0])
     
-    # Task completion analytics
-    patient_tasks = [t for t in MOCK_TASKS if t["patient_id"] == patient_id]
+    # Task completion analytics from persisted routine tasks
+    patient_tasks = load_patient_tasks(patient_id, supabase)
     total_tasks = len(patient_tasks)
-    completed_tasks = sum(1 for t in patient_tasks if t["done"])
+    completed_tasks = sum(1 for t in patient_tasks if t.get("done"))
     completion_pct = int((completed_tasks / total_tasks) * 100) if total_tasks else 0
 
     # Cognitive Telemetry Analysis

@@ -17,13 +17,18 @@ def test_list_patients():
     assert data[1]["name"] == "Raman"
 
 def test_verify_pin_success():
-    response = client.post("/api/auth/verify-pin", json={"pin": "1234"})
+    response = client.post("/api/auth/verify-pin", json={"pin": "1234", "patient_id": 1})
     assert response.status_code == 200
     assert response.json()["success"] is True
 
 def test_verify_pin_failure():
-    response = client.post("/api/auth/verify-pin", json={"pin": "9999"})
+    response = client.post("/api/auth/verify-pin", json={"pin": "9999", "patient_id": 1})
     assert response.status_code == 401
+    assert "Incorrect" in response.json()["detail"]
+
+def test_verify_pin_invalid_patient():
+    response = client.post("/api/auth/verify-pin", json={"pin": "1234", "patient_id": 99999})
+    assert response.status_code == 404
 
 def test_dda_next_game():
     response = client.get("/api/cognitive/next-game?patient_id=1")
@@ -49,3 +54,154 @@ def test_voice_interact_tamil():
     assert response.status_code == 200
     data = response.json()
     assert "அனிதா" in data["reply_text"]
+
+def test_memories_crud_flow():
+    # 1. List existing memories
+    list_res = client.get("/api/memories?patient_id=1")
+    assert list_res.status_code == 200
+    initial_count = len(list_res.json())
+
+    # 2. Create a new memory
+    create_res = client.post(
+        "/api/memories",
+        data={
+            "patient_id": 1,
+            "category": "Person",
+            "title": "Dr. Varma",
+            "details": "Family physician who visits on Sundays.",
+            "relationship": "Doctor"
+        }
+    )
+    assert create_res.status_code == 200
+    new_memory = create_res.json()
+    assert new_memory["title"] == "Dr. Varma"
+    memory_id = new_memory["id"]
+
+    # 3. Update the memory
+    update_res = client.put(
+        f"/api/memories/{memory_id}",
+        data={
+            "title": "Dr. Varma (Physician)",
+            "details": "Family physician who visits on Sunday mornings."
+        }
+    )
+    assert update_res.status_code == 200
+    updated_memory = update_res.json()
+    assert updated_memory["title"] == "Dr. Varma (Physician)"
+
+    # 4. Delete the memory
+    delete_res = client.delete(f"/api/memories/{memory_id}")
+    assert delete_res.status_code == 200
+    assert delete_res.json()["success"] is True
+
+def test_tasks_crud_and_reset_flow():
+    # 1. List tasks
+    list_res = client.get("/api/routines/tasks?patient_id=1")
+    assert list_res.status_code == 200
+
+    # 2. Add a new task
+    add_res = client.post(
+        "/api/routines/tasks",
+        json={
+            "patient_id": 1,
+            "title": "Evening Pranayama Breathing",
+            "task_time": "18:00",
+            "category": "Exercise"
+        }
+    )
+    assert add_res.status_code == 200
+    task_data = add_res.json()
+    assert task_data["title"] == "Evening Pranayama Breathing"
+    task_id = task_data["id"]
+    assert task_data["done"] is False
+
+    listed = client.get("/api/routines/tasks?patient_id=1")
+    assert listed.status_code == 200
+    assert any(t["id"] == task_id for t in listed.json())
+
+    # 3. Toggle task completion
+    toggle_res = client.post(f"/api/routines/tasks/{task_id}/toggle")
+    assert toggle_res.status_code == 200
+    assert toggle_res.json()["done"] is True
+
+    after_toggle = client.get("/api/routines/tasks?patient_id=1")
+    matching = next(t for t in after_toggle.json() if t["id"] == task_id)
+    assert matching["done"] is True
+
+    # 4. Reset tasks for the day
+    reset_res = client.post("/api/routines/tasks/reset?patient_id=1")
+    assert reset_res.status_code == 200
+    assert reset_res.json()["success"] is True
+
+    after_reset = client.get("/api/routines/tasks?patient_id=1")
+    matching = next(t for t in after_reset.json() if t["id"] == task_id)
+    assert matching["done"] is False
+
+    # 5. Delete task
+    delete_res = client.delete(f"/api/routines/tasks/{task_id}")
+    assert delete_res.status_code == 200
+    assert delete_res.json()["success"] is True
+
+    after_delete = client.get("/api/routines/tasks?patient_id=1")
+    assert all(t["id"] != task_id for t in after_delete.json())
+
+
+def test_reminders_crud_enable_and_persistence():
+    list_res = client.get("/api/routines/reminders?patient_id=1")
+    assert list_res.status_code == 200
+
+    create_res = client.post(
+        "/api/routines/reminders",
+        json={
+            "patient_id": 1,
+            "title": "Evening herbal tea",
+            "reminder_time": "19:15",
+            "frequency": "Daily",
+            "category": "Food/Meal",
+        },
+    )
+    assert create_res.status_code == 200
+    reminder = create_res.json()
+    reminder_id = reminder["id"]
+    assert reminder["title"] == "Evening herbal tea"
+    assert reminder["category"] == "Food/Meal"
+    assert reminder["enabled"] is True
+    assert reminder["done"] is False
+
+    listed = client.get("/api/routines/reminders?patient_id=1")
+    assert any(r["id"] == reminder_id for r in listed.json())
+
+    update_res = client.put(
+        f"/api/routines/reminders/{reminder_id}",
+        json={"title": "Evening herbal tea with honey", "reminder_time": "19:30"},
+    )
+    assert update_res.status_code == 200
+    assert update_res.json()["title"] == "Evening herbal tea with honey"
+
+    after_update = client.get("/api/routines/reminders?patient_id=1")
+    matching = next(r for r in after_update.json() if r["id"] == reminder_id)
+    assert matching["title"] == "Evening herbal tea with honey"
+    assert matching["reminder_time"].startswith("19:30")
+
+    disable_res = client.post(f"/api/routines/reminders/{reminder_id}/toggle-enabled")
+    assert disable_res.status_code == 200
+    assert disable_res.json()["enabled"] is False
+
+    after_disable = client.get("/api/routines/reminders?patient_id=1")
+    matching = next(r for r in after_disable.json() if r["id"] == reminder_id)
+    assert matching["enabled"] is False
+
+    enable_res = client.post(f"/api/routines/reminders/{reminder_id}/toggle-enabled")
+    assert enable_res.status_code == 200
+    assert enable_res.json()["enabled"] is True
+
+    toggle_done = client.post(f"/api/routines/reminders/{reminder_id}/toggle")
+    assert toggle_done.status_code == 200
+    assert toggle_done.json()["done"] is True
+
+    delete_res = client.delete(f"/api/routines/reminders/{reminder_id}")
+    assert delete_res.status_code == 200
+    assert delete_res.json()["success"] is True
+
+    after_delete = client.get("/api/routines/reminders?patient_id=1")
+    assert all(r["id"] != reminder_id for r in after_delete.json())

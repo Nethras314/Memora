@@ -14,7 +14,8 @@ MOCK_PATIENTS = [
         "gender": "Female",
         "phone": "8056962028",
         "primary_language": "ta-IN",
-        "caregiver_name": "Anitha"
+        "caregiver_name": "Anitha",
+        "pin_hash": "1234"
     },
     {
         "id": 2,
@@ -23,7 +24,8 @@ MOCK_PATIENTS = [
         "gender": "Male",
         "phone": "9000000000",
         "primary_language": "en-IN",
-        "caregiver_name": "Kumar"
+        "caregiver_name": "Kumar",
+        "pin_hash": "1234"
     }
 ]
 

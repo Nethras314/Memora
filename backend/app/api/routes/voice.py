@@ -3,20 +3,24 @@ import base64
 from backend.app.models.schemas import VoiceInteractRequest, VoiceInteractResponse
 from backend.app.services.sarvam_service import SarvamAIService
 from backend.app.api.routes.memories import MOCK_MEMORIES
-from backend.app.api.routes.routines import MOCK_REMINDERS
+from backend.app.api.routes.routines import load_patient_reminders
 from backend.app.api.routes.patients import MOCK_PATIENTS
+from backend.app.core.database import get_supabase
 
 router = APIRouter(prefix="/voice", tags=["Voice & Sarvam AI"])
 
 @router.post("/interact", response_model=VoiceInteractResponse)
-async def voice_interaction(req: VoiceInteractRequest):
+async def voice_interaction(req: VoiceInteractRequest, supabase=Depends(get_supabase)):
     """
     Handles natural voice or text conversations with MEMORA in Indian regional languages
     (Tamil, Hindi, Kannada, Telugu, English) powered by Sarvam AI (Saaras STT & Bulbul TTS).
     """
     patient = next((p for p in MOCK_PATIENTS if p["id"] == req.patient_id), MOCK_PATIENTS[0])
     patient_memories = [m for m in MOCK_MEMORIES if m["patient_id"] == req.patient_id]
-    patient_reminders = [r for r in MOCK_REMINDERS if r["patient_id"] == req.patient_id]
+    patient_reminders = [
+        r for r in load_patient_reminders(req.patient_id, supabase)
+        if r.get("enabled", True)
+    ]
 
     question_text = req.question_text
 

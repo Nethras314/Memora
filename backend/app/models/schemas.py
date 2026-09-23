@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
-from datetime import datetime, time, date
+from datetime import datetime, date as DateValue
 
 # =========================================================
 # PATIENT SCHEMAS
@@ -35,6 +35,7 @@ class PatientResponse(PatientBase):
 # =========================================================
 class PINVerifyRequest(BaseModel):
     pin: str = Field(..., min_length=4, max_length=4, example="1234")
+    patient_id: int = Field(default=1, example=1)
 
 class PINVerifyResponse(BaseModel):
     success: bool
@@ -52,6 +53,13 @@ class MemoryBase(BaseModel):
 
 class MemoryCreate(MemoryBase):
     patient_id: int = 1
+
+class MemoryUpdate(BaseModel):
+    category: Optional[str] = None
+    title: Optional[str] = None
+    details: Optional[str] = None
+    relationship: Optional[str] = None
+    photo_url: Optional[str] = None
 
 class MemoryResponse(MemoryBase):
     id: int
@@ -76,7 +84,7 @@ class TaskResponse(TaskBase):
     id: int
     patient_id: int
     done: bool = False
-    date: Optional[date] = None
+    date: Optional[DateValue] = None
 
     class Config:
         from_attributes = True
@@ -88,14 +96,25 @@ class ReminderBase(BaseModel):
     title: str = Field(..., example="Take medicine")
     reminder_time: str = Field(..., example="14:00")
     frequency: str = Field("Daily", example="Daily")
+    category: str = Field("Custom", example="Medicine")
 
 class ReminderCreate(ReminderBase):
     patient_id: int = 1
+    enabled: bool = True
+
+class ReminderUpdate(BaseModel):
+    title: Optional[str] = None
+    reminder_time: Optional[str] = None
+    frequency: Optional[str] = None
+    category: Optional[str] = None
+    enabled: Optional[bool] = None
+    done: Optional[bool] = None
 
 class ReminderResponse(ReminderBase):
     id: int
     patient_id: int
     done: bool = False
+    enabled: bool = True
 
     class Config:
         from_attributes = True

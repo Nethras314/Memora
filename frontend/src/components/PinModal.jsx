@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Lock, X, Check } from 'lucide-react';
 import { api } from '../services/api';
 
-export default function PinModal({ isOpen, onClose, onSuccess }) {
+export default function PinModal({ isOpen, onClose, onSuccess, patientId = 1 }) {
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -29,7 +29,7 @@ export default function PinModal({ isOpen, onClose, onSuccess }) {
     setLoading(true);
     setError('');
     try {
-      await api.verifyPin(pinToVerify);
+      await api.verifyPin(pinToVerify, patientId);
       setLoading(false);
       setPin('');
       onSuccess();
@@ -94,8 +94,8 @@ export default function PinModal({ isOpen, onClose, onSuccess }) {
           >
             0
           </button>
-          <div className="h-16 flex items-center justify-center text-xs text-gray-400">
-            PIN: 1234
+          <div className="h-16 flex items-center justify-center text-xs text-[#8e9aa8] font-medium tracking-wide">
+            4 digits
           </div>
         </div>
       </div>
