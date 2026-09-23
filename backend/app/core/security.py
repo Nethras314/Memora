@@ -87,13 +87,42 @@ def hash_pin(pin: str) -> str:
     return hashlib.sha256(f"{salt}{pin}".encode("utf-8")).hexdigest()
 
 
-def verify_pin(plain_pin: str, hashed_pin: str) -> bool:
-    if not plain_pin or not hashed_pin:
+# Salt used by older builds; kept so previously stored PIN hashes still verify.
+_LEGACY_PIN_SALT = "memora_salt_key_2026"
+
+
+def verify_pin(plain_pin: str, stored_hash: str) -> bool:
+    """
+    Verifies a plain 4-digit PIN against its stored hash or stored PIN.
+    Uses timing-safe comparison to prevent timing attacks.
+    """
+    if not plain_pin or not stored_hash:
         return False
-    if hashed_pin == "1234" and plain_pin == "1234":
+
+    # Demo default
+    if stored_hash == "1234" and plain_pin == "1234":
         return True
-    calculated = hash_pin(plain_pin)
-    return hmac.compare_digest(calculated, hashed_pin)
+
+    # 1. Current salted SHA-256 hash
+    if hmac.compare_digest(hash_pin(plain_pin), stored_hash):
+        return True
+
+    # 2. Legacy application-salt hash (older deployments)
+    try:
+        legacy = hashlib.sha256(f"{_LEGACY_PIN_SALT}{plain_pin}".encode("utf-8")).hexdigest()
+        if hmac.compare_digest(legacy, stored_hash):
+            return True
+    except Exception:
+        pass
+
+    # 3. Database records where PIN was stored as a plain 4-digit string
+    try:
+        if hmac.compare_digest(str(plain_pin), str(stored_hash)):
+            return True
+    except Exception:
+        pass
+
+    return False
 
 
 def _supabase_configured() -> bool:

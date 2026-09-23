@@ -5,6 +5,7 @@ import VoiceAssistantModal from './components/VoiceAssistantModal';
 import TodayDashboard from './pages/TodayDashboard';
 import MemoriesPage from './pages/MemoriesPage';
 import RoutinePage from './pages/RoutinePage';
+import RemindersPage from './pages/RemindersPage';
 import ActivitiesPage from './pages/ActivitiesPage';
 import ExercisePage from './pages/ExercisePage';
 import SleepPage from './pages/SleepPage';
@@ -146,6 +147,8 @@ function Shell() {
             <TodayDashboard
               currentPatient={currentPatient}
               onOpenVoiceModal={() => setIsVoiceModalOpen(true)}
+              onOpenPinModal={() => setIsPinModalOpen(true)}
+              pinVerified={pinVerified}
               setActiveTab={setActiveTab}
             />
           )}
@@ -153,6 +156,8 @@ function Shell() {
           {activeTab === 'memories' && <MemoriesPage currentPatient={currentPatient} />}
 
           {activeTab === 'routine' && <RoutinePage currentPatient={currentPatient} />}
+
+          {activeTab === 'reminders' && <RemindersPage currentPatient={currentPatient} />}
 
           {activeTab === 'activities' && <ActivitiesPage currentPatient={currentPatient} />}
 
@@ -180,7 +185,7 @@ function Shell() {
         isOpen={isPinModalOpen}
         onClose={() => setIsPinModalOpen(false)}
         onSuccess={handlePinSuccess}
-        patientId={currentPatient?.id}
+        patientId={currentPatient?.id || 1}
       />
 
       <VoiceAssistantModal

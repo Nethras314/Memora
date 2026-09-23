@@ -7,6 +7,7 @@ from backend.app.core.access import ensure_patient_access
 from backend.app.core.security import get_current_user
 from backend.app.models.schemas import VoiceInteractRequest, VoiceInteractResponse
 from backend.app.services.sarvam_service import SarvamAIService
+from backend.app.api.routes.routines import load_patient_reminders
 
 router = APIRouter(prefix="/voice", tags=["Voice & Sarvam AI"])
 
@@ -30,8 +31,8 @@ def _reminders_for(patient_id: int):
     if db_module.is_supabase_configured():
         try:
             admin = db_module.get_supabase_admin()
-            res = admin.table("reminders").select("*").eq("patient_id", patient_id).order("reminder_time").execute()
-            return res.data or []
+            rows = load_patient_reminders(patient_id, admin)
+            return [r for r in rows if r.get("enabled", True)]
         except Exception:
             pass
     from backend.app.api.routes.routines import MOCK_REMINDERS
@@ -54,6 +55,10 @@ def _patient_name(patient_id: int, user: dict) -> str:
 
 @router.post("/interact", response_model=VoiceInteractResponse)
 async def voice_interaction(req: VoiceInteractRequest, user: dict = Depends(get_current_user)):
+    """
+    Handles natural voice or text conversations with MEMORA in Indian regional languages
+    (Tamil, Hindi, Kannada, Telugu, English) powered by Sarvam AI (Saaras STT & Bulbul TTS).
+    """
     patient = await ensure_patient_access(user, req.patient_id)
     patient_memories = _memories_for(req.patient_id)
     patient_reminders = _reminders_for(req.patient_id)

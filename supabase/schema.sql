@@ -21,7 +21,9 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 -- 2. PATIENTS
 CREATE TABLE IF NOT EXISTS public.patients (
     id BIGSERIAL PRIMARY KEY,
-    caregiver_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    -- Nullable so demo patients can be seeded before any Auth user exists.
+    -- Linked caregivers still reference public.profiles(id).
+    caregiver_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
     name TEXT NOT NULL,
     age INTEGER CHECK (age > 0 AND age < 130),
     gender TEXT CHECK (gender IN ('Male', 'Female', 'Other')),
@@ -64,10 +66,32 @@ CREATE TABLE IF NOT EXISTS public.reminders (
     title TEXT NOT NULL,
     reminder_time TIME NOT NULL,
     frequency TEXT DEFAULT 'Daily' CHECK (frequency IN ('Daily', 'Once', 'Hourly', 'Weekly')),
+    category TEXT DEFAULT 'Custom',
     done BOOLEAN DEFAULT FALSE,
+    enabled BOOLEAN NOT NULL DEFAULT TRUE,
     last_triggered TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Safe for databases that already created public.reminders without category/enabled
+ALTER TABLE public.reminders ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'Custom';
+ALTER TABLE public.reminders ADD COLUMN IF NOT EXISTS enabled BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE public.reminders ALTER COLUMN enabled SET DEFAULT TRUE;
+
+-- Data migration for any existing fallback-encoded rows:
+-- 1. Decode legacy category encoded in title via ' |#| '
+UPDATE public.reminders
+SET 
+    category = split_part(title, ' |#| ', 2),
+    title = split_part(title, ' |#| ', 1)
+WHERE title LIKE '% |#| %' AND (category IS NULL OR category = 'Custom');
+
+-- 2. Decode legacy disabled state encoded via sentinel timestamp (9999-12-31)
+UPDATE public.reminders
+SET 
+    enabled = FALSE,
+    last_triggered = NULL
+WHERE last_triggered >= '9999-01-01'::timestamptz;
 
 -- 6. COGNITIVE SESSIONS (AI/ML Telemetry & DDA Tracking)
 CREATE TABLE IF NOT EXISTS public.cognitive_sessions (
@@ -108,52 +132,53 @@ CREATE POLICY "Users can view own profile" ON public.profiles
 CREATE POLICY "Users can update own profile" ON public.profiles
     FOR UPDATE USING (auth.uid() = id);
 
--- Patients: Caregivers can manage their assigned patients
+-- Patients: assigned caregivers, plus demo rows with caregiver_id IS NULL
 CREATE POLICY "Caregivers can view assigned patients" ON public.patients
-    FOR SELECT USING (caregiver_id = auth.uid());
+    FOR SELECT USING (caregiver_id = auth.uid() OR caregiver_id IS NULL);
 
 CREATE POLICY "Caregivers can insert assigned patients" ON public.patients
-    FOR INSERT WITH CHECK (caregiver_id = auth.uid());
+    FOR INSERT WITH CHECK (caregiver_id = auth.uid() OR caregiver_id IS NULL);
 
 CREATE POLICY "Caregivers can update assigned patients" ON public.patients
-    FOR UPDATE USING (caregiver_id = auth.uid());
+    FOR UPDATE USING (caregiver_id = auth.uid() OR caregiver_id IS NULL)
+    WITH CHECK (caregiver_id = auth.uid() OR caregiver_id IS NULL);
 
--- Memories: Accessible if patient belongs to caregiver
+-- Memories: Accessible if patient belongs to caregiver (or is a demo patient)
 CREATE POLICY "Caregiver manage patient memories" ON public.memories
     FOR ALL USING (
         EXISTS (
-            SELECT 1 FROM public.patients 
-            WHERE patients.id = memories.patient_id 
-            AND patients.caregiver_id = auth.uid()
+            SELECT 1 FROM public.patients
+            WHERE patients.id = memories.patient_id
+              AND (patients.caregiver_id = auth.uid() OR patients.caregiver_id IS NULL)
         )
     );
 
--- Tasks: Accessible if patient belongs to caregiver
+-- Tasks: Accessible if patient belongs to caregiver (or is a demo patient)
 CREATE POLICY "Caregiver manage patient tasks" ON public.tasks
     FOR ALL USING (
         EXISTS (
-            SELECT 1 FROM public.patients 
-            WHERE patients.id = tasks.patient_id 
-            AND patients.caregiver_id = auth.uid()
+            SELECT 1 FROM public.patients
+            WHERE patients.id = tasks.patient_id
+              AND (patients.caregiver_id = auth.uid() OR patients.caregiver_id IS NULL)
         )
     );
 
--- Reminders: Accessible if patient belongs to caregiver
+-- Reminders: Accessible if patient belongs to caregiver (or is a demo patient)
 CREATE POLICY "Caregiver manage patient reminders" ON public.reminders
     FOR ALL USING (
         EXISTS (
-            SELECT 1 FROM public.patients 
-            WHERE patients.id = reminders.patient_id 
-            AND patients.caregiver_id = auth.uid()
+            SELECT 1 FROM public.patients
+            WHERE patients.id = reminders.patient_id
+              AND (patients.caregiver_id = auth.uid() OR patients.caregiver_id IS NULL)
         )
     );
 
--- Cognitive Sessions: Accessible if patient belongs to caregiver
+-- Cognitive Sessions: Accessible if patient belongs to caregiver (or is a demo patient)
 CREATE POLICY "Caregiver view patient cognitive telemetry" ON public.cognitive_sessions
     FOR ALL USING (
         EXISTS (
-            SELECT 1 FROM public.patients 
-            WHERE patients.id = cognitive_sessions.patient_id 
-            AND patients.caregiver_id = auth.uid()
+            SELECT 1 FROM public.patients
+            WHERE patients.id = cognitive_sessions.patient_id
+              AND (patients.caregiver_id = auth.uid() OR patients.caregiver_id IS NULL)
         )
     );

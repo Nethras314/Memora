@@ -1,11 +1,12 @@
 import React from 'react';
-import { Home, Mic, Image, Calendar, Brain, Activity, Moon, HeartHandshake, ShieldCheck } from 'lucide-react';
+import { Home, Mic, Image, Calendar, Bell, Brain, Activity, Moon, HeartHandshake, ShieldCheck } from 'lucide-react';
 
 export default function Sidebar({ activeTab, setActiveTab, currentPatient, onOpenPinModal, onOpenVoiceModal, user, role, showCaregiver = true, showAdmin = false }) {
   const baseItems = [
     { id: 'today', label: 'Today', icon: Home },
     { id: 'memories', label: 'Memories', icon: Image, requiresPin: true },
     { id: 'routine', label: 'My Routine', icon: Calendar },
+    { id: 'reminders', label: 'Reminders', icon: Bell },
     { id: 'activities', label: 'Activities & AI', icon: Brain },
     { id: 'exercise', label: 'Exercise & Yoga', icon: Activity },
     { id: 'sleep', label: 'Deep Sleep', icon: Moon },

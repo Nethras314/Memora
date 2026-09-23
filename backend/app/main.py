@@ -28,8 +28,17 @@ app = FastAPI(
     redoc_url=f"{settings.API_V1_STR}/redoc",
 )
 
-# CORS Middleware for React Frontend (configure via CORS_ORIGINS env, "*" = dev only)
-_cors_origins = [o.strip() for o in settings.CORS_ORIGINS.split(",") if o.strip()] or ["*"]
+# CORS origins: explicit env list, else sensible localhost dev defaults.
+_env_origins = [o.strip() for o in (settings.CORS_ORIGINS or "").split(",") if o.strip()]
+_cors_origins = _env_origins or [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+# CORS Middleware for React Frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins,

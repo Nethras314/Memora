@@ -2,7 +2,6 @@ import uuid
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
-
 from backend.app.core import database as db_module
 from backend.app.core.security import (
     DEMO_USERS,
@@ -260,13 +259,32 @@ async def link_patient(req: LinkPatientRequest, user: dict = Depends(get_current
 
 @router.post("/verify-pin", response_model=PINVerifyResponse)
 async def verify_patient_pin(req: PINVerifyRequest, user: dict = Depends(get_current_user)):
-    """Per-patient PIN check (second factor for the private memory bank)."""
-    from backend.app.core.access import ensure_patient_access
+    """
+    Secure server-side PIN verification for unlocking private memory bank.
+    Requires login, checks the caller may access this patient, then verifies
+    against the specific patient's stored pin_hash.
+    Returns 404 when the patient does not exist at all.
+    """
+    from backend.app.core.access import ensure_patient_access, list_accessible_patients
 
-    patient_id = int(getattr(req, "patient_id", None) or 1)
-    patient = await ensure_patient_access(user, patient_id)
-    stored = str(patient.get("pin_hash") or DEFAULT_PATIENT_PIN_HASH)
-    if not verify_pin(req.pin, stored):
+    patient_id = int(req.patient_id or 1)
+    try:
+        patient = await ensure_patient_access(user, patient_id)
+    except HTTPException as exc:
+        if exc.status_code == 403 and normalize_role(user.get("role")) == "admin":
+            # Admins can see every patient, so 403 here means the row is missing.
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Patient not found.",
+            ) from exc
+        raise
+    stored = patient.get("pin_hash")
+    if stored is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Patient not found.",
+        )
+    if not verify_pin(req.pin, str(stored)):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect 4-digit PIN. Please try again.",

@@ -94,8 +94,8 @@ export default function PinModal({ isOpen, onClose, onSuccess, patientId = 1 }) 
           >
             0
           </button>
-          <div className="h-16 flex items-center justify-center text-xs text-gray-400">
-            Ask family for PIN
+          <div className="h-16 flex items-center justify-center text-xs text-[#8e9aa8] font-medium tracking-wide">
+            4 digits
           </div>
         </div>
       </div>

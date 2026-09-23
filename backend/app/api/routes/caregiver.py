@@ -15,9 +15,9 @@ router = APIRouter(prefix="/caregiver", tags=["Caregiver Dashboard"])
 def _tasks_for(patient_id: int) -> List[Dict[str, Any]]:
     if db_module.is_supabase_configured():
         try:
-            admin = db_module.get_supabase_admin()
-            res = admin.table("tasks").select("*").eq("patient_id", patient_id).execute()
-            return res.data or []
+            from backend.app.api.routes.routines import load_patient_tasks
+
+            return load_patient_tasks(patient_id, db_module.get_supabase_admin())
         except Exception:
             pass
     from backend.app.api.routes.routines import MOCK_TASKS
@@ -55,6 +55,10 @@ def _sessions_for(patient_id: int) -> List[Dict[str, Any]]:
 
 @router.get("/analytics", response_model=CaregiverAnalyticsResponse)
 async def get_caregiver_analytics(patient_id: int = 1, user: dict = Depends(get_current_user)):
+    """
+    Computes real-time progress metrics and clinical cognitive stability trends
+    for family caregivers and attending physicians.
+    """
     role = normalize_role(user.get("role"))
     if role not in ("caregiver", "doctor", "admin"):
         # Patients may view their own summary via the same endpoint
@@ -64,6 +68,7 @@ async def get_caregiver_analytics(patient_id: int = 1, user: dict = Depends(get_
             raise HTTPException(status_code=403, detail="Caregiver access required.")
     patient = await ensure_patient_access(user, patient_id)
 
+    # Task completion analytics from persisted routine tasks
     patient_tasks = _tasks_for(patient_id)
     total_tasks = len(patient_tasks)
     completed_tasks = sum(1 for t in patient_tasks if t.get("done"))

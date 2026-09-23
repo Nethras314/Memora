@@ -108,30 +108,68 @@ export const api = {
     });
     return res.data;
   },
+  updateMemory: async (memoryId, formData, patientId = 1) => {
+    const res = await request('put', `/memories/${memoryId}?patient_id=${patientId}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data;
+  },
+  deleteMemory: async (memoryId, patientId = 1) => {
+    const res = await request('delete', `/memories/${memoryId}?patient_id=${patientId}`);
+    return res.data;
+  },
 
   // Routines & Reminders
   getTasks: async (patientId = 1) => {
     const res = await request('get', `/routines/tasks?patient_id=${patientId}`);
     return res.data;
   },
-  toggleTask: async (taskId, patientId = 1) => {
-    const res = await request('post', `/routines/tasks/${taskId}/toggle?patient_id=${patientId}`);
+  createTask: async (taskData) => {
+    const res = await request('post', '/routines/tasks', taskData);
     return res.data;
   },
   addTask: async (payload) => {
     const res = await request('post', '/routines/tasks', payload);
     return res.data;
   },
+  toggleTask: async (taskId, patientId = 1) => {
+    const res = await request('post', `/routines/tasks/${taskId}/toggle?patient_id=${patientId}`);
+    return res.data;
+  },
+  deleteTask: async (taskId, patientId = 1) => {
+    const res = await request('delete', `/routines/tasks/${taskId}?patient_id=${patientId}`);
+    return res.data;
+  },
+  resetTasks: async (patientId = 1) => {
+    const res = await request('post', `/routines/tasks/reset?patient_id=${patientId}`);
+    return res.data;
+  },
   getReminders: async (patientId = 1) => {
     const res = await request('get', `/routines/reminders?patient_id=${patientId}`);
+    return res.data;
+  },
+  createReminder: async (reminderData) => {
+    const res = await request('post', '/routines/reminders', reminderData);
+    return res.data;
+  },
+  addReminder: async (payload) => {
+    const res = await request('post', '/routines/reminders', payload);
+    return res.data;
+  },
+  updateReminder: async (reminderId, reminderData, patientId = 1) => {
+    const res = await request('put', `/routines/reminders/${reminderId}?patient_id=${patientId}`, reminderData);
+    return res.data;
+  },
+  deleteReminder: async (reminderId, patientId = 1) => {
+    const res = await request('delete', `/routines/reminders/${reminderId}?patient_id=${patientId}`);
     return res.data;
   },
   toggleReminder: async (reminderId, patientId = 1) => {
     const res = await request('post', `/routines/reminders/${reminderId}/toggle?patient_id=${patientId}`);
     return res.data;
   },
-  addReminder: async (payload) => {
-    const res = await request('post', '/routines/reminders', payload);
+  toggleReminderEnabled: async (reminderId, patientId = 1) => {
+    const res = await request('post', `/routines/reminders/${reminderId}/toggle-enabled?patient_id=${patientId}`);
     return res.data;
   },
 
