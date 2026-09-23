@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Sparkles, ArrowRight, CheckCircle2, Circle, Clock, Heart, Brain, Activity, Moon } from 'lucide-react';
 import { api } from '../services/api';
 
-export default function TodayDashboard({ currentPatient, onOpenVoiceModal, setActiveTab }) {
+export default function TodayDashboard({ currentPatient, onOpenVoiceModal, onOpenPinModal, pinVerified, setActiveTab }) {
   const [tasks, setTasks] = useState([]);
   const [reminders, setReminders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -85,7 +85,15 @@ export default function TodayDashboard({ currentPatient, onOpenVoiceModal, setAc
             </button>
 
             <button
-              onClick={() => setActiveTab('memories')}
+              onClick={() => {
+                if (pinVerified) {
+                  setActiveTab('memories');
+                } else if (onOpenPinModal) {
+                  onOpenPinModal();
+                } else {
+                  setActiveTab('memories');
+                }
+              }}
               className="bg-[#eeece7] hover:bg-[#e4e1da] p-5 rounded-2xl text-left border border-[#dedad1] transition flex flex-col justify-between h-28"
             >
               <span className="text-2xl">▣</span>
@@ -105,7 +113,7 @@ export default function TodayDashboard({ currentPatient, onOpenVoiceModal, setAc
             </button>
 
             <button
-              onClick={() => setActiveTab('routine')}
+              onClick={() => setActiveTab('reminders')}
               className="bg-[#f3f0ea] hover:bg-[#eae5dc] p-5 rounded-2xl text-left border border-[#dfd9ce] transition flex flex-col justify-between h-28"
             >
               <span className="text-2xl">♧</span>
@@ -123,7 +131,7 @@ export default function TodayDashboard({ currentPatient, onOpenVoiceModal, setAc
             <h2 className="text-2xl font-bold font-serif text-[#273047] mb-4">Today's Reminders</h2>
 
             <div className="divide-y divide-[#e5dfd4]">
-              {reminders.slice(0, 3).map((r) => (
+              {reminders.filter((r) => r.enabled !== false).slice(0, 3).map((r) => (
                 <div key={r.id} className="py-3 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <span className={`w-3 h-3 rounded-full ${r.done ? 'bg-emerald-500' : 'bg-amber-400'}`} />
@@ -140,7 +148,7 @@ export default function TodayDashboard({ currentPatient, onOpenVoiceModal, setAc
           </div>
 
           <button
-            onClick={() => setActiveTab('routine')}
+            onClick={() => setActiveTab('reminders')}
             className="w-full mt-4 py-3 rounded-2xl font-bold text-sm text-[#4943a5] bg-indigo-50 hover:bg-indigo-100 transition"
           >
             Manage all reminders →

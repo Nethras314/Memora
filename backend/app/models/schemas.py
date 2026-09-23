@@ -96,14 +96,25 @@ class ReminderBase(BaseModel):
     title: str = Field(..., example="Take medicine")
     reminder_time: str = Field(..., example="14:00")
     frequency: str = Field("Daily", example="Daily")
+    category: str = Field("Custom", example="Medicine")
 
 class ReminderCreate(ReminderBase):
     patient_id: int = 1
+    enabled: bool = True
+
+class ReminderUpdate(BaseModel):
+    title: Optional[str] = None
+    reminder_time: Optional[str] = None
+    frequency: Optional[str] = None
+    category: Optional[str] = None
+    enabled: Optional[bool] = None
+    done: Optional[bool] = None
 
 class ReminderResponse(ReminderBase):
     id: int
     patient_id: int
     done: bool = False
+    enabled: bool = True
 
     class Config:
         from_attributes = True

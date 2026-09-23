@@ -144,3 +144,64 @@ def test_tasks_crud_and_reset_flow():
 
     after_delete = client.get("/api/routines/tasks?patient_id=1")
     assert all(t["id"] != task_id for t in after_delete.json())
+
+
+def test_reminders_crud_enable_and_persistence():
+    list_res = client.get("/api/routines/reminders?patient_id=1")
+    assert list_res.status_code == 200
+
+    create_res = client.post(
+        "/api/routines/reminders",
+        json={
+            "patient_id": 1,
+            "title": "Evening herbal tea",
+            "reminder_time": "19:15",
+            "frequency": "Daily",
+            "category": "Food/Meal",
+        },
+    )
+    assert create_res.status_code == 200
+    reminder = create_res.json()
+    reminder_id = reminder["id"]
+    assert reminder["title"] == "Evening herbal tea"
+    assert reminder["category"] == "Food/Meal"
+    assert reminder["enabled"] is True
+    assert reminder["done"] is False
+
+    listed = client.get("/api/routines/reminders?patient_id=1")
+    assert any(r["id"] == reminder_id for r in listed.json())
+
+    update_res = client.put(
+        f"/api/routines/reminders/{reminder_id}",
+        json={"title": "Evening herbal tea with honey", "reminder_time": "19:30"},
+    )
+    assert update_res.status_code == 200
+    assert update_res.json()["title"] == "Evening herbal tea with honey"
+
+    after_update = client.get("/api/routines/reminders?patient_id=1")
+    matching = next(r for r in after_update.json() if r["id"] == reminder_id)
+    assert matching["title"] == "Evening herbal tea with honey"
+    assert matching["reminder_time"].startswith("19:30")
+
+    disable_res = client.post(f"/api/routines/reminders/{reminder_id}/toggle-enabled")
+    assert disable_res.status_code == 200
+    assert disable_res.json()["enabled"] is False
+
+    after_disable = client.get("/api/routines/reminders?patient_id=1")
+    matching = next(r for r in after_disable.json() if r["id"] == reminder_id)
+    assert matching["enabled"] is False
+
+    enable_res = client.post(f"/api/routines/reminders/{reminder_id}/toggle-enabled")
+    assert enable_res.status_code == 200
+    assert enable_res.json()["enabled"] is True
+
+    toggle_done = client.post(f"/api/routines/reminders/{reminder_id}/toggle")
+    assert toggle_done.status_code == 200
+    assert toggle_done.json()["done"] is True
+
+    delete_res = client.delete(f"/api/routines/reminders/{reminder_id}")
+    assert delete_res.status_code == 200
+    assert delete_res.json()["success"] is True
+
+    after_delete = client.get("/api/routines/reminders?patient_id=1")
+    assert all(r["id"] != reminder_id for r in after_delete.json())

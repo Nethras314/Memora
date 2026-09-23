@@ -72,8 +72,24 @@ export const api = {
     const res = await axios.get(`${API_BASE}/routines/reminders?patient_id=${patientId}`);
     return res.data;
   },
+  createReminder: async (reminderData) => {
+    const res = await axios.post(`${API_BASE}/routines/reminders`, reminderData);
+    return res.data;
+  },
+  updateReminder: async (reminderId, reminderData) => {
+    const res = await axios.put(`${API_BASE}/routines/reminders/${reminderId}`, reminderData);
+    return res.data;
+  },
+  deleteReminder: async (reminderId) => {
+    const res = await axios.delete(`${API_BASE}/routines/reminders/${reminderId}`);
+    return res.data;
+  },
   toggleReminder: async (reminderId) => {
     const res = await axios.post(`${API_BASE}/routines/reminders/${reminderId}/toggle`);
+    return res.data;
+  },
+  toggleReminderEnabled: async (reminderId) => {
+    const res = await axios.post(`${API_BASE}/routines/reminders/${reminderId}/toggle-enabled`);
     return res.data;
   },
 

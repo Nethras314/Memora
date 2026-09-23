@@ -200,7 +200,10 @@ export default function RoutinePage({ currentPatient }) {
         <div className="md:col-span-5 bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm">
           <h2 className="text-xl font-bold font-serif text-[#273047] mb-6">Gentle Alerts</h2>
           <div className="space-y-3">
-            {reminders.map((rem) => (
+            {reminders.length === 0 ? (
+              <p className="text-sm text-[#68738a] py-6 text-center">No gentle alerts for today.</p>
+            ) : (
+              reminders.map((rem) => (
               <div
                 key={rem.id}
                 onClick={() => handleToggleReminder(rem.id)}
@@ -218,7 +221,8 @@ export default function RoutinePage({ currentPatient }) {
                 </div>
                 <span className="text-xs font-mono text-[#68738a]">{rem.reminder_time}</span>
               </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>
