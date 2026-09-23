@@ -25,7 +25,7 @@ export default function RoutinePage({ currentPatient }) {
 
   const handleToggleTask = async (taskId) => {
     try {
-      const updated = await api.toggleTask(taskId);
+      const updated = await api.toggleTask(taskId, currentPatient?.id || 1);
       setTasks(tasks.map((t) => (t.id === taskId ? updated : t)));
     } catch (e) {
       console.error(e);
@@ -34,7 +34,7 @@ export default function RoutinePage({ currentPatient }) {
 
   const handleToggleReminder = async (reminderId) => {
     try {
-      const updated = await api.toggleReminder(reminderId);
+      const updated = await api.toggleReminder(reminderId, currentPatient?.id || 1);
       setReminders(reminders.map((r) => (r.id === reminderId ? updated : r)));
     } catch (e) {
       console.error(e);

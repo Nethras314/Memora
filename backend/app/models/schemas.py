@@ -3,6 +3,44 @@ from typing import Optional, List, Dict, Any
 from datetime import datetime, time, date
 
 # =========================================================
+# AUTH / MULTI-USER SCHEMAS
+# =========================================================
+class SignupRequest(BaseModel):
+    email: str = Field(..., example="caregiver@example.com")
+    password: str = Field(..., min_length=6, example="secret123")
+    full_name: str = Field(..., example="Anitha")
+    role: str = Field("caregiver", example="caregiver")
+    phone: Optional[str] = Field(None, example="8056962028")
+
+
+class LoginRequest(BaseModel):
+    email: str = Field(..., example="caregiver@example.com")
+    password: str = Field(..., example="secret123")
+
+
+class AuthUserResponse(BaseModel):
+    id: str
+    email: str
+    full_name: Optional[str] = None
+    role: str
+    linked_patient_id: Optional[int] = None
+
+
+class AuthTokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: AuthUserResponse
+
+
+class AdminCreateUserRequest(SignupRequest):
+    linked_patient_id: Optional[int] = None
+
+
+class LinkPatientRequest(BaseModel):
+    patient_id: int = Field(..., example=1)
+
+
+# =========================================================
 # PATIENT SCHEMAS
 # =========================================================
 class PatientBase(BaseModel):
@@ -25,6 +63,8 @@ class PatientUpdate(BaseModel):
 class PatientResponse(PatientBase):
     id: int
     caregiver_name: Optional[str] = "Anitha"
+    caregiver_id: Optional[str] = None
+    auth_user_id: Optional[str] = None
     created_at: Optional[datetime] = None
 
     class Config:
@@ -35,6 +75,7 @@ class PatientResponse(PatientBase):
 # =========================================================
 class PINVerifyRequest(BaseModel):
     pin: str = Field(..., min_length=4, max_length=4, example="1234")
+    patient_id: Optional[int] = Field(1, example=1)
 
 class PINVerifyResponse(BaseModel):
     success: bool

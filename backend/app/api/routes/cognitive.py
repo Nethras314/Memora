@@ -1,14 +1,22 @@
-from fastapi import APIRouter, HTTPException, Depends
-from typing import List, Dict, Any
 from datetime import datetime
 import random
-from backend.app.models.schemas import CognitiveSessionCreate, CognitiveSessionResponse, DDANextGameResponse
+from typing import Any, Dict, List
+
+from fastapi import APIRouter, Depends, HTTPException
+
+from backend.app.core import database as db_module
+from backend.app.core.access import ensure_patient_access
+from backend.app.core.security import get_current_user
+from backend.app.models.schemas import (
+    CognitiveSessionCreate,
+    CognitiveSessionResponse,
+    DDANextGameResponse,
+)
 from backend.app.services.dda_engine import DynamicDifficultyAdjustmentEngine
-from backend.app.core.database import get_supabase
 
 router = APIRouter(prefix="/cognitive", tags=["AI Cognitive Engine & DDA"])
 
-# In-memory telemetry log for patient session history
+# Fallback telemetry (demo/tests only; Supabase is source of truth when configured)
 COGNITIVE_HISTORY: List[Dict[str, Any]] = [
     {
         "id": 1,
@@ -34,7 +42,6 @@ COGNITIVE_HISTORY: List[Dict[str, Any]] = [
     }
 ]
 
-# Clinical Question Banks for Dementia
 GK_BANK = [
     {
         "question": "Which planet is known as the Red Planet?",
@@ -77,18 +84,38 @@ ATTENTION_BANK = [
     }
 ]
 
+ALLOWED_GAMES = {"sequence_memory", "general_knowledge", "odd_one_out", "task_sequencing"}
+
+
+def _history_for(patient_id: int, game_type: str) -> List[Dict[str, Any]]:
+    if db_module.is_supabase_configured():
+        try:
+            admin = db_module.get_supabase_admin()
+            res = (
+                admin.table("cognitive_sessions")
+                .select("*")
+                .eq("patient_id", patient_id)
+                .eq("game_type", game_type)
+                .order("created_at", desc=False)
+                .limit(20)
+                .execute()
+            )
+            return res.data or []
+        except Exception:
+            pass
+    return [s for s in COGNITIVE_HISTORY if s["patient_id"] == patient_id and s["game_type"] == game_type]
+
+
 @router.get("/next-game", response_model=DDANextGameResponse)
-async def get_next_game_config(patient_id: int = 1, game_type: str = "sequence_memory"):
-    """
-    AI-Powered Dynamic Difficulty Adjustment (DDA).
-    Analyzes patient's historical error rates and reaction latency to tune
-    the exact symbol sequence, presentation duration, and option set.
-    """
-    patient_history = [s for s in COGNITIVE_HISTORY if s["patient_id"] == patient_id and s["game_type"] == game_type]
-    
-    # Run DDA Engine
+async def get_next_game_config(
+    patient_id: int = 1, game_type: str = "sequence_memory",
+    user: dict = Depends(get_current_user),
+):
+    await ensure_patient_access(user, patient_id)
+    if game_type not in ALLOWED_GAMES:
+        raise HTTPException(status_code=400, detail="Unknown game type.")
+    patient_history = _history_for(patient_id, game_type)
     params = DynamicDifficultyAdjustmentEngine.evaluate_next_parameters(patient_history)
-    
     return DDANextGameResponse(
         game_type=game_type,
         difficulty_level=params["difficulty_level"],
@@ -98,12 +125,12 @@ async def get_next_game_config(patient_id: int = 1, game_type: str = "sequence_m
         guidance_cue=params["guidance_cue"]
     )
 
+
 @router.post("/log-session", response_model=CognitiveSessionResponse)
-async def log_session_telemetry(session: CognitiveSessionCreate, supabase = Depends(get_supabase)):
-    """
-    Records session metrics: accuracy, response latency (ms), mistakes.
-    Feeds back into the DDA algorithm for longitudinal cognitive tracking.
-    """
+async def log_session_telemetry(session: CognitiveSessionCreate, user: dict = Depends(get_current_user)):
+    await ensure_patient_access(user, session.patient_id)
+    if session.game_type not in ALLOWED_GAMES:
+        raise HTTPException(status_code=400, detail="Unknown game type.")
     record = {
         "id": len(COGNITIVE_HISTORY) + 1,
         "patient_id": session.patient_id,
@@ -118,20 +145,32 @@ async def log_session_telemetry(session: CognitiveSessionCreate, supabase = Depe
     }
     COGNITIVE_HISTORY.append(record)
 
-    if supabase:
+    if db_module.is_supabase_configured():
         try:
-            supabase.table("cognitive_sessions").insert(record).execute()
+            admin = db_module.get_supabase_admin()
+            payload = {k: v for k, v in record.items() if k != "id"}
+            if isinstance(payload.get("created_at"), datetime):
+                payload["created_at"] = payload["created_at"].isoformat()
+            res = admin.table("cognitive_sessions").insert(payload).execute()
+            if res.data:
+                saved = res.data[0]
+                if isinstance(saved.get("created_at"), str):
+                    try:
+                        saved["created_at"] = datetime.fromisoformat(saved["created_at"])
+                    except ValueError:
+                        saved["created_at"] = record["created_at"]
+                return saved
         except Exception:
             pass
 
     return record
 
+
 @router.get("/questions/gk")
-async def get_general_knowledge_question():
-    """Returns a randomized general knowledge question adapted for dementia memory recall."""
+async def get_general_knowledge_question(user: dict = Depends(get_current_user)):
     return random.choice(GK_BANK)
 
+
 @router.get("/questions/attention")
-async def get_attention_question():
-    """Returns a randomized visual odd-one-out question to exercise focus."""
+async def get_attention_question(user: dict = Depends(get_current_user)):
     return random.choice(ATTENTION_BANK)

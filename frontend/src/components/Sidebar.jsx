@@ -1,16 +1,20 @@
 import React from 'react';
-import { Home, Mic, Image, Calendar, Bell, Brain, Activity, Moon, MapPin, HeartHandshake, Settings, User } from 'lucide-react';
+import { Home, Mic, Image, Calendar, Brain, Activity, Moon, HeartHandshake, ShieldCheck } from 'lucide-react';
 
-export default function Sidebar({ activeTab, setActiveTab, currentPatient, onOpenPinModal, onOpenVoiceModal }) {
-  const navItems = [
+export default function Sidebar({ activeTab, setActiveTab, currentPatient, onOpenPinModal, onOpenVoiceModal, user, role, showCaregiver = true, showAdmin = false }) {
+  const baseItems = [
     { id: 'today', label: 'Today', icon: Home },
     { id: 'memories', label: 'Memories', icon: Image, requiresPin: true },
     { id: 'routine', label: 'My Routine', icon: Calendar },
-    { id: 'reminders', label: 'Reminders', icon: Bell },
     { id: 'activities', label: 'Activities & AI', icon: Brain },
     { id: 'exercise', label: 'Exercise & Yoga', icon: Activity },
     { id: 'sleep', label: 'Deep Sleep', icon: Moon },
-    { id: 'caregiver', label: 'Caregiver Portal', icon: HeartHandshake },
+  ];
+  // Patients see the essentials; staff see monitoring tools.
+  const navItems = [
+    ...baseItems,
+    ...(showCaregiver ? [{ id: 'caregiver', label: role === 'patient' ? 'My Progress' : 'Caregiver Portal', icon: HeartHandshake }] : []),
+    ...(showAdmin ? [{ id: 'admin', label: 'Admin Portal', icon: ShieldCheck }] : []),
   ];
 
   const handleNavClick = (item) => {
@@ -36,15 +40,21 @@ export default function Sidebar({ activeTab, setActiveTab, currentPatient, onOpe
         </div>
 
         {/* Patient Badge */}
-        <div className="bg-[#e7f2ee] rounded-2xl p-4 mb-6 flex items-center gap-3 border border-[#d2e5dd]">
+        <div className="bg-[#e7f2ee] rounded-2xl p-4 mb-4 flex items-center gap-3 border border-[#d2e5dd]">
           <div className="w-12 h-12 rounded-xl bg-[#f0b548] text-[#273047] font-bold text-xl flex items-center justify-center shadow-sm">
             {currentPatient?.name?.[0]?.toUpperCase() || 'M'}
           </div>
           <div className="overflow-hidden">
-            <strong className="block text-base text-[#273047] truncate">{currentPatient?.name || 'Meenakshi'}</strong>
+            <strong className="block text-base text-[#273047] truncate">{currentPatient?.name || 'No patient yet'}</strong>
             <span className="text-xs text-[#526079]">Your gentle space</span>
           </div>
         </div>
+
+        {user && (
+          <div className="bg-[#eef0fc] rounded-2xl px-4 py-2.5 mb-6 border border-indigo-100 text-xs font-semibold text-[#4943a5] truncate">
+            {(user.full_name || user.email)} · <span className="uppercase">{role}</span>
+          </div>
+        )}
 
         {/* Voice Quick Action */}
         <button

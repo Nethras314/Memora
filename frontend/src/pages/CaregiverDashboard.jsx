@@ -36,17 +36,21 @@ export default function CaregiverDashboard({ patients, currentPatient, onSelectP
         <div className="flex items-center gap-2 bg-white p-2 rounded-2xl border border-[#e5dfd4] shadow-sm">
           <User className="w-5 h-5 text-[#4943a5] ml-2" />
           <span className="text-xs font-bold text-gray-400 uppercase">Active Patient:</span>
-          <select
-            value={currentPatient?.id}
-            onChange={(e) => onSelectPatient(Number(e.target.value))}
-            className="bg-transparent font-bold text-sm text-[#273047] outline-none cursor-pointer pr-4"
-          >
-            {patients.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name} (Age {p.age})
-              </option>
-            ))}
-          </select>
+          {(patients || []).length > 0 ? (
+            <select
+              value={currentPatient?.id}
+              onChange={(e) => onSelectPatient(Number(e.target.value))}
+              className="bg-transparent font-bold text-sm text-[#273047] outline-none cursor-pointer pr-4"
+            >
+              {patients.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name} (Age {p.age})
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span className="text-xs font-semibold text-gray-500 pr-2">No patients assigned yet</span>
+          )}
         </div>
       </div>
 

@@ -1,27 +1,55 @@
-from typing import Optional, Dict, Any, List
+from typing import Optional
 import logging
+
 from backend.app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
 supabase_client = None
+supabase_admin_client = None
+
+
+def _anon_key() -> Optional[str]:
+    return settings.SUPABASE_ANON_KEY or settings.SUPABASE_KEY
+
 
 try:
-    if settings.SUPABASE_URL and settings.SUPABASE_KEY:
-        from supabase import create_client, Client
-        supabase_client: Optional[Client] = create_client(
+    if settings.SUPABASE_URL and _anon_key():
+        from supabase import create_client
+
+        supabase_client = create_client(
             settings.SUPABASE_URL,
-            settings.SUPABASE_KEY
+            _anon_key(),
         )
-        logger.info("Supabase client successfully initialized.")
+        logger.info("Supabase anon client initialized.")
     else:
-        logger.warning("SUPABASE_URL or SUPABASE_KEY not set. Using local in-memory fallback store.")
+        logger.warning("SUPABASE_URL or anon key not set. Using local fallback store.")
 except Exception as e:
-    logger.error(f"Failed to connect to Supabase: {e}. Fallback active.")
+    logger.error(f"Failed to init Supabase anon client: {e}. Fallback active.")
+    supabase_client = None
+
+try:
+    if settings.SUPABASE_URL and settings.SUPABASE_SERVICE_ROLE_KEY:
+        from supabase import create_client as _create_admin
+
+        supabase_admin_client = _create_admin(
+            settings.SUPABASE_URL,
+            settings.SUPABASE_SERVICE_ROLE_KEY,
+        )
+        logger.info("Supabase service-role client initialized.")
+except Exception as e:
+    logger.error(f"Failed to init Supabase admin client: {e}.")
+    supabase_admin_client = None
+
 
 def get_supabase():
-    """
-    Dependency to get the active Supabase client.
-    Returns None if not configured.
-    """
-    return supabase_client
+    """Backward-compatible accessor. Prefers admin, falls back to anon, else None."""
+    return supabase_admin_client or supabase_client
+
+
+def get_supabase_admin():
+    return supabase_admin_client or supabase_client
+
+
+def is_supabase_configured() -> bool:
+    return bool(settings.SUPABASE_URL and _anon_key())
