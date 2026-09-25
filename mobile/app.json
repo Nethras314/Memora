@@ -1,0 +1,57 @@
+{
+  "expo": {
+    "name": "MEMORA",
+    "slug": "memora",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "memora",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#4943a5"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.vertex.memora",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "MEMORA listens so you can talk instead of typing.",
+        "NSSpeechRecognitionUsageDescription": "MEMORA understands your voice to help with memories and reminders."
+      }
+    },
+    "android": {
+      "package": "com.vertex.memora",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.NOTIFICATIONS",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+      ]
+    },
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "MEMORA needs photo access to save familiar memory pictures."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "sounds": []
+        }
+      ],
+      "expo-asset",
+      "expo-audio"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "9c87aa75-696b-44b3-922b-b4e7aa9b6759"
+      }
+    },
+    "owner": "vertex6"
+  }
+}
