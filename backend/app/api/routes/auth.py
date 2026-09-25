@@ -265,7 +265,7 @@ async def verify_patient_pin(req: PINVerifyRequest, user: dict = Depends(get_cur
     against the specific patient's stored pin_hash.
     Returns 404 when the patient does not exist at all.
     """
-    from backend.app.core.access import ensure_patient_access, list_accessible_patients
+    from backend.app.core.access import ensure_patient_access
 
     patient_id = int(req.patient_id or 1)
     try:
