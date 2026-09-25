@@ -5,9 +5,11 @@ import { api } from '../lib/api';
 import { speak } from '../lib/speech';
 import { BigButton, Card, Screen, SectionTitle } from '../components/ui';
 import { COLORS } from '../theme';
+import { t } from '../i18n';
 
 export default function TodayScreen({ go, openVoice }) {
   const { currentPatient } = useAuth();
+  const lang = currentPatient?.primary_language || 'en-IN';
   const [tasks, setTasks] = useState([]);
   const [reminders, setReminders] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -32,38 +34,38 @@ export default function TodayScreen({ go, openVoice }) {
     <Screen style={refreshing ? { opacity: 0.85 } : null}>
       <Card style={styles.hero}>
         <Text style={styles.heroDate}>TODAY • {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</Text>
-        <Text style={styles.heroHi}>Good morning,{'\n'}{currentPatient?.name || 'friend'}.</Text>
-        <Text style={styles.heroSub}>Ask me about family, your next reminder, or a fun activity.</Text>
+        <Text style={styles.heroHi}>{t(lang, 'greeting')}{'\n'}{currentPatient?.name || 'friend'}.</Text>
+        <Text style={styles.heroSub}>{t(lang, 'heroSub')}</Text>
         <View style={{ height: 14 }} />
-        <BigButton title="🎙 Talk to MEMORA →" variant="light" onPress={openVoice} />
+        <BigButton title={`🎙 ${t(lang, 'talkToMemora')}`} variant="light" onPress={openVoice} />
         <View style={{ height: 10 }} />
-        <BigButton title="View today's routine" onPress={() => go('routine')} />
+        <BigButton title={t(lang, 'viewRoutine')} onPress={() => go('routine')} />
         <View style={styles.pctBox}>
           <Text style={styles.pct}>{pct}%</Text>
-          <Text style={styles.pctSub}>daily routine completed</Text>
+          <Text style={styles.pctSub}>{t(lang, 'dailyRoutineDone')}</Text>
         </View>
       </Card>
 
       <Card>
-        <SectionTitle eyebrow="Quick actions" title="Easy to reach" />
+        <SectionTitle eyebrow={t(lang, 'quickActions')} title={t(lang, 'easyToReach')} />
         <View style={styles.grid}>
           <TouchableOpacity style={[styles.quick, { backgroundColor: COLORS.mint }]} onPress={openVoice}>
-            <Text style={styles.quickIcon}>💬</Text><Text style={styles.quickText}>Ask a question →</Text>
+            <Text style={styles.quickIcon}>💬</Text><Text style={styles.quickText}>{t(lang, 'askQuestion')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.quick, { backgroundColor: '#eeece7' }]} onPress={() => go('memories')}>
-            <Text style={styles.quickIcon}>▣</Text><Text style={styles.quickText}>Open memories →</Text>
+            <Text style={styles.quickIcon}>▣</Text><Text style={styles.quickText}>{t(lang, 'openMemories')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.quick, { backgroundColor: COLORS.peach }]} onPress={() => go('games')}>
-            <Text style={styles.quickIcon}>🧠</Text><Text style={styles.quickText}>Try an activity →</Text>
+            <Text style={styles.quickIcon}>🧠</Text><Text style={styles.quickText}>{t(lang, 'tryActivity')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.quick, { backgroundColor: '#f3f0ea' }]} onPress={() => go('reminders')}>
-            <Text style={styles.quickIcon}>♧</Text><Text style={styles.quickText}>See reminders →</Text>
+            <Text style={styles.quickIcon}>♧</Text><Text style={styles.quickText}>{t(lang, 'seeReminders')}</Text>
           </TouchableOpacity>
         </View>
       </Card>
 
       <Card>
-        <SectionTitle eyebrow="Gentle prompts" title={`Today's reminders (${reminders.length})`} />
+        <SectionTitle eyebrow={t(lang, 'gentlePrompts')} title={`${t(lang, 'todaysReminders')} (${reminders.length})`} />
         {reminders.slice(0, 4).map((r) => (
           <View key={r.id} style={styles.row}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
@@ -75,12 +77,12 @@ export default function TodayScreen({ go, openVoice }) {
         ))}
         {reminders.length === 0 ? <Text style={styles.muted}>No gentle prompts yet.</Text> : null}
         <View style={{ height: 12 }} />
-        <BigButton title="Manage all reminders →" variant="mint" onPress={() => { speak(`You have ${reminders.length} reminders today.`); go('reminders'); }} />
+        <BigButton title={t(lang, 'manageReminders')} variant="mint" onPress={() => { speak(`You have ${reminders.length} reminders today.`); go('reminders'); }} />
       </Card>
 
       <View style={{ flexDirection: 'row', gap: 10 }}>
-        <View style={{ flex: 1 }}><BigButton title="🔄 Refresh" variant="outline" onPress={async () => { setRefreshing(true); await load(); setRefreshing(false); }} /></View>
-        <View style={{ flex: 1 }}><BigButton title="🎮 Games" onPress={() => go('games')} /></View>
+        <View style={{ flex: 1 }}><BigButton title={`🔄 ${t(lang, 'refresh')}`} variant="outline" onPress={async () => { setRefreshing(true); await load(); setRefreshing(false); }} /></View>
+        <View style={{ flex: 1 }}><BigButton title={`🎮 ${t(lang, 'games')}`} onPress={() => go('games')} /></View>
       </View>
     </Screen>
   );

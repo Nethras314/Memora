@@ -25,6 +25,20 @@ ALTER TABLE public.profiles
 ALTER TABLE public.patients
     ADD COLUMN IF NOT EXISTS auth_user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL;
 
+-- 2b. Widen language support: add Assamese (as-IN) + Bengali (bn-IN) ----------
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'patients_primary_language_check'
+    ) THEN
+        ALTER TABLE public.patients DROP CONSTRAINT patients_primary_language_check;
+    END IF;
+END $$;
+
+ALTER TABLE public.patients
+    ADD CONSTRAINT patients_primary_language_check
+    CHECK (primary_language IN ('en-IN', 'ta-IN', 'hi-IN', 'kn-IN', 'te-IN', 'bn-IN', 'as-IN', 'mr-IN'));
+
 -- caregiver_id stays nullable for demo rows; keep FK to profiles
 DO $$
 BEGIN

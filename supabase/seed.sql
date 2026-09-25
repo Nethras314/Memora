@@ -96,6 +96,26 @@ VALUES
         '9000000000',
         'en-IN',
         '1234'
+    ),
+    (
+        3,
+        (SELECT id FROM public.profiles ORDER BY created_at ASC LIMIT 1),
+        'Bornali',
+        68,
+        'Female',
+        '9100000001',
+        'as-IN',
+        '1234'
+    ),
+    (
+        4,
+        (SELECT id FROM public.profiles ORDER BY created_at ASC LIMIT 1),
+        'Arati',
+        72,
+        'Female',
+        '9200000002',
+        'bn-IN',
+        '1234'
     )
 ON CONFLICT (id) DO UPDATE SET
     caregiver_id = COALESCE(
@@ -116,17 +136,21 @@ SELECT setval(
 
 -- 4. Re-seed related demo rows without needing unique constraints
 --    (ON CONFLICT DO NOTHING only works when a unique index exists).
-DELETE FROM public.cognitive_sessions WHERE patient_id IN (1, 2);
-DELETE FROM public.reminders WHERE patient_id IN (1, 2);
-DELETE FROM public.tasks WHERE patient_id IN (1, 2);
-DELETE FROM public.memories WHERE patient_id IN (1, 2);
+DELETE FROM public.cognitive_sessions WHERE patient_id IN (1, 2, 3, 4);
+DELETE FROM public.reminders WHERE patient_id IN (1, 2, 3, 4);
+DELETE FROM public.tasks WHERE patient_id IN (1, 2, 3, 4);
+DELETE FROM public.memories WHERE patient_id IN (1, 2, 3, 4);
 
 INSERT INTO public.memories (patient_id, category, title, details, relationship, photo_url)
 VALUES
     (1, 'Person', 'Daughter', 'Anitha is my eldest daughter who takes care of me.', 'Daughter', 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80'),
     (1, 'Food', 'Favourite Food', 'Hot steaming Idli with coconut chutney.', 'Food Preference', 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=400&q=80'),
     (1, 'Place', 'Village Home', 'Our ancestral courtyard home in Thanjavur with the mango tree.', 'Childhood Home', 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=400&q=80'),
-    (2, 'Person', 'Son', 'Kumar is my supportive son.', 'Son', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80');
+    (2, 'Person', 'Son', 'Kumar is my supportive son.', 'Son', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80'),
+    (3, 'Person', 'Daughter', 'Bornali loves her daughter who visits from Nagaon on weekends.', 'Daughter', 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80'),
+    (3, 'Food', 'Favourite Food', 'Warm pitha and laru during Bihu.', 'Food Preference', 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=400&q=80'),
+    (4, 'Person', 'Son', 'Arati lives near the Hooghly with her son who tends her garden.', 'Son', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80'),
+    (4, 'Food', 'Favourite Food', 'Fish curry and rice, her Sunday favourite.', 'Food Preference', 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=400&q=80');
 
 INSERT INTO public.tasks (patient_id, title, task_time, category, done)
 VALUES
@@ -135,7 +159,11 @@ VALUES
     (1, 'Balanced Lunch & Rest', '13:00', 'Routine', false),
     (1, 'Gentle Courtyard Walk', '17:00', 'Exercise', false),
     (2, 'Morning Yoga & Breathing', '08:30', 'Exercise', true),
-    (2, 'Afternoon Medicine', '13:30', 'Routine', false);
+    (2, 'Afternoon Medicine', '13:30', 'Routine', false),
+    (3, 'Morning tea on the verandah', '08:00', 'Routine', true),
+    (3, 'Bihu song listening time', '16:00', 'Cognitive', false),
+    (4, 'Water the garden plants', '09:30', 'Exercise', true),
+    (4, 'Afternoon rest', '14:00', 'Routine', false);
 
 ALTER TABLE public.reminders ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'Custom';
 ALTER TABLE public.reminders ADD COLUMN IF NOT EXISTS enabled BOOLEAN NOT NULL DEFAULT TRUE;
@@ -146,7 +174,11 @@ VALUES
     (1, 'Drink a glass of water', '08:30', 'Daily', 'Water/Hydration', true, true),
     (1, 'Take afternoon heart medicine', '14:00', 'Daily', 'Medicine', false, true),
     (1, 'Evening calming devotional music', '17:30', 'Daily', 'Custom', false, true),
-    (2, 'Drink warm water', '09:00', 'Daily', 'Water/Hydration', true, true);
+    (2, 'Drink warm water', '09:00', 'Daily', 'Water/Hydration', true, true),
+    (3, 'Take morning blood pressure tablet', '08:30', 'Daily', 'Medicine', false, true),
+    (3, 'Evening pitha and tea', '17:00', 'Daily', 'Food/Meal', false, true),
+    (4, 'Morning fish medicine', '09:00', 'Daily', 'Medicine', true, true),
+    (4, 'Afternoon rest and reading', '14:30', 'Daily', 'Custom', false, true);
 
 INSERT INTO public.cognitive_sessions (patient_id, game_type, difficulty_level, score, accuracy, reaction_time_ms, mistake_count)
 VALUES
@@ -154,4 +186,6 @@ VALUES
     (1, 'sequence_memory', 2, 85, 0.85, 4100, 1),
     (1, 'odd_one_out', 1, 100, 1.00, 2900, 0),
     (1, 'general_knowledge', 1, 90, 0.90, 3500, 0),
-    (2, 'sequence_memory', 1, 95, 0.95, 3000, 0);
+    (2, 'sequence_memory', 1, 95, 0.95, 3000, 0),
+    (3, 'sequence_memory', 1, 88, 0.88, 3600, 1),
+    (4, 'odd_one_out', 1, 100, 1.00, 2800, 0);

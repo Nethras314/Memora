@@ -3,6 +3,7 @@ import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } fr
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from './src/lib/auth';
 import { COLORS } from './src/theme';
+import { t } from './src/i18n';
 import AuthScreen from './src/screens/AuthScreen';
 import PinScreen from './src/screens/PinScreen';
 import TodayScreen from './src/screens/TodayScreen';
@@ -14,16 +15,15 @@ import VoiceScreen from './src/screens/VoiceScreen';
 import CalmScreen from './src/screens/CalmScreen';
 import ProgressScreen from './src/screens/ProgressScreen';
 
-const TABS = [
-  { id: 'today', label: '🏠\nToday' },
-  { id: 'voice', label: '🎙\nTalk' },
-  { id: 'memories', label: '▣\nMemories', pin: true },
-  { id: 'routine', label: '📅\nRoutine' },
-  { id: 'reminders', label: '⏰\nReminds' },
-  { id: 'games', label: '🧠\nGames' },
-  { id: 'calm', label: '🌿\nCalm' },
-  { id: 'progress', label: '📈\nProgress' },
-];
+const TAB_ICONS = {
+  today: '🏠', voice: '🎙', memories: '▣', routine: '📅',
+  reminders: '⏰', games: '🧠', calm: '🌿', progress: '📈',
+};
+const TAB_KEYS = {
+  today: 'tabToday', voice: 'tabVoice', memories: 'tabMemories', routine: 'tabRoutine',
+  reminders: 'tabReminders', games: 'tabGames', calm: 'tabCalm', progress: 'tabProgress',
+};
+const TAB_PINS = { memories: true };
 
 function PatientShell() {
   const { user, loading, logout, currentPatient, pinVerified } = useAuth();
@@ -31,6 +31,13 @@ function PatientShell() {
   const [pinAsk, setPinAsk] = useState(false);
   const [pendingTab, setPendingTab] = useState(null);
   const [voiceOpen, setVoiceOpen] = useState(false);
+
+  const lang = currentPatient?.primary_language || 'en-IN';
+  const tabs = Object.keys(TAB_ICONS).map((id) => ({
+    id,
+    pin: !!TAB_PINS[id],
+    label: `${TAB_ICONS[id]}\n${t(lang, TAB_KEYS[id])}`,
+  }));
 
   if (loading) {
     return (
@@ -43,7 +50,7 @@ function PatientShell() {
   if (!user) return <AuthScreen />;
 
   function go(id) {
-    const def = TABS.find((t) => t.id === id);
+    const def = tabs.find((x) => x.id === id);
     if (def?.pin && !pinVerified) {
       setPendingTab(id);
       setPinAsk(true);
@@ -68,7 +75,7 @@ function PatientShell() {
           </View>
         </View>
         <TouchableOpacity onPress={logout} style={styles.logout}>
-          <Text style={styles.logoutText}>Sign out</Text>
+          <Text style={styles.logoutText}>{t(lang, 'signOut')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -84,9 +91,9 @@ function PatientShell() {
       </View>
 
       <View style={styles.tabbar}>
-        {TABS.map((t) => (
-          <TouchableOpacity key={t.id} style={[styles.tab, tab === t.id && styles.tabOn]} onPress={() => (t.id === 'voice' ? setVoiceOpen(true) : go(t.id))}>
-            <Text style={[styles.tabText, tab === t.id && { color: '#fff' }]}>{t.label}</Text>
+        {tabs.map((x) => (
+          <TouchableOpacity key={x.id} style={[styles.tab, tab === x.id && styles.tabOn]} onPress={() => (x.id === 'voice' ? setVoiceOpen(true) : go(x.id))}>
+            <Text style={[styles.tabText, tab === x.id && { color: '#fff' }]}>{x.label}</Text>
           </TouchableOpacity>
         ))}
       </View>

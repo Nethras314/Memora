@@ -1,21 +1,22 @@
 import React from 'react';
 import { Home, Mic, Image, Calendar, Bell, Brain, Activity, Moon, HeartHandshake, ShieldCheck } from 'lucide-react';
+import { t } from '../i18n';
 
-export default function Sidebar({ activeTab, setActiveTab, currentPatient, onOpenPinModal, onOpenVoiceModal, user, role, showCaregiver = true, showAdmin = false }) {
+export default function Sidebar({ activeTab, setActiveTab, currentPatient, onOpenPinModal, onOpenVoiceModal, user, role, language = 'en-IN', showCaregiver = true, showAdmin = false }) {
   const baseItems = [
-    { id: 'today', label: 'Today', icon: Home },
-    { id: 'memories', label: 'Memories', icon: Image, requiresPin: true },
-    { id: 'routine', label: 'My Routine', icon: Calendar },
-    { id: 'reminders', label: 'Reminders', icon: Bell },
-    { id: 'activities', label: 'Activities & AI', icon: Brain },
-    { id: 'exercise', label: 'Exercise & Yoga', icon: Activity },
-    { id: 'sleep', label: 'Deep Sleep', icon: Moon },
+    { id: 'today', label: t(language, 'navToday'), icon: Home },
+    { id: 'memories', label: t(language, 'navMemories'), icon: Image, requiresPin: true },
+    { id: 'routine', label: t(language, 'navRoutine'), icon: Calendar },
+    { id: 'reminders', label: t(language, 'navReminders'), icon: Bell },
+    { id: 'activities', label: t(language, 'navActivities'), icon: Brain },
+    { id: 'exercise', label: t(language, 'navExercise'), icon: Activity },
+    { id: 'sleep', label: t(language, 'navSleep'), icon: Moon },
   ];
   // Patients see the essentials; staff see monitoring tools.
   const navItems = [
     ...baseItems,
-    ...(showCaregiver ? [{ id: 'caregiver', label: role === 'patient' ? 'My Progress' : 'Caregiver Portal', icon: HeartHandshake }] : []),
-    ...(showAdmin ? [{ id: 'admin', label: 'Admin Portal', icon: ShieldCheck }] : []),
+    ...(showCaregiver ? [{ id: 'caregiver', label: role === 'patient' ? t(language, 'navProgress') : t(language, 'navCaregiver'), icon: HeartHandshake }] : []),
+    ...(showAdmin ? [{ id: 'admin', label: t(language, 'navAdmin'), icon: ShieldCheck }] : []),
   ];
 
   const handleNavClick = (item) => {
@@ -63,7 +64,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentPatient, onOpe
           className="w-full mb-6 bg-gradient-to-r from-[#4943a5] to-[#5b54c2] text-white py-3 px-4 rounded-2xl font-semibold flex items-center justify-center gap-3 shadow-md hover:brightness-105 transition"
         >
           <Mic className="w-5 h-5 text-amber-300" />
-          <span>Talk to MEMORA</span>
+          <span>{t(language, 'talkToMemora')}</span>
         </button>
 
         {/* Navigation Links */}

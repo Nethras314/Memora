@@ -1,24 +1,20 @@
 import React, { useState, useRef } from 'react';
 import { Mic, MicOff, Volume2, X, Send, Globe } from 'lucide-react';
 import { api } from '../services/api';
+import { SUPPORTED_LANGUAGES, t } from '../i18n';
 
 export default function VoiceAssistantModal({ isOpen, onClose, currentPatient }) {
-  const [language, setLanguage] = useState(currentPatient?.primary_language || 'ta-IN');
+  const [language, setLanguage] = useState(currentPatient?.primary_language || 'en-IN');
   const [isRecording, setIsRecording] = useState(false);
   const [transcription, setTranscription] = useState('');
-  const [reply, setReply] = useState('MEMORA is ready to listen. Ask about family, reminders, or foods.');
+  const [reply, setReply] = useState(t(language, 'readyToListen'));
   const [loading, setLoading] = useState(false);
   const [typedInput, setTypedInput] = useState('');
   const audioRef = useRef(null);
 
   if (!isOpen) return null;
 
-  const languages = [
-    { code: 'ta-IN', label: 'தமிழ் (Tamil)' },
-    { code: 'hi-IN', label: 'हिन्दी (Hindi)' },
-    { code: 'kn-IN', label: 'ಕನ್ನಡ (Kannada)' },
-    { code: 'en-IN', label: 'English' },
-  ];
+  const languages = SUPPORTED_LANGUAGES;
 
   const handleSendQuestion = async (text) => {
     if (!text.trim()) return;
@@ -67,7 +63,7 @@ export default function VoiceAssistantModal({ isOpen, onClose, currentPatient })
     recognition.interimResults = false;
 
     setIsRecording(true);
-    setReply('Listening gently...');
+    setReply(t(language, 'listeningGently'));
 
     recognition.onresult = (e) => {
       setIsRecording(false);
@@ -77,7 +73,7 @@ export default function VoiceAssistantModal({ isOpen, onClose, currentPatient })
 
     recognition.onerror = () => {
       setIsRecording(false);
-      setReply('I could not hear clearly. Feel free to try again.');
+      setReply(t(language, 'couldNotHear'));
     };
 
     recognition.onend = () => {
@@ -104,8 +100,8 @@ export default function VoiceAssistantModal({ isOpen, onClose, currentPatient })
               <Mic className="w-6 h-6 text-amber-300" />
             </div>
             <div>
-              <h2 className="text-xl font-bold font-serif text-[#273047]">Talk to MEMORA</h2>
-              <p className="text-xs text-[#68738a]">Powered by Sarvam AI Indian Regional Voice</p>
+              <h2 className="text-xl font-bold font-serif text-[#273047]">{t(language, 'voiceTitle')}</h2>
+              <p className="text-xs text-[#68738a]">{t(language, 'poweredBy')}</p>
             </div>
           </div>
         </div>
@@ -130,7 +126,7 @@ export default function VoiceAssistantModal({ isOpen, onClose, currentPatient })
         <div className="space-y-4 mb-6">
           {transcription && (
             <div className="p-4 rounded-2xl bg-[#f5f3ff] text-sm text-[#4943a5] border border-indigo-100">
-              <span className="font-bold block text-xs uppercase mb-1">You Asked:</span>
+              <span className="font-bold block text-xs uppercase mb-1">{t(language, 'youAsked')}</span>
               "{transcription}"
             </div>
           )}
@@ -139,7 +135,7 @@ export default function VoiceAssistantModal({ isOpen, onClose, currentPatient })
             {loading ? (
               <div className="flex items-center gap-3">
                 <span className="animate-spin text-2xl">⏳</span>
-                <span>Thinking gently...</span>
+                <span>{t(language, 'thinking')}</span>
               </div>
             ) : (
               reply
@@ -158,7 +154,7 @@ export default function VoiceAssistantModal({ isOpen, onClose, currentPatient })
             }`}
           >
             {isRecording ? <MicOff className="w-8 h-8" /> : <Mic className="w-8 h-8" />}
-            <span className="text-xs font-semibold">{isRecording ? 'Listening' : 'Tap & Speak'}</span>
+            <span className="text-xs font-semibold">{isRecording ? t(language, 'listening') : t(language, 'tapSpeak')}</span>
           </button>
         </div>
 
@@ -169,7 +165,7 @@ export default function VoiceAssistantModal({ isOpen, onClose, currentPatient })
             value={typedInput}
             onChange={(e) => setTypedInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSendQuestion(typedInput)}
-            placeholder="Or type: Who is my daughter? / என் மகள் யார்?"
+            placeholder={t(language, 'typePlaceholder')}
             className="flex-1 px-4 py-3 rounded-2xl border border-[#dcd6cc] bg-[#faf8f2] text-sm outline-none focus:border-[#4943a5]"
           />
           <button

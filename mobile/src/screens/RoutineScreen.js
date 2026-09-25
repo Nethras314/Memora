@@ -5,10 +5,12 @@ import { api } from '../lib/api';
 import { scheduleReminderNotification } from '../lib/notifications';
 import { BigButton, Card, Screen, SectionTitle } from '../components/ui';
 import { COLORS, TASK_CATEGORIES } from '../theme';
+import { t } from '../i18n';
 
 export default function RoutineScreen() {
   const { currentPatient } = useAuth();
   const pid = currentPatient?.id || 1;
+  const lang = currentPatient?.primary_language || 'en-IN';
   const [tasks, setTasks] = useState([]);
   const [reminders, setReminders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -63,10 +65,10 @@ export default function RoutineScreen() {
   return (
     <Screen>
       <View style={{ gap: 12 }}>
-        <SectionTitle title="My Daily Routine" sub="Calm, structured steps for each part of the day." />
+        <SectionTitle title={t(lang, 'routineTitle')} sub={t(lang, 'routineSub')} />
         <View style={{ flexDirection: 'row', gap: 10 }}>
-          <View style={{ flex: 1 }}><BigButton title="↺ Reset today" variant="outline" onPress={reset} /></View>
-          <View style={{ flex: 1 }}><BigButton title="+ Add step" onPress={() => setModal(true)} /></View>
+          <View style={{ flex: 1 }}><BigButton title={`↺ ${t(lang, 'resetToday')}`} variant="outline" onPress={reset} /></View>
+          <View style={{ flex: 1 }}><BigButton title={`+ ${t(lang, 'addStep')}`} onPress={() => setModal(true)} /></View>
         </View>
       </View>
 
@@ -101,7 +103,7 @@ export default function RoutineScreen() {
 
       <Modal visible={modal} animationType="slide" onRequestClose={() => setModal(false)}>
         <Screen>
-          <SectionTitle title="Add routine step" sub="A gentle step for today's flow." />
+          <SectionTitle title={t(lang, 'addStep')} sub="A gentle step for today's flow." />
           <Text style={styles.label}>STEP NAME</Text>
           <TextInput style={styles.input} value={title} onChangeText={setTitle} placeholder="E.g., Morning walk in courtyard" />
           <Text style={styles.label}>TIME (HH:MM, 24-HOUR)</Text>

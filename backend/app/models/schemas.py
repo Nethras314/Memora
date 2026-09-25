@@ -48,7 +48,7 @@ class PatientBase(BaseModel):
     age: int = Field(..., ge=1, le=120, example=70)
     gender: str = Field(..., example="Female")
     phone: Optional[str] = Field(None, example="8056962028")
-    primary_language: str = Field("ta-IN", example="ta-IN")
+    primary_language: str = Field("en-IN", example="en-IN")
 
 class PatientCreate(PatientBase):
     pin: str = Field(..., min_length=4, max_length=4, example="1234")
@@ -194,7 +194,10 @@ class VoiceInteractRequest(BaseModel):
     patient_id: int = 1
     question_text: Optional[str] = None
     audio_base64: Optional[str] = None
-    language_code: str = Field("ta-IN", example="ta-IN") # ta-IN, hi-IN, kn-IN, en-IN
+    # Container the client recorded in (m4a from iOS/Android, webm from web),
+    # so the STT provider receives a correctly labelled file.
+    audio_content_type: Optional[str] = Field(None, example="audio/m4a")
+    language_code: str = Field("ta-IN", example="ta-IN")  # as-IN, bn-IN, en-IN, hi-IN, ta-IN
 
 class VoiceInteractResponse(BaseModel):
     transcription: str

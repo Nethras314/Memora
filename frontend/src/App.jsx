@@ -14,6 +14,7 @@ import AuthPage from './pages/AuthPage';
 import AdminPage from './pages/AdminPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { api } from './services/api';
+import { SUPPORTED_LANGUAGES, t } from './i18n';
 import { Globe, Volume2, LogOut } from 'lucide-react';
 
 function normalizeRole(role) {
@@ -30,8 +31,10 @@ function Shell() {
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
   const [pinVerified, setPinVerified] = useState(false);
   const [loadError, setLoadError] = useState('');
+  const [uiLang, setUiLang] = useState('');
 
   const role = normalizeRole(user?.role);
+  const language = uiLang || currentPatient?.primary_language || 'en-IN';
 
   useEffect(() => {
     if (!user) return;
@@ -100,6 +103,7 @@ function Shell() {
         onOpenVoiceModal={() => setIsVoiceModalOpen(true)}
         user={user}
         role={role}
+        language={language}
         showCaregiver={canSeeCaregiver}
         showAdmin={canSeeAdmin}
       />
@@ -114,17 +118,26 @@ function Shell() {
           </div>
 
           <div className="flex items-center gap-4">
-            <span className="text-xs font-semibold bg-[#e8f3ef] text-[#22574c] px-3 py-1.5 rounded-full flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 bg-[#e8f3ef] text-[#22574c] px-2 py-1 rounded-full">
               <Globe className="w-3.5 h-3.5" />
-              <span>{currentPatient?.primary_language === 'ta-IN' ? 'தமிழ் • Tamil' : 'English'}</span>
-            </span>
+              <select
+                value={language}
+                onChange={(e) => setUiLang(e.target.value)}
+                className="bg-transparent text-xs font-semibold text-[#22574c] outline-none cursor-pointer"
+                aria-label="Choose language"
+              >
+                {SUPPORTED_LANGUAGES.map((l) => (
+                  <option key={l.code} value={l.code}>{l.label}</option>
+                ))}
+              </select>
+            </div>
 
             <button
               onClick={() => setIsVoiceModalOpen(true)}
               className="text-xs font-bold text-[#4943a5] hover:underline flex items-center gap-1"
             >
               <Volume2 className="w-4 h-4" />
-              <span>Voice Ready</span>
+              <span>{t(language, 'voiceReady')}</span>
             </button>
 
             <button
@@ -132,7 +145,7 @@ function Shell() {
               className="text-xs font-bold text-gray-500 hover:text-red-600 flex items-center gap-1"
             >
               <LogOut className="w-4 h-4" />
-              <span>Sign out</span>
+              <span>{t(language, 'signOut')}</span>
             </button>
           </div>
         </header>
@@ -146,6 +159,7 @@ function Shell() {
           {activeTab === 'today' && (
             <TodayDashboard
               currentPatient={currentPatient}
+              language={language}
               onOpenVoiceModal={() => setIsVoiceModalOpen(true)}
               onOpenPinModal={() => setIsPinModalOpen(true)}
               pinVerified={pinVerified}

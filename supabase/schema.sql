@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS public.patients (
     age INTEGER CHECK (age > 0 AND age < 130),
     gender TEXT CHECK (gender IN ('Male', 'Female', 'Other')),
     phone TEXT,
-    primary_language TEXT DEFAULT 'en-IN' CHECK (primary_language IN ('en-IN', 'ta-IN', 'hi-IN', 'kn-IN', 'te-IN', 'bn-IN', 'mr-IN')),
+    primary_language TEXT DEFAULT 'en-IN' CHECK (primary_language IN ('en-IN', 'ta-IN', 'hi-IN', 'kn-IN', 'te-IN', 'bn-IN', 'as-IN', 'mr-IN')),
     pin_hash TEXT NOT NULL, -- Hashed 4-digit PIN for private memory access
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()

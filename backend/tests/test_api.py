@@ -140,6 +140,81 @@ def test_voice_interact_tamil():
     data = response.json()
     assert "அனிதா" in data["reply_text"]
 
+
+def test_voice_accepts_recorded_audio_with_content_type():
+    """Mobile records m4a; the route must accept the clip plus its container."""
+    import base64
+
+    headers = _admin_headers()
+    clip = base64.b64encode(b"\x00\x00\x00\x18ftypM4A " + b"\x00" * 256).decode()
+    response = client.post("/api/voice/interact", json={
+        "patient_id": 1,
+        "audio_base64": clip,
+        "audio_content_type": "audio/m4a",
+        "language_code": "ta-IN",
+    }, headers=headers)
+    assert response.status_code == 200, response.text
+    assert response.json()["reply_text"]
+
+
+def test_voice_rejects_oversized_audio():
+    import base64
+
+    headers = _admin_headers()
+    too_big = base64.b64encode(b"\x00" * (4 * 1024 * 1024 + 1)).decode()
+    response = client.post("/api/voice/interact", json={
+        "patient_id": 1,
+        "audio_base64": too_big,
+        "audio_content_type": "audio/m4a",
+        "language_code": "ta-IN",
+    }, headers=headers)
+    assert response.status_code == 400
+
+
+def test_audio_container_mapping():
+    """Each client container maps to the filename + mime Saaras receives."""
+    from backend.app.services.sarvam_service import SarvamAIService
+
+    assert SarvamAIService._resolve_audio_upload("audio/m4a") == ("input.m4a", "audio/mp4")
+    assert SarvamAIService._resolve_audio_upload("audio/webm;codecs=opus") == ("input.webm", "audio/webm")
+    assert SarvamAIService._resolve_audio_upload("audio/3gpp") == ("input.3gp", "audio/3gpp")
+    # Unknown or missing types fall back to WAV rather than failing the upload.
+    assert SarvamAIService._resolve_audio_upload(None) == ("input.wav", "audio/wav")
+    assert SarvamAIService._resolve_audio_upload("application/octet-stream") == ("input.wav", "audio/wav")
+
+
+def test_voice_interact_bengali():
+    headers = _admin_headers()
+    response = client.post("/api/voice/interact", json={
+        "patient_id": 1,
+        "question_text": "আমার মেয়ে কে?",
+        "language_code": "bn-IN"
+    }, headers=headers)
+    assert response.status_code == 200
+    assert "অনিতা" in response.json()["reply_text"]
+
+
+def test_voice_interact_assamese():
+    headers = _admin_headers()
+    response = client.post("/api/voice/interact", json={
+        "patient_id": 1,
+        "question_text": "মোৰ জীয়েক কোন?",
+        "language_code": "as-IN"
+    }, headers=headers)
+    assert response.status_code == 200
+    assert "অনিতা" in response.json()["reply_text"]
+
+
+def test_sarvam_ner_templates_present():
+    from backend.app.services.sarvam_service import LOCALIZED_TEMPLATES, MULTILINGUAL_INTENT_MAP
+
+    assert "as-IN" in LOCALIZED_TEMPLATES
+    assert "bn-IN" in LOCALIZED_TEMPLATES
+    assert "as" in MULTILINGUAL_INTENT_MAP["food"]
+    assert "bn" in MULTILINGUAL_INTENT_MAP["daughter_or_family"]
+    # Fallback is localized, not English, for NER languages.
+    assert LOCALIZED_TEMPLATES["as-IN"]["fallback"] != LOCALIZED_TEMPLATES["en-IN"]["fallback"]
+
 def test_memories_crud_flow():
     headers = _admin_headers()
     # 1. List existing memories

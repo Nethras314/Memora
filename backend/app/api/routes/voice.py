@@ -73,7 +73,9 @@ async def voice_interaction(req: VoiceInteractRequest, user: dict = Depends(get_
         if len(audio_bytes) > MAX_AUDIO_BYTES:
             raise HTTPException(status_code=400, detail="Voice clip too large. Keep it under 30 seconds.")
         try:
-            transcription = await SarvamAIService.transcribe_audio(audio_bytes, req.language_code)
+            transcription = await SarvamAIService.transcribe_audio(
+                audio_bytes, req.language_code, req.audio_content_type
+            )
             question_text = transcription
         except Exception:
             question_text = req.question_text or "Who is my daughter?"

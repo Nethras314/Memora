@@ -5,10 +5,12 @@ import { api } from '../lib/api';
 import { speak } from '../lib/speech';
 import { BigButton, Card, Screen, SectionTitle } from '../components/ui';
 import { COLORS } from '../theme';
+import { t } from '../i18n';
 
 export default function GamesScreen() {
   const { currentPatient } = useAuth();
   const pid = currentPatient?.id || 1;
+  const lang = currentPatient?.primary_language || 'en-IN';
 
   const [config, setConfig] = useState(null);
   const [phase, setPhase] = useState('idle');
@@ -88,17 +90,17 @@ export default function GamesScreen() {
 
   return (
     <Screen>
-      <SectionTitle title="AI Cognitive Activities" sub="Gentle exercises. AI tunes the difficulty for you." />
+      <SectionTitle title={t(lang, 'gamesTitle')} sub={t(lang, 'gamesSub')} />
 
       <Card>
         <View style={styles.gameHead}>
-          <Text style={styles.gameTitle}>🧠 Memory Sequence</Text>
+          <Text style={styles.gameTitle}>🧠 {t(lang, 'memorySequence')}</Text>
           {config ? <Text style={styles.level}>AI Level {config.difficulty_level}</Text> : null}
         </View>
         <Text style={styles.cue}>{config?.guidance_cue || 'Watch the symbols, then tap in order.'}</Text>
 
         <View style={styles.stage}>
-          {phase === 'idle' ? <BigButton title={loading ? 'Loading…' : 'Start Game →'} onPress={start} disabled={loading || !config} /> : null}
+          {phase === 'idle' ? <BigButton title={loading ? 'Loading…' : t(lang, 'startGame')} onPress={start} disabled={loading || !config} /> : null}
           {phase === 'showing' ? (
             <View style={styles.seqRow}>
               {(config?.sequence || []).map((s, i) => (
@@ -120,7 +122,7 @@ export default function GamesScreen() {
                 {result.ok ? '✓ Wonderful! Perfect sequence!' : 'Good attempt! Keep enjoying.'}
               </Text>
               <Text style={styles.muted}>Reaction time: {(result.latency / 1000).toFixed(1)}s • AI is tuning next level…</Text>
-              <BigButton title="Next AI round →" onPress={loadGame} />
+              <BigButton title={t(lang, 'nextRound')} onPress={loadGame} />
             </View>
           ) : null}
         </View>
@@ -157,7 +159,7 @@ export default function GamesScreen() {
         </View>
         {gkMsg ? <Text style={styles.feedback}>{gkMsg}</Text> : null}
         <View style={{ height: 10 }} />
-        <BigButton title="New question" variant="mint" onPress={async () => { try { setGk(await api.getGkQuestion()); setGkMsg(''); } catch {} }} />
+        <BigButton title={t(lang, 'newQuestion')} variant="mint" onPress={async () => { try { setGk(await api.getGkQuestion()); setGkMsg(''); } catch {} }} />
       </Card>
 
       <Card>
@@ -181,7 +183,7 @@ export default function GamesScreen() {
         </View>
         {attMsg ? <Text style={styles.feedback}>{attMsg}</Text> : null}
         <View style={{ height: 10 }} />
-        <BigButton title="New puzzle" variant="gold" onPress={async () => { try { setAtt(await api.getAttentionQuestion()); setAttMsg(''); } catch {} }} />
+        <BigButton title={t(lang, 'newPuzzle')} variant="gold" onPress={async () => { try { setAtt(await api.getAttentionQuestion()); setAttMsg(''); } catch {} }} />
       </Card>
     </Screen>
   );

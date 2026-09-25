@@ -12,25 +12,33 @@ MULTILINGUAL_INTENT_MAP = {
         "en": ["daughter", "son", "family", "child", "who is", "caregiver"],
         "ta": ["மகள்", "மகன்", "குடும்பம்", "யார்", "அனிதா"],
         "hi": ["बेटी", "बेटा", "परिवार", "कौन है", "अनीता"],
-        "kn": ["ಮಗಳು", "ಮಗ", "ಕುಟುಂಬ", "ಯಾರು", "ಅನಿತಾ"]
+        "kn": ["ಮಗಳು", "ಮಗ", "ಕುಟುಂಬ", "ಯಾರು", "ಅನಿತಾ"],
+        "as": ["জীয়েক", "পুতেক", "পৰিয়াল", "কোন", "মা", "দেউতা"],
+        "bn": ["মেয়ে", "ছেলে", "পরিবার", "কে", "মা", "বাবা"]
     },
     "food": {
         "en": ["food", "favourite food", "eat", "lunch", "dinner", "breakfast"],
         "ta": ["சாப்பாடு", "உணவு", "பிடித்த உணவு", "இட்லி", "சாப்பிடு"],
         "hi": ["खाना", "पसंदीदा खाना", "भोजन", "इडली"],
-        "kn": ["ಊಟ", "ಆಹಾರ", "ತಿಂಡಿ", "ಇಡ್ಲಿ"]
+        "kn": ["ಊಟ", "ಆಹಾರ", "ತಿಂಡಿ", "ಇಡ್ಲಿ"],
+        "as": ["খাদ্য", "খোৱা", "প্ৰিয় খাদ্য", "ইডলি", "ভাত"],
+        "bn": ["খাবার", "খাওয়া", "প্রিয় খাবার", "ইডলি", "ভাত"]
     },
     "reminder": {
         "en": ["reminder", "medicine", "pill", "next", "time", "routine"],
         "ta": ["நினைவூட்டல்", "மருந்து", "மாத்திரை", "அடுத்தது"],
         "hi": ["याद दिलाना", "दवाई", "समय", "अगला"],
-        "kn": ["ಜ್ಞಾಪನೆ", "ಮಾತ್ರೆ", "ಔಷಧ", "ಮುಂದಿನ"]
+        "kn": ["ಜ್ಞಾಪನೆ", "ಮಾತ್ರೆ", "ಔಷಧ", "ಮುಂದಿನ"],
+        "as": ["সোঁৱৰণী", "ঔষধ", "সময়", "পৰৱৰ্তী"],
+        "bn": ["স্মারক", "ঔষধ", "সময়", "পরবর্তী"]
     },
     "name": {
         "en": ["my name", "who am i", "name"],
         "ta": ["என் பெயர்", "நான் யார்", "பெயர்"],
         "hi": ["मेरा नाम", "मैं कौन हूँ", "नाम"],
-        "kn": ["ನನ್ನ ಹೆಸರು", "ನಾನು ಯಾರು", "ಹೆಸರು"]
+        "kn": ["ನನ್ನ ಹೆಸರು", "ನಾನು ಯಾರು", "ಹೆಸರು"],
+        "as": ["মোৰ নাম", "মই কোন", "নাম"],
+        "bn": ["আমার নাম", "আমি কে", "নাম"]
     }
 }
 
@@ -56,6 +64,20 @@ LOCALIZED_TEMPLATES = {
         "name": "ನಿಮ್ಮ ಹೆಸರು {name}.",
         "fallback": "ಈ ಮಾಹಿತಿ ಇನ್ನೂ ನನ್ನ ಮೆಮೊರಿಯಲ್ಲಿ ಇಲ್ಲ."
     },
+    "as-IN": {
+        "daughter": "আপোনাৰ ছোৱালী অনিতা, তেওঁ আপোনাক মৰমেৰে যত্ন লয়।",
+        "food": "আপোনাৰ প্ৰিয় খাদ্য গৰম ইডলি আৰু নাৰিকলৰ চাটনি।",
+        "reminder": "আপোনাৰ পৰৱৰ্তী সোঁৱৰণী: {title}, সময় {time}।",
+        "name": "আপোনাৰ নাম {name}।",
+        "fallback": "এই তথ্য মোৰ স্মৃতিভাণ্ডাৰত এতিয়াও নাই।"
+    },
+    "bn-IN": {
+        "daughter": "আপনার মেয়ে অনিতা, যিনি আপনাকে ভালোবেসে যত্ন নেন।",
+        "food": "আপনার প্রিয় খাবার গরম ইডলি ও নারকেল চাটনি।",
+        "reminder": "আপনার পরবর্তী স্মারক: {title}, সময় {time}।",
+        "name": "আপনার নাম {name}।",
+        "fallback": "এই তথ্যটি এখনও আমার স্মৃতিভাণ্ডারে নেই।"
+    },
     "en-IN": {
         "daughter": "Your daughter is Anitha, who loves and cares for you.",
         "food": "Your favourite food is hot idli with coconut chutney.",
@@ -71,21 +93,50 @@ class SarvamAIService:
     tailored for Indian Languages (Tamil, Hindi, Kannada, Telugu, English).
     """
 
+    # Container families the mobile app and browser produce, mapped to the
+    # filename extension + mime Saaras expects on the multipart upload.
+    _AUDIO_CONTAINERS = {
+        "audio/m4a": ("m4a", "audio/mp4"),
+        "audio/x-m4a": ("m4a", "audio/mp4"),
+        "audio/mp4": ("m4a", "audio/mp4"),
+        "audio/aac": ("aac", "audio/aac"),
+        "audio/webm": ("webm", "audio/webm"),
+        "audio/ogg": ("ogg", "audio/ogg"),
+        "audio/wav": ("wav", "audio/wav"),
+        "audio/x-wav": ("wav", "audio/wav"),
+        "audio/wave": ("wav", "audio/wav"),
+        "audio/mpeg": ("mp3", "audio/mpeg"),
+        "audio/3gpp": ("3gp", "audio/3gpp"),
+    }
+
     @classmethod
-    async def transcribe_audio(cls, audio_bytes: bytes, language_code: str = "ta-IN") -> str:
+    def _resolve_audio_upload(cls, content_type: Optional[str]):
+        """Pick (filename, mime) for the STT upload, defaulting to WAV."""
+        key = (content_type or "").split(";")[0].strip().lower()
+        ext, mime = cls._AUDIO_CONTAINERS.get(key, ("wav", "audio/wav"))
+        return f"input.{ext}", mime
+
+    @classmethod
+    async def transcribe_audio(
+        cls,
+        audio_bytes: bytes,
+        language_code: str = "ta-IN",
+        content_type: Optional[str] = None,
+    ) -> str:
         """
-        Calls Sarvam AI Saaras:v1 Speech-to-Text API.
+        Calls Sarvam AI Saaras Speech-to-Text API.
         Falls back gracefully if API key is not yet set.
         """
         if not settings.SARVAM_API_KEY:
             logger.info("SARVAM_API_KEY not configured. Using simulated voice recognition.")
             return "என் மகள் யார்?" if "ta" in language_code else "Who is my daughter?"
 
+        filename, mime = cls._resolve_audio_upload(content_type)
         headers = {
             "api-subscription-key": settings.SARVAM_API_KEY
         }
         files = {
-            "file": ("input.wav", audio_bytes, "audio/wav")
+            "file": (filename, audio_bytes, mime)
         }
         data = {
             "model": "saaras:v3",

@@ -6,10 +6,12 @@ import { api } from '../lib/api';
 import { speak } from '../lib/speech';
 import { BigButton, Card, Screen, SectionTitle } from '../components/ui';
 import { COLORS, MEMORY_CATEGORIES } from '../theme';
+import { t } from '../i18n';
 
 export default function MemoriesScreen() {
   const { currentPatient } = useAuth();
   const pid = currentPatient?.id || 1;
+  const lang = currentPatient?.primary_language || 'en-IN';
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(false);
@@ -95,8 +97,8 @@ export default function MemoriesScreen() {
   return (
     <Screen>
       <View style={styles.header}>
-        <SectionTitle title="Personal Memory Bank" sub="Familiar people, places and comforts." />
-        <BigButton title="+ Save memory" onPress={openAdd} />
+        <SectionTitle title={t(lang, 'memoriesTitle')} sub={t(lang, 'memoriesSub')} />
+        <BigButton title={`+ ${t(lang, 'saveMemory')}`} onPress={openAdd} />
       </View>
       {loading ? <Card><Text style={styles.muted}>Loading your familiar moments…</Text></Card> : null}
       {!loading && items.length === 0 ? (
@@ -116,13 +118,13 @@ export default function MemoriesScreen() {
           <Text style={styles.mDetails}>{m.details}</Text>
           <View style={styles.actions}>
             <TouchableOpacity style={styles.actionBtn} onPress={() => speak(`${m.title}. ${m.details}`)}>
-              <Text style={styles.actionText}>🔊 Listen</Text>
+              <Text style={styles.actionText}>🔊 {t(lang, 'listen')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionBtn} onPress={() => openEdit(m)}>
-              <Text style={styles.actionText}>✏️ Edit</Text>
+              <Text style={styles.actionText}>✏️ {t(lang, 'edit')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.actionBtn, styles.dangerBtn]} onPress={() => setConfirmDelete(m.id)}>
-              <Text style={[styles.actionText, { color: COLORS.danger }]}>🗑 Delete</Text>
+              <Text style={[styles.actionText, { color: COLORS.danger }]}>🗑 {t(lang, 'delete')}</Text>
             </TouchableOpacity>
           </View>
         </Card>

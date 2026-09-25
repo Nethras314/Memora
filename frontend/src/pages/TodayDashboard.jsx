@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Sparkles, ArrowRight, CheckCircle2, Circle, Clock, Heart, Brain, Activity, Moon } from 'lucide-react';
 import { api } from '../services/api';
+import { t } from '../i18n';
 
-export default function TodayDashboard({ currentPatient, onOpenVoiceModal, onOpenPinModal, pinVerified, setActiveTab }) {
+export default function TodayDashboard({ currentPatient, language = 'en-IN', onOpenVoiceModal, onOpenPinModal, pinVerified, setActiveTab }) {
   const [tasks, setTasks] = useState([]);
   const [reminders, setReminders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,24 +38,24 @@ export default function TodayDashboard({ currentPatient, onOpenVoiceModal, onOpe
             TODAY • {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
           </div>
           <h1 className="text-3xl md:text-4xl font-bold font-serif">
-            Good morning, {currentPatient?.name || 'Meenakshi'}.
+            {t(language, 'greeting')} {currentPatient?.name || 'Meenakshi'}.
           </h1>
           <p className="text-indigo-100 max-w-xl text-base leading-relaxed">
-            You can ask me about family members, your next reminder, or an enjoyable activity.
+            {t(language, 'heroSub')}
           </p>
           <div className="flex gap-3 pt-2">
             <button
               onClick={onOpenVoiceModal}
               className="bg-white text-[#4943a5] px-5 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-md hover:bg-indigo-50 transition"
             >
-              <span>🎙 Talk to MEMORA</span>
+              <span>🎙 {t(language, 'talkToMemoraBtn')}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
             <button
               onClick={() => setActiveTab('routine')}
               className="bg-white/15 hover:bg-white/20 text-white px-5 py-3 rounded-2xl font-semibold backdrop-blur-sm transition"
             >
-              View today's routine
+              {t(language, 'viewRoutine')}
             </button>
           </div>
         </div>
@@ -62,7 +63,7 @@ export default function TodayDashboard({ currentPatient, onOpenVoiceModal, onOpe
         {/* Progress Circular Badge */}
         <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 text-center border border-white/20 min-w-[200px]">
           <div className="text-5xl font-extrabold mb-1">{progressPercent}%</div>
-          <div className="text-sm font-medium text-indigo-200">Daily routine completed</div>
+          <div className="text-sm font-medium text-indigo-200">{t(language, 'dailyRoutineDone')}</div>
         </div>
       </div>
 
@@ -70,8 +71,8 @@ export default function TodayDashboard({ currentPatient, onOpenVoiceModal, onOpe
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         {/* Quick Actions */}
         <div className="md:col-span-7 bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm">
-          <div className="text-xs uppercase tracking-wider font-bold text-[#68738a] mb-2">Quick Actions</div>
-          <h2 className="text-2xl font-bold font-serif text-[#273047] mb-6">Easy to reach</h2>
+          <div className="text-xs uppercase tracking-wider font-bold text-[#68738a] mb-2">{t(language, 'quickActions')}</div>
+          <h2 className="text-2xl font-bold font-serif text-[#273047] mb-6">{t(language, 'easyToReach')}</h2>
 
           <div className="grid grid-cols-2 gap-4">
             <button
@@ -80,7 +81,7 @@ export default function TodayDashboard({ currentPatient, onOpenVoiceModal, onOpe
             >
               <span className="text-2xl">💬</span>
               <strong className="text-[#204a43] text-sm flex items-center justify-between">
-                Ask a question <span>→</span>
+                {t(language, 'askQuestion')} <span>→</span>
               </strong>
             </button>
 
@@ -98,7 +99,7 @@ export default function TodayDashboard({ currentPatient, onOpenVoiceModal, onOpe
             >
               <span className="text-2xl">▣</span>
               <strong className="text-[#3b4353] text-sm flex items-center justify-between">
-                Open memories <span>→</span>
+                {t(language, 'openMemories')} <span>→</span>
               </strong>
             </button>
 
@@ -108,7 +109,7 @@ export default function TodayDashboard({ currentPatient, onOpenVoiceModal, onOpe
             >
               <span className="text-2xl">🧠</span>
               <strong className="text-[#654e20] text-sm flex items-center justify-between">
-                Try an activity <span>→</span>
+                {t(language, 'tryActivity')} <span>→</span>
               </strong>
             </button>
 
@@ -118,7 +119,7 @@ export default function TodayDashboard({ currentPatient, onOpenVoiceModal, onOpe
             >
               <span className="text-2xl">♧</span>
               <strong className="text-[#3b4353] text-sm flex items-center justify-between">
-                See reminders <span>→</span>
+                {t(language, 'seeReminders')} <span>→</span>
               </strong>
             </button>
           </div>
@@ -127,8 +128,8 @@ export default function TodayDashboard({ currentPatient, onOpenVoiceModal, onOpe
         {/* Reminders Mini Card */}
         <div className="md:col-span-5 bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm flex flex-col justify-between">
           <div>
-            <div className="text-xs uppercase tracking-wider font-bold text-[#68738a] mb-2">Gentle Prompts</div>
-            <h2 className="text-2xl font-bold font-serif text-[#273047] mb-4">Today's Reminders</h2>
+            <div className="text-xs uppercase tracking-wider font-bold text-[#68738a] mb-2">{t(language, 'gentlePrompts')}</div>
+            <h2 className="text-2xl font-bold font-serif text-[#273047] mb-4">{t(language, 'todaysReminders')}</h2>
 
             <div className="divide-y divide-[#e5dfd4]">
               {reminders.filter((r) => r.enabled !== false).slice(0, 3).map((r) => (
@@ -151,7 +152,7 @@ export default function TodayDashboard({ currentPatient, onOpenVoiceModal, onOpe
             onClick={() => setActiveTab('reminders')}
             className="w-full mt-4 py-3 rounded-2xl font-bold text-sm text-[#4943a5] bg-indigo-50 hover:bg-indigo-100 transition"
           >
-            Manage all reminders →
+            {t(language, 'manageReminders')}
           </button>
         </div>
       </div>

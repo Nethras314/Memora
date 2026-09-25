@@ -27,10 +27,11 @@ export const TOUCH = {
 };
 
 export const LANGUAGES = [
-  { code: 'ta-IN', label: 'தமிழ் (Tamil)' },
-  { code: 'hi-IN', label: 'हिन्दी (Hindi)' },
-  { code: 'kn-IN', label: 'ಕನ್ನಡ (Kannada)' },
+  { code: 'as-IN', label: 'অসমীয়া (Assamese)' },
+  { code: 'bn-IN', label: 'বাংলা (Bengali)' },
   { code: 'en-IN', label: 'English' },
+  { code: 'hi-IN', label: 'हिन्दी (Hindi)' },
+  { code: 'ta-IN', label: 'தமிழ் (Tamil)' },
 ];
 
 export const MEMORY_CATEGORIES = ['Person', 'Place', 'Food', 'Activity', 'Important Memory'];
