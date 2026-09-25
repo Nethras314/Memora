@@ -9,6 +9,8 @@ backend/.env
 
 # Node / Frontend
 frontend/node_modules/
+mobile/node_modules/
+mobile/.expo/
 node_modules/
 frontend/dist/
 frontend/dist-ssr/
