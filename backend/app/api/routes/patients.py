@@ -5,7 +5,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from backend.app.core import database as db_module
 from backend.app.core.access import ensure_patient_access, list_accessible_patients
 from backend.app.core.security import get_current_user, normalize_role
-from backend.app.models.schemas import PatientCreate, PatientResponse, PatientUpdate
+from backend.app.models.schemas import (
+    LanguageUpdateRequest,
+    PatientCreate,
+    PatientResponse,
+    PatientUpdate,
+    SUPPORTED_LANGUAGE_CODES,
+)
 
 router = APIRouter(prefix="/patients", tags=["Patients"])
 
@@ -106,6 +112,26 @@ async def create_patient(payload: PatientCreate, user: dict = Depends(get_curren
     return _row_to_response(row)
 
 
+async def _persist_patient_patch(patient_id: int, patch: dict, user: dict) -> dict:
+    """Write a partial patient update to Supabase (or the demo store) and return the raw row."""
+    if db_module.is_supabase_configured():
+        admin = db_module.get_supabase_admin()
+        try:
+            res = admin.table("patients").update(patch).eq("id", patient_id).execute()
+            row = (res.data or [None])[0]
+            if row:
+                return row
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=f"Update failed: {exc}") from exc
+        # Supabase returned no confirming row; fall back to the last known record.
+        return await ensure_patient_access(user, patient_id)
+    for p in MOCK_PATIENTS:
+        if p["id"] == patient_id:
+            p.update(patch)
+            return p
+    raise HTTPException(status_code=404, detail="Patient not found")
+
+
 @router.put("/{patient_id}", response_model=PatientResponse)
 async def update_patient(patient_id: int, update: PatientUpdate, user: dict = Depends(get_current_user)):
     role = normalize_role(user.get("role"))
@@ -113,16 +139,25 @@ async def update_patient(patient_id: int, update: PatientUpdate, user: dict = De
         raise HTTPException(status_code=403, detail="Patients cannot edit clinical records. Ask your caregiver.")
     await ensure_patient_access(user, patient_id)
     patch = {k: v for k, v in update.model_dump().items() if v is not None}
-    if db_module.is_supabase_configured():
-        admin = db_module.get_supabase_admin()
-        try:
-            res = admin.table("patients").update(patch).eq("id", patient_id).execute()
-            row = (res.data or [{}])[0] or await ensure_patient_access(user, patient_id)
-            return _row_to_response(row)
-        except Exception as exc:
-            raise HTTPException(status_code=500, detail=f"Update failed: {exc}") from exc
-    for p in MOCK_PATIENTS:
-        if p["id"] == patient_id:
-            p.update(patch)
-            return _row_to_response(p)
-    raise HTTPException(status_code=404, detail="Patient not found")
+    return _row_to_response(await _persist_patient_patch(patient_id, patch, user))
+
+
+@router.put("/{patient_id}/language", response_model=PatientResponse)
+async def update_patient_language(
+    patient_id: int,
+    payload: LanguageUpdateRequest,
+    user: dict = Depends(get_current_user),
+):
+    """
+    Set a patient's preferred language. Accessible to caregivers/admins AND the
+    patient themselves, so the elderly user can change their own voice language
+    without touching clinical records.
+    """
+    await ensure_patient_access(user, patient_id)
+    code = payload.language_code.strip()
+    if code not in SUPPORTED_LANGUAGE_CODES:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Unsupported language code. Choose one of: {', '.join(sorted(SUPPORTED_LANGUAGE_CODES))}.",
+        )
+    return _row_to_response(await _persist_patient_patch(patient_id, {"primary_language": code}, user))

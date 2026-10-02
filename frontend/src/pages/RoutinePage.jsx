@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle2, Circle, Clock, Plus, RotateCcw, Trash2, X, AlertCircle } from 'lucide-react';
 import { api } from '../services/api';
+import { t } from '../i18n';
 
-export default function RoutinePage({ currentPatient }) {
+export default function RoutinePage({ currentPatient, language = 'en-IN' }) {
   const [tasks, setTasks] = useState([]);
   const [reminders, setReminders] = useState([]);
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
@@ -49,7 +50,7 @@ export default function RoutinePage({ currentPatient }) {
       setTasks(tasks.filter((t) => t.id !== taskId));
     } catch (e) {
       console.error(e);
-      alert('Failed to delete task.');
+      alert(t(language, 'failedDeleteTask'));
     }
   };
 
@@ -60,7 +61,7 @@ export default function RoutinePage({ currentPatient }) {
       setTasks(refreshed || tasks.map((t) => ({ ...t, done: false })));
     } catch (e) {
       console.error(e);
-      alert('Failed to reset tasks.');
+      alert(t(language, 'failedResetTasks'));
     }
   };
 
@@ -84,7 +85,7 @@ export default function RoutinePage({ currentPatient }) {
       setTaskCategory('Routine');
     } catch (err) {
       console.error(err);
-      setErrorMsg('Error creating routine task. Please try again.');
+      setErrorMsg(t(language, 'errorCreatingTask'));
     } finally {
       setSaving(false);
     }
@@ -103,25 +104,25 @@ export default function RoutinePage({ currentPatient }) {
     <div className="space-y-8 max-w-5xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold font-serif text-[#273047]">My Daily Routine</h1>
-          <p className="text-sm text-[#68738a] mt-1">Calm, structured steps for each part of the day.</p>
+          <h1 className="text-3xl font-bold font-serif text-[#273047]">{t(language, 'routineTitle')}</h1>
+          <p className="text-sm text-[#68738a] mt-1">{t(language, 'routineSub')}</p>
         </div>
 
         <div className="flex items-center gap-3">
           <button
             onClick={handleResetTasks}
-            title="Reset routine completion for today"
+            title={t(language, 'resetRoutineTitle')}
             className="px-4 py-2.5 bg-white hover:bg-gray-50 text-[#68738a] border border-[#e5dfd4] rounded-2xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition"
           >
             <RotateCcw className="w-4 h-4" />
-            <span>Reset Today</span>
+            <span>{t(language, 'resetToday')}</span>
           </button>
           <button
             onClick={() => setShowAddTaskModal(true)}
             className="px-4 py-2.5 bg-[#4943a5] hover:bg-[#3d378f] text-white rounded-2xl text-xs font-semibold flex items-center gap-1.5 shadow-md transition"
           >
             <Plus className="w-4 h-4" />
-            <span>Add Routine</span>
+            <span>{t(language, 'addRoutine')}</span>
           </button>
         </div>
       </div>
@@ -130,25 +131,25 @@ export default function RoutinePage({ currentPatient }) {
         {/* Tasks Section */}
         <div className="md:col-span-7 bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold font-serif text-[#273047]">Today's Schedule</h2>
+            <h2 className="text-xl font-bold font-serif text-[#273047]">{t(language, 'todaysSchedule')}</h2>
             <span className="text-xs font-bold text-[#4943a5] bg-indigo-50 px-3 py-1 rounded-full">
-              {tasks.filter((t) => t.done).length} / {tasks.length} Completed
+              {tasks.filter((t) => t.done).length} / {tasks.length} {t(language, 'completed')}
             </span>
           </div>
 
           {loading ? (
             <div className="text-center py-12 text-[#68738a]">
               <div className="animate-spin w-6 h-6 border-2 border-[#4943a5] border-t-transparent rounded-full mx-auto mb-2"></div>
-              <p className="text-xs font-medium">Loading schedule...</p>
+              <p className="text-xs font-medium">{t(language, 'loadingSchedule')}</p>
             </div>
           ) : tasks.length === 0 ? (
             <div className="text-center py-12 text-[#68738a]">
-              <p className="text-sm">No routine tasks scheduled for today.</p>
+              <p className="text-sm">{t(language, 'noRoutineTasks')}</p>
               <button
                 onClick={() => setShowAddTaskModal(true)}
                 className="mt-3 text-xs font-bold text-[#4943a5] hover:underline"
               >
-                + Add a routine step
+                + {t(language, 'addRoutineStep')}
               </button>
             </div>
           ) : (
@@ -184,7 +185,7 @@ export default function RoutinePage({ currentPatient }) {
                     </div>
                     <button
                       onClick={(e) => handleDeleteTask(e, task.id)}
-                      title="Delete routine step"
+                      title={t(language, 'deleteRoutineStep')}
                       className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -198,10 +199,10 @@ export default function RoutinePage({ currentPatient }) {
 
         {/* Reminders Section */}
         <div className="md:col-span-5 bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm">
-          <h2 className="text-xl font-bold font-serif text-[#273047] mb-6">Gentle Alerts</h2>
+          <h2 className="text-xl font-bold font-serif text-[#273047] mb-6">{t(language, 'gentleAlerts')}</h2>
           <div className="space-y-3">
             {reminders.length === 0 ? (
-              <p className="text-sm text-[#68738a] py-6 text-center">No gentle alerts for today.</p>
+              <p className="text-sm text-[#68738a] py-6 text-center">{t(language, 'noGentleAlerts')}</p>
             ) : (
               reminders.map((rem) => (
               <div
@@ -238,8 +239,8 @@ export default function RoutinePage({ currentPatient }) {
               <X className="w-5 h-5" />
             </button>
 
-            <h2 className="text-2xl font-bold font-serif text-[#273047] mb-1">Add Routine Step</h2>
-            <p className="text-sm text-[#68738a] mb-6">Create a gentle step for today's daily flow.</p>
+            <h2 className="text-2xl font-bold font-serif text-[#273047] mb-1">{t(language, 'addRoutineStepTitle')}</h2>
+            <p className="text-sm text-[#68738a] mb-6">{t(language, 'addRoutineStepSub')}</p>
 
             {errorMsg && (
               <div className="mb-4 bg-red-50 border border-red-200 text-red-700 text-xs px-3 py-2 rounded-xl flex items-center gap-2">
@@ -250,7 +251,7 @@ export default function RoutinePage({ currentPatient }) {
 
             <form onSubmit={handleAddTask} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-[#273047] uppercase mb-1">Routine Title</label>
+                <label className="block text-xs font-bold text-[#273047] uppercase mb-1">{t(language, 'routineTitleLabel')}</label>
                 <input
                   type="text"
                   required
@@ -263,7 +264,7 @@ export default function RoutinePage({ currentPatient }) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-[#273047] uppercase mb-1">Time</label>
+                  <label className="block text-xs font-bold text-[#273047] uppercase mb-1">{t(language, 'time')}</label>
                   <input
                     type="time"
                     required
@@ -274,7 +275,7 @@ export default function RoutinePage({ currentPatient }) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#273047] uppercase mb-1">Category</label>
+                  <label className="block text-xs font-bold text-[#273047] uppercase mb-1">{t(language, 'category')}</label>
                   <select
                     value={taskCategory}
                     onChange={(e) => setTaskCategory(e.target.value)}
@@ -295,14 +296,14 @@ export default function RoutinePage({ currentPatient }) {
                   onClick={() => setShowAddTaskModal(false)}
                   className="flex-1 py-3 border border-gray-300 rounded-2xl font-bold text-sm text-gray-600 hover:bg-gray-50 transition"
                 >
-                  Cancel
+                  {t(language, 'cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
                   className="flex-1 py-3 bg-[#4943a5] text-white rounded-2xl font-bold text-sm hover:bg-[#3d378f] disabled:opacity-50 transition"
                 >
-                  {saving ? 'Saving...' : 'Add Step'}
+                  {saving ? t(language, 'saving') : t(language, 'addStep')}
                 </button>
               </div>
             </form>

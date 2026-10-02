@@ -12,9 +12,15 @@ export const SUPPORTED_LANGUAGES = [
 
 export const DEFAULT_LANGUAGE = 'en-IN';
 
+export function languageLabel(code) {
+  const found = SUPPORTED_LANGUAGES.find((l) => l.code === code);
+  return found ? found.label : code || 'English';
+}
+
 const STRINGS = {
   'en-IN': {
     signOut: 'Sign out',
+    chooseLanguage: 'Choose language', close: 'Close',
     tabToday: 'Today', tabVoice: 'Talk', tabMemories: 'Memories', tabRoutine: 'Routine',
     tabReminders: 'Reminds', tabGames: 'Games', tabCalm: 'Calm', tabProgress: 'Progress',
     greeting: 'Good morning,', heroSub: 'Ask me about family, your next reminder, or a fun activity.',
@@ -41,6 +47,7 @@ const STRINGS = {
   },
   'hi-IN': {
     signOut: 'साइन आउट',
+    chooseLanguage: 'भाषा चुनें', close: 'बंद करें',
     tabToday: 'आज', tabVoice: 'बात', tabMemories: 'यादें', tabRoutine: 'दिनचर्या',
     tabReminders: 'याद', tabGames: 'खेल', tabCalm: 'शांत', tabProgress: 'प्रगति',
     greeting: 'सुप्रभात,', heroSub: 'परिवार, अगले अनुस्मारक या किसी गतिविधि के बारे में पूछें।',
@@ -67,6 +74,7 @@ const STRINGS = {
   },
   'ta-IN': {
     signOut: 'வெளியேறு',
+    chooseLanguage: 'மொழியைத் தேர்ந்தெடுக்கவும்', close: 'மூடு',
     tabToday: 'இன்று', tabVoice: 'பேசு', tabMemories: 'நினைவுகள்', tabRoutine: 'வழக்கம்',
     tabReminders: 'நினைவு', tabGames: 'விளையாட்டு', tabCalm: 'அமைதி', tabProgress: 'முன்னேற்றம்',
     greeting: 'காலை வணக்கம்,', heroSub: 'குடும்பம், அடுத்த நினைவூட்டல் அல்லது ஒரு செயலைப் பற்றி கேளுங்கள்.',
@@ -93,6 +101,7 @@ const STRINGS = {
   },
   'as-IN': {
     signOut: 'চাইন আউট',
+    chooseLanguage: 'ভাষা বাছনি কৰক', close: 'বন্ধ কৰক',
     tabToday: 'আজি', tabVoice: 'কথা', tabMemories: 'স্মৃতি', tabRoutine: 'দিনচৰ্যা',
     tabReminders: 'সোঁৱৰণী', tabGames: 'খেল', tabCalm: 'শান্তি', tabProgress: 'প্ৰগতি',
     greeting: 'শুভ পুৱা,', heroSub: 'পৰিয়াল, পৰৱৰ্তী সোঁৱৰণী বা কিবা কামৰ বিষয়ে সুধিব পাৰে।',
@@ -119,6 +128,7 @@ const STRINGS = {
   },
   'bn-IN': {
     signOut: 'সাইন আউট',
+    chooseLanguage: 'ভাষা নির্বাচন করুন', close: 'বন্ধ করুন',
     tabToday: 'আজ', tabVoice: 'কথা', tabMemories: 'স্মৃতি', tabRoutine: 'দৈনন্দিন',
     tabReminders: 'স্মারক', tabGames: 'খেলা', tabCalm: 'শান্তি', tabProgress: 'অগ্রগতি',
     greeting: 'শুভ সকাল,', heroSub: 'পরিবার, পরবর্তী স্মারক বা কোনো কাজ সম্পর্কে জিজ্ঞাসা করুন।',

@@ -1,10 +1,9 @@
-import React, { useState, useRef } from 'react';
-import { Mic, MicOff, Volume2, X, Send, Globe } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Mic, MicOff, Volume2, X, Send } from 'lucide-react';
 import { api } from '../services/api';
-import { SUPPORTED_LANGUAGES, t } from '../i18n';
+import { t } from '../i18n';
 
-export default function VoiceAssistantModal({ isOpen, onClose, currentPatient }) {
-  const [language, setLanguage] = useState(currentPatient?.primary_language || 'en-IN');
+export default function VoiceAssistantModal({ isOpen, onClose, currentPatient, language = 'en-IN' }) {
   const [isRecording, setIsRecording] = useState(false);
   const [transcription, setTranscription] = useState('');
   const [reply, setReply] = useState(t(language, 'readyToListen'));
@@ -12,9 +11,11 @@ export default function VoiceAssistantModal({ isOpen, onClose, currentPatient })
   const [typedInput, setTypedInput] = useState('');
   const audioRef = useRef(null);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    setReply(t(language, 'readyToListen'));
+  }, [language]);
 
-  const languages = SUPPORTED_LANGUAGES;
+  if (!isOpen) return null;
 
   const handleSendQuestion = async (text) => {
     if (!text.trim()) return;
@@ -104,22 +105,6 @@ export default function VoiceAssistantModal({ isOpen, onClose, currentPatient })
               <p className="text-xs text-[#68738a]">{t(language, 'poweredBy')}</p>
             </div>
           </div>
-        </div>
-
-        {/* Language Selector */}
-        <div className="flex items-center gap-2 mb-6 bg-[#faf8f2] p-2 rounded-2xl border border-[#e8e2d5]">
-          <Globe className="w-5 h-5 text-[#4943a5] ml-2" />
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-            className="w-full bg-transparent font-medium text-sm text-[#273047] outline-none"
-          >
-            {languages.map((l) => (
-              <option key={l.code} value={l.code}>
-                {l.label}
-              </option>
-            ))}
-          </select>
         </div>
 
         {/* Dynamic Speech Display */}

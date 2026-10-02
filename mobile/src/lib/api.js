@@ -47,6 +47,8 @@ export const api = {
   verifyPin: (pin, patient_id) => req('post', '/auth/verify-pin', { pin, patient_id }),
 
   getPatients: () => req('get', '/patients'),
+  updatePatientLanguage: (patientId, language_code) =>
+    req('put', `/patients/${patientId}/language`, { language_code }),
 
   getMemories: (patientId = 1) => req('get', `/memories?patient_id=${patientId}`),
   createMemory: (formData) => req('post', '/memories', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),

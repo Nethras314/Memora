@@ -96,6 +96,10 @@ export const api = {
     const res = await request('post', '/patients', payload);
     return res.data;
   },
+  updatePatientLanguage: async (patientId, language_code) => {
+    const res = await request('put', `/patients/${patientId}/language`, { language_code });
+    return res.data;
+  },
 
   // Memories
   getMemories: async (patientId = 1) => {

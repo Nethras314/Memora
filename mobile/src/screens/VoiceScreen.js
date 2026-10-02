@@ -13,7 +13,7 @@ import { useAuth } from '../lib/auth';
 import { api } from '../lib/api';
 import { speak, stopSpeech } from '../lib/speech';
 import { BigButton, Card, Screen, SectionTitle } from '../components/ui';
-import { COLORS, LANGUAGES } from '../theme';
+import { COLORS } from '../theme';
 import { t } from '../i18n';
 
 // Elderly users may forget to stop, so cap one answer and send it for them.
@@ -33,9 +33,9 @@ const MIME_BY_EXTENSION = {
 export default function VoiceScreen() {
   const { currentPatient } = useAuth();
   const pid = currentPatient?.id || 1;
-  const [language, setLanguage] = useState(currentPatient?.primary_language || 'en-IN');
+  const language = currentPatient?.primary_language || 'en-IN';
   const [question, setQuestion] = useState('');
-  const [reply, setReply] = useState(t(currentPatient?.primary_language || 'en-IN', 'readyToListen'));
+  const [reply, setReply] = useState(t(language, 'readyToListen'));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const playerRef = useRef(null);
@@ -45,6 +45,10 @@ export default function VoiceScreen() {
   const recorderState = useAudioRecorderState(recorder, 200);
   const recording = recorderState.isRecording;
   const seconds = Math.floor((recorderState.durationMillis || 0) / 1000);
+
+  useEffect(() => {
+    setReply(t(language, 'readyToListen'));
+  }, [language]);
 
   useEffect(() => () => {
     clearTimeout(autoStopRef.current);
@@ -149,15 +153,6 @@ export default function VoiceScreen() {
     <Screen>
       <SectionTitle eyebrow="Sarvam AI voice" title="🎙 Talk to MEMORA" sub="Press the big button and speak. Or type below." />
       <Card>
-        <Text style={styles.label}>LANGUAGE</Text>
-        <View style={styles.chips}>
-          {LANGUAGES.map((l) => (
-            <TouchableOpacity key={l.code} style={[styles.chip, language === l.code && styles.chipOn]} onPress={() => setLanguage(l.code)}>
-              <Text style={[styles.chipText, language === l.code && { color: '#fff' }]}>{l.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
         <TouchableOpacity
           style={[styles.mic, recording && styles.micOn]}
           onPress={toggleRecording}
@@ -204,10 +199,6 @@ export default function VoiceScreen() {
 
 const styles = StyleSheet.create({
   label: { fontSize: 13, fontWeight: '800', color: COLORS.text, marginBottom: 8 },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 12 },
-  chip: { paddingHorizontal: 16, paddingVertical: 12, borderRadius: 999, backgroundColor: '#eef0fc', minHeight: 52, justifyContent: 'center' },
-  chipOn: { backgroundColor: COLORS.indigo },
-  chipText: { fontSize: 16, fontWeight: '800', color: COLORS.indigo },
   mic: {
     backgroundColor: '#f5f2ea', borderWidth: 2, borderColor: COLORS.indigo, borderRadius: 22,
     minHeight: 96, alignItems: 'center', justifyContent: 'center', gap: 4, marginTop: 4,

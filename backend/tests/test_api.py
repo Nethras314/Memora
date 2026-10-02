@@ -73,6 +73,52 @@ def test_patient_signup_gets_own_record():
     assert len(res.json()) == 1
 
 
+def test_patient_can_change_own_language():
+    headers = _auth_headers("lang_self@test.local", "secret123", role="patient", full_name="Lang Self")
+    patients = client.get("/api/patients", headers=headers).json()
+    assert patients
+    pid = patients[0]["id"]
+
+    res = client.put(f"/api/patients/{pid}/language", json={"language_code": "hi-IN"}, headers=headers)
+    assert res.status_code == 200, res.text
+    assert res.json()["primary_language"] == "hi-IN"
+
+    # The new language must be visible on subsequent fetches.
+    after = client.get("/api/patients", headers=headers).json()
+    assert after[0]["primary_language"] == "hi-IN"
+
+
+def test_caregiver_can_change_patient_language():
+    headers = _auth_headers("lang_cg@test.local", "secret123", full_name="Lang CG")
+    created = client.post(
+        "/api/patients",
+        json={"name": "Lang Patient", "age": 70, "gender": "Female", "primary_language": "en-IN", "pin": "1234"},
+        headers=headers,
+    )
+    pid = created.json()["id"]
+    res = client.put(f"/api/patients/{pid}/language", json={"language_code": "ta-IN"}, headers=headers)
+    assert res.status_code == 200
+    assert res.json()["primary_language"] == "ta-IN"
+
+
+def test_language_update_rejects_unsupported_code():
+    headers = _admin_headers()
+    res = client.put("/api/patients/1/language", json={"language_code": "fr-FR"}, headers=headers)
+    assert res.status_code == 422
+
+
+def test_language_update_forbidden_for_stranger():
+    owner = _auth_headers("lang_owner@test.local", "secret123", full_name="Lang Owner")
+    stranger = _auth_headers("lang_stranger@test.local", "secret123", full_name="Lang Stranger")
+    pid = client.post(
+        "/api/patients",
+        json={"name": "Guarded", "age": 70, "gender": "Female", "primary_language": "en-IN", "pin": "1234"},
+        headers=owner,
+    ).json()["id"]
+    res = client.put(f"/api/patients/{pid}/language", json={"language_code": "ta-IN"}, headers=stranger)
+    assert res.status_code == 403
+
+
 def _admin_headers():
     return _auth_headers("admin@memora.local", "admin123", role="admin", full_name="Admin")
 

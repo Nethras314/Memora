@@ -2,6 +2,11 @@ from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 from datetime import datetime, date as DateValue
 
+# Canonical set of language codes the client apps expose. These map 1:1 to
+# Sarvam AI Saaras (STT) / Bulbul (TTS) language codes, so no translation
+# layer is required when forwarding to the voice provider.
+SUPPORTED_LANGUAGE_CODES = frozenset({"as-IN", "bn-IN", "en-IN", "hi-IN", "ta-IN"})
+
 # =========================================================
 # AUTH / MULTI-USER SCHEMAS
 # =========================================================
@@ -59,6 +64,9 @@ class PatientUpdate(BaseModel):
     gender: Optional[str] = None
     phone: Optional[str] = None
     primary_language: Optional[str] = None
+
+class LanguageUpdateRequest(BaseModel):
+    language_code: str = Field(..., example="ta-IN")
 
 class PatientResponse(PatientBase):
     id: int

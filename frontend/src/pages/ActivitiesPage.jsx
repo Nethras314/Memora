@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Brain, Sparkles, Trophy, RotateCcw, Volume2, CheckCircle2 } from 'lucide-react';
 import { api } from '../services/api';
+import { t } from '../i18n';
 
-export default function ActivitiesPage({ currentPatient }) {
+export default function ActivitiesPage({ currentPatient, language = 'en-IN' }) {
   // DDA Game State
   const [gameConfig, setGameConfig] = useState(null);
   const [gameState, setGameState] = useState('idle'); // idle, showing, playing, finished
@@ -102,7 +103,7 @@ export default function ActivitiesPage({ currentPatient }) {
 
       // Vocal congratulation
       if ('speechSynthesis' in window) {
-        const msg = isSuccess ? 'Excellent memory! Well done.' : 'Good try! Practice makes us stronger.';
+        const msg = isSuccess ? t(language, 'excellentMemory') : t(language, 'goodTryVoice');
         const utt = new SpeechSynthesisUtterance(msg);
         utt.rate = 0.85;
         window.speechSynthesis.speak(utt);
@@ -128,9 +129,9 @@ export default function ActivitiesPage({ currentPatient }) {
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold font-serif text-[#273047]">AI Cognitive Activities</h1>
+        <h1 className="text-3xl font-bold font-serif text-[#273047]">{t(language, 'activitiesTitle')}</h1>
         <p className="text-sm text-[#68738a] mt-1">
-          Gentle exercises with <b>AI-Powered Dynamic Difficulty Adjustment (DDA)</b>.
+          {t(language, 'activitiesSub')}
         </p>
       </div>
 
@@ -139,17 +140,17 @@ export default function ActivitiesPage({ currentPatient }) {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Brain className="w-6 h-6 text-[#4943a5]" />
-            <h2 className="text-2xl font-bold font-serif text-[#273047]">Memory Sequence Game</h2>
+            <h2 className="text-2xl font-bold font-serif text-[#273047]">{t(language, 'memorySequenceGame')}</h2>
           </div>
           {gameConfig && (
             <span className="text-xs font-bold uppercase tracking-wider bg-indigo-50 text-[#4943a5] px-3 py-1.5 rounded-xl border border-indigo-100">
-              AI Difficulty Level: {gameConfig.difficulty_level}
+              {t(language, 'aiDifficultyLevel')}: {gameConfig.difficulty_level}
             </span>
           )}
         </div>
 
         <p className="text-sm text-[#68738a] mb-6">
-          {gameConfig?.guidance_cue || 'Watch the symbols carefully, then pick them in the same order.'}
+          {gameConfig?.guidance_cue || t(language, 'watchSymbols')}
         </p>
 
         {/* Display Area */}
@@ -159,7 +160,7 @@ export default function ActivitiesPage({ currentPatient }) {
               onClick={startMemoryGame}
               className="bg-[#4943a5] text-white px-6 py-3 rounded-2xl font-bold hover:bg-[#3d378f] shadow-md transition"
             >
-              Start Game →
+              {t(language, 'startGame')} →
             </button>
           )}
 
@@ -176,7 +177,7 @@ export default function ActivitiesPage({ currentPatient }) {
           {gameState === 'playing' && (
             <div className="text-center">
               <div className="text-sm font-semibold text-[#4943a5] mb-2">
-                Selected {userInput.length} of {gameConfig?.sequence?.length}:
+                {t(language, 'selectedOf')} {userInput.length} / {gameConfig?.sequence?.length}:
               </div>
               <div className="flex gap-2 justify-center text-3xl min-h-[48px]">
                 {userInput.map((sym, idx) => (
@@ -189,16 +190,16 @@ export default function ActivitiesPage({ currentPatient }) {
           {gameState === 'finished' && gameResult && (
             <div className="text-center space-y-3">
               <div className={`text-xl font-bold ${gameResult.success ? 'text-emerald-600' : 'text-amber-600'}`}>
-                {gameResult.success ? '✓ Wonderful! Perfect Sequence!' : 'Good attempt! Keep enjoying.'}
+                {gameResult.success ? '✓ ' + t(language, 'wonderfulPerfect') : t(language, 'goodAttempt')}
               </div>
               <div className="text-xs text-[#68738a]">
-                Reaction Time: {(gameResult.latencyMs / 1000).toFixed(1)}s • AI is tuning next level...
+                {t(language, 'reactionTime')}: {(gameResult.latencyMs / 1000).toFixed(1)}s
               </div>
               <button
                 onClick={loadNextGame}
                 className="bg-[#4943a5] text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-[#3d378f]"
               >
-                Next AI Round →
+                {t(language, 'nextAiRound')} →
               </button>
             </div>
           )}
@@ -224,15 +225,15 @@ export default function ActivitiesPage({ currentPatient }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* GK */}
         <div className="bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm">
-          <div className="text-xs uppercase tracking-wider font-bold text-[#68738a] mb-2">Memory Recall</div>
-          <h3 className="text-xl font-bold font-serif text-[#273047] mb-3">General Knowledge</h3>
-          <p className="text-sm font-medium text-[#273047] mb-4">{gkQuestion?.question || 'Loading question...'}</p>
+          <div className="text-xs uppercase tracking-wider font-bold text-[#68738a] mb-2">{t(language, 'memoryRecall')}</div>
+          <h3 className="text-xl font-bold font-serif text-[#273047] mb-3">{t(language, 'generalKnowledge')}</h3>
+          <p className="text-sm font-medium text-[#273047] mb-4">{gkQuestion?.question || t(language, 'loadingQuestion')}</p>
 
           <div className="grid grid-cols-3 gap-2 mb-4">
             {gkQuestion?.options?.map((opt, i) => (
               <button
                 key={i}
-                onClick={() => setGkFeedback(opt === gkQuestion.answer ? '✓ Correct! Excellent recall.' : 'Try again.')}
+                onClick={() => setGkFeedback(opt === gkQuestion.answer ? '✓ ' + t(language, 'correctRecall') : t(language, 'tryAgain'))}
                 className="py-3 px-2 bg-[#faf8f2] hover:bg-indigo-50 text-sm font-semibold rounded-xl border border-[#e8e2d5] transition"
               >
                 {opt}
@@ -245,9 +246,9 @@ export default function ActivitiesPage({ currentPatient }) {
 
         {/* Attention Odd-One-Out */}
         <div className="bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm">
-          <div className="text-xs uppercase tracking-wider font-bold text-[#68738a] mb-2">Visual Focus</div>
-          <h3 className="text-xl font-bold font-serif text-[#273047] mb-3">Odd One Out</h3>
-          <p className="text-sm font-medium text-[#273047] mb-4">{attentionQuestion?.question || 'Spot the difference:'}</p>
+          <div className="text-xs uppercase tracking-wider font-bold text-[#68738a] mb-2">{t(language, 'visualFocus')}</div>
+          <h3 className="text-xl font-bold font-serif text-[#273047] mb-3">{t(language, 'oddOneOut')}</h3>
+          <p className="text-sm font-medium text-[#273047] mb-4">{attentionQuestion?.question || t(language, 'spotDifference')}</p>
 
           <div className="grid grid-cols-3 gap-2 mb-4">
             {attentionQuestion?.options?.map((opt, i) => (
@@ -255,7 +256,7 @@ export default function ActivitiesPage({ currentPatient }) {
                 key={i}
                 onClick={() =>
                   setAttentionFeedback(
-                    opt === attentionQuestion.answer ? `✓ Exactly right! ${attentionQuestion.explanation}` : 'Try once more.'
+                    opt === attentionQuestion.answer ? `✓ ${t(language, 'exactlyRight')} ${attentionQuestion.explanation}` : t(language, 'tryOnceMore')
                   )
                 }
                 className="py-3 px-2 bg-[#faf8f2] hover:bg-indigo-50 text-sm font-semibold rounded-xl border border-[#e8e2d5] transition"

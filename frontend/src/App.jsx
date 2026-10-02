@@ -17,6 +17,26 @@ import { api } from './services/api';
 import { SUPPORTED_LANGUAGES, t } from './i18n';
 import { Globe, Volume2, LogOut } from 'lucide-react';
 
+const LANG_CACHE_PREFIX = 'memora_lang_';
+
+function getCachedLanguage(patientId) {
+  if (!patientId) return '';
+  try {
+    return localStorage.getItem(`${LANG_CACHE_PREFIX}${patientId}`) || '';
+  } catch {
+    return '';
+  }
+}
+
+function setCachedLanguage(patientId, code) {
+  if (!patientId) return;
+  try {
+    localStorage.setItem(`${LANG_CACHE_PREFIX}${patientId}`, code);
+  } catch {
+    /* ignore storage errors (private mode, etc.) */
+  }
+}
+
 function normalizeRole(role) {
   const r = (role || 'caregiver').toLowerCase();
   return r === 'caretaker' ? 'caregiver' : r;
@@ -31,10 +51,9 @@ function Shell() {
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
   const [pinVerified, setPinVerified] = useState(false);
   const [loadError, setLoadError] = useState('');
-  const [uiLang, setUiLang] = useState('');
+  const [language, setLanguage] = useState('en-IN');
 
   const role = normalizeRole(user?.role);
-  const language = uiLang || currentPatient?.primary_language || 'en-IN';
 
   useEffect(() => {
     if (!user) return;
@@ -57,6 +76,29 @@ function Shell() {
     }
     loadPatients();
   }, [user]);
+
+  // Single source of truth for language: the selected patient's preference
+  // (cached locally first, then the server value, then English).
+  useEffect(() => {
+    const pid = currentPatient?.id;
+    if (!pid) {
+      setLanguage('en-IN');
+      return;
+    }
+    setLanguage(getCachedLanguage(pid) || currentPatient?.primary_language || 'en-IN');
+  }, [currentPatient?.id, currentPatient?.primary_language]);
+
+  const handleLanguageChange = async (code) => {
+    setLanguage(code);
+    const pid = currentPatient?.id;
+    if (!pid) return;
+    setCachedLanguage(pid, code);
+    try {
+      await api.updatePatientLanguage(pid, code);
+    } catch {
+      /* keep the local value; the backend write is best-effort */
+    }
+  };
 
   // Default landing tab per role
   useEffect(() => {
@@ -122,7 +164,7 @@ function Shell() {
               <Globe className="w-3.5 h-3.5" />
               <select
                 value={language}
-                onChange={(e) => setUiLang(e.target.value)}
+                onChange={(e) => handleLanguageChange(e.target.value)}
                 className="bg-transparent text-xs font-semibold text-[#22574c] outline-none cursor-pointer"
                 aria-label="Choose language"
               >
@@ -167,17 +209,17 @@ function Shell() {
             />
           )}
 
-          {activeTab === 'memories' && <MemoriesPage currentPatient={currentPatient} />}
+          {activeTab === 'memories' && <MemoriesPage currentPatient={currentPatient} language={language} />}
 
-          {activeTab === 'routine' && <RoutinePage currentPatient={currentPatient} />}
+          {activeTab === 'routine' && <RoutinePage currentPatient={currentPatient} language={language} />}
 
-          {activeTab === 'reminders' && <RemindersPage currentPatient={currentPatient} />}
+          {activeTab === 'reminders' && <RemindersPage currentPatient={currentPatient} language={language} />}
 
-          {activeTab === 'activities' && <ActivitiesPage currentPatient={currentPatient} />}
+          {activeTab === 'activities' && <ActivitiesPage currentPatient={currentPatient} language={language} />}
 
-          {activeTab === 'exercise' && <ExercisePage />}
+          {activeTab === 'exercise' && <ExercisePage language={language} />}
 
-          {activeTab === 'sleep' && <SleepPage />}
+          {activeTab === 'sleep' && <SleepPage language={language} />}
 
           {activeTab === 'caregiver' && canSeeCaregiver && (
             <CaregiverDashboard
@@ -206,6 +248,7 @@ function Shell() {
         isOpen={isVoiceModalOpen}
         onClose={() => setIsVoiceModalOpen(false)}
         currentPatient={currentPatient}
+        language={language}
       />
     </div>
   );

@@ -1,7 +1,28 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import * as SecureStore from 'expo-secure-store';
 import { api } from './api';
 
 const AuthContext = createContext(null);
+
+const LANG_CACHE_PREFIX = 'memora_lang_';
+
+async function readCachedLang(patientId) {
+  if (!patientId) return '';
+  try {
+    return (await SecureStore.getItemAsync(`${LANG_CACHE_PREFIX}${patientId}`)) || '';
+  } catch {
+    return '';
+  }
+}
+
+async function writeCachedLang(patientId, code) {
+  if (!patientId) return;
+  try {
+    await SecureStore.setItemAsync(`${LANG_CACHE_PREFIX}${patientId}`, code);
+  } catch {
+    /* ignore storage errors */
+  }
+}
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -13,10 +34,19 @@ export function AuthProvider({ children }) {
   const loadPatients = useCallback(async () => {
     try {
       const list = await api.getPatients();
-      setPatients(list || []);
+      // Local cache wins so a choice made offline still applies immediately.
+      const hydrated = await Promise.all(
+        (list || []).map(async (p) => {
+          const cached = await readCachedLang(p.id);
+          return cached ? { ...p, primary_language: cached } : p;
+        }),
+      );
+      setPatients(hydrated);
       setCurrentPatient((prev) => {
-        if (prev && list.some((p) => p.id === prev.id)) return prev;
-        return list[0] || null;
+        if (prev && hydrated.some((p) => p.id === prev.id)) {
+          return hydrated.find((p) => p.id === prev.id) || prev;
+        }
+        return hydrated[0] || null;
       });
     } catch {}
   }, []);
@@ -66,9 +96,22 @@ export function AuthProvider({ children }) {
     setPinVerified(false);
   }, []);
 
+  const setLanguage = useCallback(async (code) => {
+    const pid = currentPatient?.id;
+    if (!pid) return;
+    setCurrentPatient((prev) => (prev ? { ...prev, primary_language: code } : prev));
+    setPatients((list) => list.map((p) => (p.id === pid ? { ...p, primary_language: code } : p)));
+    await writeCachedLang(pid, code);
+    try {
+      await api.updatePatientLanguage(pid, code);
+    } catch {
+      /* keep the local value; the backend write is best-effort */
+    }
+  }, [currentPatient?.id]);
+
   const value = useMemo(
-    () => ({ user, loading, patients, currentPatient, pinVerified, setPinVerified, selectPatient, loadPatients, login, signup, logout }),
-    [user, loading, patients, currentPatient, pinVerified, selectPatient, loadPatients, login, signup, logout],
+    () => ({ user, loading, patients, currentPatient, pinVerified, setPinVerified, selectPatient, setLanguage, loadPatients, login, signup, logout }),
+    [user, loading, patients, currentPatient, pinVerified, selectPatient, setLanguage, loadPatients, login, signup, logout],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Volume2, Heart, Edit2, Trash2, X, AlertCircle } from 'lucide-react';
 import { api } from '../services/api';
+import { t } from '../i18n';
 
-export default function MemoriesPage({ currentPatient }) {
+export default function MemoriesPage({ currentPatient, language = 'en-IN' }) {
   const [memories, setMemories] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingMemory, setEditingMemory] = useState(null);
@@ -28,7 +29,7 @@ export default function MemoriesPage({ currentPatient }) {
       setMemories(data || []);
     } catch (e) {
       console.error(e);
-      setErrorMsg('Failed to load memories.');
+      setErrorMsg(t(language, 'failedLoadMemories'));
     } finally {
       setLoading(false);
     }
@@ -92,7 +93,7 @@ export default function MemoriesPage({ currentPatient }) {
       await loadMemories();
     } catch (err) {
       console.error(err);
-      setErrorMsg('Error saving memory. Please check fields and try again.');
+      setErrorMsg(t(language, 'errorSavingMemory'));
     } finally {
       setSaving(false);
     }
@@ -106,7 +107,7 @@ export default function MemoriesPage({ currentPatient }) {
       await loadMemories();
     } catch (err) {
       console.error(err);
-      alert('Error deleting memory.');
+      alert(t(language, 'errorDeletingMemory'));
     }
   };
 
@@ -114,34 +115,34 @@ export default function MemoriesPage({ currentPatient }) {
     <div className="space-y-6 max-w-6xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold font-serif text-[#273047]">Personal Memory Bank</h1>
-          <p className="text-sm text-[#68738a] mt-1">Familiar moments, loved ones, and favorite memories.</p>
+          <h1 className="text-3xl font-bold font-serif text-[#273047]">{t(language, 'memoriesTitle')}</h1>
+          <p className="text-sm text-[#68738a] mt-1">{t(language, 'memoriesSub')}</p>
         </div>
         <button
           onClick={handleOpenAdd}
           className="bg-[#4943a5] text-white px-5 py-3 rounded-2xl font-semibold flex items-center gap-2 shadow-md hover:bg-[#3d378f] transition"
         >
           <Plus className="w-5 h-5" />
-          <span>Save New Memory</span>
+          <span>{t(language, 'saveNewMemory')}</span>
         </button>
       </div>
 
       {loading ? (
         <div className="text-center py-16 text-[#68738a]">
           <div className="animate-spin w-8 h-8 border-4 border-[#4943a5] border-t-transparent rounded-full mx-auto mb-3"></div>
-          <p className="text-sm font-medium">Loading your familiar moments...</p>
+          <p className="text-sm font-medium">{t(language, 'loadingMemories')}</p>
         </div>
       ) : memories.length === 0 ? (
         <div className="bg-[#fffefb] rounded-3xl p-12 text-center border border-[#e5dfd4]">
           <span className="text-5xl block mb-3">🖼️</span>
-          <h3 className="text-xl font-bold font-serif text-[#273047] mb-1">No memories saved yet</h3>
-          <p className="text-sm text-[#68738a] mb-6">Start by adding a favorite photo of a family member, food, or hometown.</p>
+          <h3 className="text-xl font-bold font-serif text-[#273047] mb-1">{t(language, 'noMemories')}</h3>
+          <p className="text-sm text-[#68738a] mb-6">{t(language, 'noMemoriesHint')}</p>
           <button
             onClick={handleOpenAdd}
             className="bg-[#4943a5] text-white px-6 py-3 rounded-2xl font-semibold inline-flex items-center gap-2 shadow hover:bg-[#3d378f] transition"
           >
             <Plus className="w-4 h-4" />
-            <span>Save your first memory</span>
+            <span>{t(language, 'saveFirstMemory')}</span>
           </button>
         </div>
       ) : (
@@ -169,14 +170,14 @@ export default function MemoriesPage({ currentPatient }) {
                     <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition">
                       <button
                         onClick={() => handleOpenEdit(m)}
-                        title="Edit Memory"
+                        title={t(language, 'editMemory')}
                         className="p-1.5 text-gray-400 hover:text-[#4943a5] hover:bg-indigo-50 rounded-lg transition"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => setDeletingMemoryId(m.id)}
-                        title="Delete Memory"
+                        title={t(language, 'deleteMemory')}
                         className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -193,7 +194,7 @@ export default function MemoriesPage({ currentPatient }) {
                     className="text-xs font-bold text-[#4943a5] flex items-center gap-1.5 hover:underline"
                   >
                     <Volume2 className="w-4 h-4" />
-                    <span>Listen to memory</span>
+                    <span>{t(language, 'listenMemory')}</span>
                   </button>
                   <Heart className="w-4 h-4 text-red-400 fill-red-400" />
                 </div>
@@ -218,9 +219,9 @@ export default function MemoriesPage({ currentPatient }) {
             </button>
 
             <h2 className="text-2xl font-bold font-serif text-[#273047] mb-1">
-              {editingMemory ? 'Edit Familiar Moment' : 'Save a Familiar Moment'}
+              {editingMemory ? t(language, 'editFamiliarMoment') : t(language, 'saveFamiliarMoment')}
             </h2>
-            <p className="text-sm text-[#68738a] mb-6">Helps stimulate recognition and comfort.</p>
+            <p className="text-sm text-[#68738a] mb-6">{t(language, 'familiarMomentHint')}</p>
 
             {errorMsg && (
               <div className="mb-4 bg-red-50 border border-red-200 text-red-700 text-xs px-3 py-2 rounded-xl flex items-center gap-2">
@@ -231,7 +232,7 @@ export default function MemoriesPage({ currentPatient }) {
 
             <form onSubmit={handleSaveMemory} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-[#273047] uppercase mb-1">Category</label>
+                <label className="block text-xs font-bold text-[#273047] uppercase mb-1">{t(language, 'category')}</label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
@@ -246,7 +247,7 @@ export default function MemoriesPage({ currentPatient }) {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#273047] uppercase mb-1">Title</label>
+                <label className="block text-xs font-bold text-[#273047] uppercase mb-1">{t(language, 'title')}</label>
                 <input
                   type="text"
                   required
@@ -258,7 +259,7 @@ export default function MemoriesPage({ currentPatient }) {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#273047] uppercase mb-1">Details</label>
+                <label className="block text-xs font-bold text-[#273047] uppercase mb-1">{t(language, 'details')}</label>
                 <textarea
                   required
                   rows={3}
@@ -271,7 +272,7 @@ export default function MemoriesPage({ currentPatient }) {
 
               <div>
                 <label className="block text-xs font-bold text-[#273047] uppercase mb-1">
-                  {editingMemory ? 'Change Photo (Optional)' : 'Upload Photo (Optional)'}
+                  {editingMemory ? t(language, 'changePhoto') : t(language, 'uploadPhoto')}
                 </label>
                 <input
                   type="file"
@@ -290,14 +291,14 @@ export default function MemoriesPage({ currentPatient }) {
                   }}
                   className="flex-1 py-3 border border-gray-300 rounded-2xl font-bold text-sm text-gray-600 hover:bg-gray-50 transition"
                 >
-                  Cancel
+                  {t(language, 'cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
                   className="flex-1 py-3 bg-[#4943a5] text-white rounded-2xl font-bold text-sm hover:bg-[#3d378f] disabled:opacity-50 transition"
                 >
-                  {saving ? 'Saving...' : editingMemory ? 'Update Memory' : 'Save Memory'}
+                  {saving ? t(language, 'saving') : editingMemory ? t(language, 'updateMemory') : t(language, 'saveMemory')}
                 </button>
               </div>
             </form>
@@ -312,20 +313,20 @@ export default function MemoriesPage({ currentPatient }) {
             <div className="w-12 h-12 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
               <Trash2 className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-bold font-serif text-[#273047] mb-1">Delete this memory?</h3>
-            <p className="text-sm text-[#68738a] mb-6">This action cannot be undone.</p>
+            <h3 className="text-xl font-bold font-serif text-[#273047] mb-1">{t(language, 'deleteMemoryConfirm')}</h3>
+            <p className="text-sm text-[#68738a] mb-6">{t(language, 'cannotUndo')}</p>
             <div className="flex gap-3">
               <button
                 onClick={() => setDeletingMemoryId(null)}
                 className="flex-1 py-2.5 border border-gray-300 rounded-2xl font-bold text-sm text-gray-600 hover:bg-gray-50 transition"
               >
-                Cancel
+                {t(language, 'cancel')}
               </button>
               <button
                 onClick={handleDeleteMemory}
                 className="flex-1 py-2.5 bg-red-600 text-white rounded-2xl font-bold text-sm hover:bg-red-700 transition"
               >
-                Delete
+                {t(language, 'delete')}
               </button>
             </div>
           </div>
