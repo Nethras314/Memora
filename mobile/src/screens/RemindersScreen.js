@@ -5,12 +5,15 @@ import { api } from '../lib/api';
 import { scheduleReminderNotification } from '../lib/notifications';
 import { BigButton, Card, Screen, SectionTitle } from '../components/ui';
 import { COLORS, REMINDER_CATEGORIES, REMINDER_FREQUENCIES } from '../theme';
+import { t } from '../i18n';
 
 export default function RemindersScreen() {
   const { currentPatient } = useAuth();
   const pid = currentPatient?.id || 1;
+  const lang = currentPatient?.primary_language || 'en-IN';
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [title, setTitle] = useState('');
@@ -23,7 +26,8 @@ export default function RemindersScreen() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    try { setItems((await api.getReminders(pid)) || []); } catch {}
+    setLoadError(false);
+    try { setItems((await api.getReminders(pid)) || []); } catch { setLoadError(true); }
     finally { setLoading(false); }
   }, [pid]);
 
@@ -72,7 +76,13 @@ export default function RemindersScreen() {
       </View>
       <Card>
         {loading ? <Text style={styles.muted}>Loading reminders…</Text> : null}
-        {!loading && items.length === 0 ? <Text style={styles.muted}>No reminders yet. Add a gentle prompt above.</Text> : null}
+        {!loading && loadError ? (
+          <View style={{ alignItems: 'center', gap: 10 }}>
+            <Text style={styles.muted}>{t(lang, 'loadErrorMsg')}</Text>
+            <BigButton title={t(lang, 'tryAgain')} variant="outline" onPress={load} />
+          </View>
+        ) : null}
+        {!loading && !loadError && items.length === 0 ? <Text style={styles.muted}>No reminders yet. Add a gentle prompt above.</Text> : null}
         {items.map((r) => (
           <View key={r.id} style={[styles.row, r.enabled === false && { opacity: 0.6 }]}>
             <View style={{ flex: 1 }}>

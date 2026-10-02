@@ -13,8 +13,10 @@ export default function TodayScreen({ go, openVoice }) {
   const [tasks, setTasks] = useState([]);
   const [reminders, setReminders] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
   const load = useCallback(async () => {
+    setLoadError(false);
     try {
       const [t, r] = await Promise.all([
         api.getTasks(currentPatient?.id || 1),
@@ -22,7 +24,9 @@ export default function TodayScreen({ go, openVoice }) {
       ]);
       setTasks(t || []);
       setReminders((r || []).filter((x) => x.enabled !== false));
-    } catch {}
+    } catch {
+      setLoadError(true);
+    }
   }, [currentPatient]);
 
   useEffect(() => { load(); }, [load]);
@@ -45,6 +49,13 @@ export default function TodayScreen({ go, openVoice }) {
           <Text style={styles.pctSub}>{t(lang, 'dailyRoutineDone')}</Text>
         </View>
       </Card>
+
+      {loadError ? (
+        <Card style={{ alignItems: 'center', gap: 12 }}>
+          <Text style={styles.muted}>{t(lang, 'loadErrorMsg')}</Text>
+          <BigButton title={t(lang, 'tryAgain')} variant="outline" onPress={load} />
+        </Card>
+      ) : null}
 
       <Card>
         <SectionTitle eyebrow={t(lang, 'quickActions')} title={t(lang, 'easyToReach')} />

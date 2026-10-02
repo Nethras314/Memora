@@ -22,14 +22,16 @@ export default function MemoriesScreen() {
   const [photo, setPhoto] = useState(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [loadError, setLoadError] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
+    setLoadError(false);
     try {
       setItems((await api.getMemories(pid)) || []);
     } catch {
-      setError('Could not load memories. Check connection.');
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -101,7 +103,13 @@ export default function MemoriesScreen() {
         <BigButton title={`+ ${t(lang, 'saveMemory')}`} onPress={openAdd} />
       </View>
       {loading ? <Card><Text style={styles.muted}>Loading your familiar moments…</Text></Card> : null}
-      {!loading && items.length === 0 ? (
+      {!loading && loadError ? (
+        <Card style={{ alignItems: 'center', gap: 10 }}>
+          <Text style={styles.muted}>{t(lang, 'loadErrorMsg')}</Text>
+          <BigButton title={t(lang, 'tryAgain')} variant="outline" onPress={load} />
+        </Card>
+      ) : null}
+      {!loading && !loadError && items.length === 0 ? (
         <Card style={{ alignItems: 'center' }}>
           <Text style={{ fontSize: 54 }}>🖼️</Text>
           <Text style={styles.emptyTitle}>No memories saved yet</Text>

@@ -418,3 +418,61 @@ def test_reminders_crud_enable_and_persistence():
 
     after_delete = client.get("/api/routines/reminders?patient_id=1", headers=headers)
     assert all(r["id"] != reminder_id for r in after_delete.json())
+
+
+def test_questions_localized_and_reject_unknown_language():
+    headers = _admin_headers()
+
+    gk = client.get("/api/cognitive/questions/gk?language_code=hi-IN", headers=headers)
+    assert gk.status_code == 200, gk.text
+    gk_data = gk.json()
+    assert any("\u0900" <= ch <= "\u097f" for ch in gk_data["question"])
+    assert gk_data["answer"] in gk_data["options"]
+
+    att = client.get("/api/cognitive/questions/attention?language_code=ta-IN", headers=headers)
+    assert att.status_code == 200, att.text
+    att_data = att.json()
+    assert any("\u0b80" <= ch <= "\u0bff" for ch in att_data["question"])
+    assert att_data["answer"] in att_data["options"]
+
+    assert client.get("/api/cognitive/questions/gk?language_code=fr-FR", headers=headers).status_code == 400
+    assert client.get("/api/cognitive/questions/attention?language_code=xx-XX", headers=headers).status_code == 400
+
+
+def test_photo_recognition_round_for_patient_with_memories():
+    headers = _admin_headers()
+    res = client.get("/api/cognitive/next-photo-game?patient_id=1", headers=headers)
+    assert res.status_code == 200, res.text
+    data = res.json()
+    assert data["photo_url"]
+    assert data["correct_title"] in data["options"]
+    assert len(data["options"]) == 4
+
+
+def test_photo_recognition_no_memories_returns_400():
+    headers = _auth_headers("photonone@test.local", "secret123", full_name="Photo None")
+    created = client.post(
+        "/api/patients",
+        json={"name": "No Memory", "age": 80, "gender": "Female", "primary_language": "en-IN", "pin": "1234"},
+        headers=headers,
+    )
+    pid = created.json()["id"]
+    res = client.get(f"/api/cognitive/next-photo-game?patient_id={pid}", headers=headers)
+    assert res.status_code == 400
+
+
+def test_log_session_accepts_photo_recognition_rejects_task_sequencing():
+    headers = _admin_headers()
+    base = {
+        "patient_id": 1,
+        "difficulty_level": 1,
+        "score": 100,
+        "accuracy": 1.0,
+        "reaction_time_ms": 2000,
+        "mistake_count": 0,
+    }
+    ok = client.post("/api/cognitive/log-session", json={**base, "game_type": "photo_recognition"}, headers=headers)
+    assert ok.status_code == 200, ok.text
+
+    bad = client.post("/api/cognitive/log-session", json={**base, "game_type": "task_sequencing"}, headers=headers)
+    assert bad.status_code == 400

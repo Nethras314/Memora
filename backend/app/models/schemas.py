@@ -195,6 +195,13 @@ class DDANextGameResponse(BaseModel):
     display_duration_ms: int
     guidance_cue: str
 
+
+class PhotoGameResponse(BaseModel):
+    round: int
+    photo_url: str
+    correct_title: str
+    options: List[str]
+
 # =========================================================
 # VOICE & SARVAM AI SCHEMAS
 # =========================================================

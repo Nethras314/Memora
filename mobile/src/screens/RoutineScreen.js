@@ -14,20 +14,25 @@ export default function RoutineScreen() {
   const [tasks, setTasks] = useState([]);
   const [reminders, setReminders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [modal, setModal] = useState(false);
   const [title, setTitle] = useState('');
   const [time, setTime] = useState('09:00');
   const [category, setCategory] = useState('Routine');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [confirmReset, setConfirmReset] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
+    setLoadError(false);
     try {
       const [t, r] = await Promise.all([api.getTasks(pid), api.getReminders(pid)]);
       setTasks(t || []);
       setReminders(r || []);
-    } catch {}
+    } catch {
+      setLoadError(true);
+    }
     finally { setLoading(false); }
   }, [pid]);
 
@@ -67,7 +72,7 @@ export default function RoutineScreen() {
       <View style={{ gap: 12 }}>
         <SectionTitle title={t(lang, 'routineTitle')} sub={t(lang, 'routineSub')} />
         <View style={{ flexDirection: 'row', gap: 10 }}>
-          <View style={{ flex: 1 }}><BigButton title={`↺ ${t(lang, 'resetToday')}`} variant="outline" onPress={reset} /></View>
+          <View style={{ flex: 1 }}><BigButton title={`↺ ${t(lang, 'resetToday')}`} variant="outline" onPress={() => setConfirmReset(true)} /></View>
           <View style={{ flex: 1 }}><BigButton title={`+ ${t(lang, 'addStep')}`} onPress={() => setModal(true)} /></View>
         </View>
       </View>
@@ -75,7 +80,13 @@ export default function RoutineScreen() {
       <Card>
         <Text style={styles.count}>{doneCount} / {tasks.length} completed</Text>
         {loading ? <Text style={styles.muted}>Loading schedule…</Text> : null}
-        {!loading && tasks.length === 0 ? <Text style={styles.muted}>No routine steps yet. Add one above.</Text> : null}
+        {!loading && loadError ? (
+          <View style={{ alignItems: 'center', gap: 10, marginTop: 8 }}>
+            <Text style={styles.muted}>{t(lang, 'loadErrorMsg')}</Text>
+            <BigButton title={t(lang, 'tryAgain')} variant="outline" onPress={load} />
+          </View>
+        ) : null}
+        {!loading && !loadError && tasks.length === 0 ? <Text style={styles.muted}>No routine steps yet. Add one above.</Text> : null}
         {tasks.map((t) => (
           <View key={t.id} style={styles.taskRow}>
             <TouchableOpacity style={styles.taskMain} onPress={() => toggle(t.id)}>
@@ -123,6 +134,19 @@ export default function RoutineScreen() {
           <BigButton title="Cancel" variant="outline" onPress={() => setModal(false)} />
         </Screen>
       </Modal>
+
+      <Modal visible={confirmReset} transparent animationType="fade" onRequestClose={() => setConfirmReset(false)}>
+        <View style={styles.confirmWrap}>
+          <View style={styles.confirm}>
+            <Text style={styles.confirmTitle}>{t(lang, 'resetToday')}?</Text>
+            <Text style={styles.muted}>{t(lang, 'routineSub')}</Text>
+            <View style={{ height: 14 }} />
+            <BigButton title={t(lang, 'resetToday')} variant="danger" onPress={async () => { setConfirmReset(false); await reset(); }} />
+            <View style={{ height: 10 }} />
+            <BigButton title={t(lang, 'close')} variant="outline" onPress={() => setConfirmReset(false)} />
+          </View>
+        </View>
+      </Modal>
     </Screen>
   );
 }
@@ -143,4 +167,7 @@ const styles = StyleSheet.create({
   chipOn: { backgroundColor: COLORS.indigo },
   chipText: { fontSize: 16, fontWeight: '800', color: COLORS.indigo },
   error: { color: COLORS.danger, fontSize: 16, fontWeight: '700', marginTop: 10 },
+  confirmWrap: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', alignItems: 'center', justifyContent: 'center', padding: 24 },
+  confirm: { backgroundColor: '#fff', borderRadius: 24, padding: 24, width: '100%' },
+  confirmTitle: { fontSize: 22, fontWeight: '800', color: COLORS.text },
 });

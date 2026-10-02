@@ -72,8 +72,10 @@ export const api = {
   getNextGame: (patientId = 1, gameType = 'sequence_memory') =>
     req('get', `/cognitive/next-game?patient_id=${patientId}&game_type=${gameType}`),
   logCognitiveSession: (payload) => req('post', '/cognitive/log-session', payload),
-  getGkQuestion: () => req('get', '/cognitive/questions/gk'),
-  getAttentionQuestion: () => req('get', '/cognitive/questions/attention'),
+  getGkQuestion: (lang = 'en-IN') => req('get', `/cognitive/questions/gk?language_code=${lang}`),
+  getAttentionQuestion: (lang = 'en-IN') => req('get', `/cognitive/questions/attention?language_code=${lang}`),
+  getNextPhotoGame: (patientId = 1, lang = 'en-IN') =>
+    req('get', `/cognitive/next-photo-game?patient_id=${patientId}&language_code=${lang}`),
 
   voiceInteract: (payload) => req('post', '/voice/interact', payload),
   getProgress: (patientId = 1) => req('get', `/caregiver/analytics?patient_id=${patientId}`),

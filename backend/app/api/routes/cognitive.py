@@ -8,11 +8,14 @@ from backend.app.core import database as db_module
 from backend.app.core.access import ensure_patient_access
 from backend.app.core.security import get_current_user
 from backend.app.models.schemas import (
+    SUPPORTED_LANGUAGE_CODES,
     CognitiveSessionCreate,
     CognitiveSessionResponse,
     DDANextGameResponse,
+    PhotoGameResponse,
 )
 from backend.app.services.dda_engine import DynamicDifficultyAdjustmentEngine
+from backend.app.services import question_bank
 
 router = APIRouter(prefix="/cognitive", tags=["AI Cognitive Engine & DDA"])
 
@@ -42,49 +45,7 @@ COGNITIVE_HISTORY: List[Dict[str, Any]] = [
     }
 ]
 
-GK_BANK = [
-    {
-        "question": "Which planet is known as the Red Planet?",
-        "options": ["Earth", "Mars", "Venus"],
-        "answer": "Mars",
-        "hint": "It appears reddish in the night sky."
-    },
-    {
-        "question": "What is the capital of India?",
-        "options": ["Mumbai", "New Delhi", "Chennai"],
-        "answer": "New Delhi",
-        "hint": "Located in the north of India."
-    },
-    {
-        "question": "Which animal is known as the King of the Jungle?",
-        "options": ["Elephant", "Lion", "Tiger"],
-        "answer": "Lion",
-        "hint": "It has a large mane."
-    }
-]
-
-ATTENTION_BANK = [
-    {
-        "question": "Which one is different from the others?",
-        "options": ["🍎 Apple", "🍌 Banana", "🚗 Car"],
-        "answer": "🚗 Car",
-        "explanation": "Car is a vehicle, while Apple and Banana are fruits."
-    },
-    {
-        "question": "Which one does not belong here?",
-        "options": ["🐶 Dog", "🐱 Cat", "🪑 Chair"],
-        "answer": "🪑 Chair",
-        "explanation": "Chair is furniture, while Dog and Cat are animals."
-    },
-    {
-        "question": "Spot the odd item:",
-        "options": ["☕ Tea Cup", "🥄 Spoon", "🌻 Flower"],
-        "answer": "🌻 Flower",
-        "explanation": "Flower is a plant, while Cup and Spoon are kitchen utensils."
-    }
-]
-
-ALLOWED_GAMES = {"sequence_memory", "general_knowledge", "odd_one_out", "task_sequencing"}
+ALLOWED_GAMES = {"sequence_memory", "general_knowledge", "odd_one_out", "photo_recognition"}
 
 
 def _history_for(patient_id: int, game_type: str) -> List[Dict[str, Any]]:
@@ -104,6 +65,19 @@ def _history_for(patient_id: int, game_type: str) -> List[Dict[str, Any]]:
         except Exception:
             pass
     return [s for s in COGNITIVE_HISTORY if s["patient_id"] == patient_id and s["game_type"] == game_type]
+
+
+def _memories_for(patient_id: int) -> List[Dict[str, Any]]:
+    if db_module.is_supabase_configured():
+        try:
+            admin = db_module.get_supabase_admin()
+            res = admin.table("memories").select("*").eq("patient_id", patient_id).execute()
+            return res.data or []
+        except Exception:
+            pass
+    from backend.app.api.routes.memories import MOCK_MEMORIES
+
+    return [m for m in MOCK_MEMORIES if m["patient_id"] == patient_id]
 
 
 @router.get("/next-game", response_model=DDANextGameResponse)
@@ -167,10 +141,66 @@ async def log_session_telemetry(session: CognitiveSessionCreate, user: dict = De
 
 
 @router.get("/questions/gk")
-async def get_general_knowledge_question(user: dict = Depends(get_current_user)):
-    return random.choice(GK_BANK)
+async def get_general_knowledge_question(
+    language_code: str = "en-IN", user: dict = Depends(get_current_user)
+):
+    if language_code not in SUPPORTED_LANGUAGE_CODES:
+        raise HTTPException(status_code=400, detail="Unsupported language code.")
+    return question_bank.get_gk_question(language_code)
 
 
 @router.get("/questions/attention")
-async def get_attention_question(user: dict = Depends(get_current_user)):
-    return random.choice(ATTENTION_BANK)
+async def get_attention_question(
+    language_code: str = "en-IN", user: dict = Depends(get_current_user)
+):
+    if language_code not in SUPPORTED_LANGUAGE_CODES:
+        raise HTTPException(status_code=400, detail="Unsupported language code.")
+    return question_bank.get_attention_question(language_code)
+
+
+_PHOTO_NAME_POOL = [
+    "Anitha", "Meena", "Ravi", "Kavitha", "Lakshmi", "Ramesh",
+    "Priya", "Suresh", "Radha", "Kumar", "Gowri", "Mohan",
+]
+
+
+@router.get("/next-photo-game", response_model=PhotoGameResponse)
+async def get_next_photo_game(
+    patient_id: int = 1, language_code: str = "en-IN", user: dict = Depends(get_current_user)
+):
+    """Builds a 'Who is this?' recognition round from the patient's Memory Bank."""
+    await ensure_patient_access(user, patient_id)
+    if language_code not in SUPPORTED_LANGUAGE_CODES:
+        raise HTTPException(status_code=400, detail="Unsupported language code.")
+
+    memories = _memories_for(patient_id)
+    people = [m for m in memories if m.get("photo_url") and m.get("category") == "Person"]
+    if not people:
+        people = [m for m in memories if m.get("photo_url")]
+    if not people:
+        raise HTTPException(status_code=400, detail="No photos available for recognition yet.")
+
+    target = random.choice(people)
+    correct = (target.get("title") or "").strip()
+
+    distractors = []
+    for m in people:
+        title = (m.get("title") or "").strip()
+        if m.get("id") != target.get("id") and title and title != correct and title not in distractors:
+            distractors.append(title)
+    distractors = distractors[:3]
+
+    while len(distractors) < 3:
+        candidate = random.choice(_PHOTO_NAME_POOL)
+        if candidate != correct and candidate not in distractors:
+            distractors.append(candidate)
+
+    options = [correct, *distractors]
+    random.shuffle(options)
+
+    return PhotoGameResponse(
+        round=1,
+        photo_url=target.get("photo_url") or "",
+        correct_title=correct,
+        options=options,
+    )
