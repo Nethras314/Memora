@@ -52,7 +52,7 @@ export default function VoiceScreen() {
 
   useEffect(() => () => {
     clearTimeout(autoStopRef.current);
-    try { recorder.stop(); } catch {}
+    autoStopRef.current = null;
     try { playerRef.current?.remove(); } catch {}
     playerRef.current = null;
   }, [recorder]);
@@ -115,14 +115,16 @@ export default function VoiceScreen() {
     clearTimeout(autoStopRef.current);
     autoStopRef.current = null;
     if (!recorderState.isRecording) return;
+    let uri = null;
     try {
       await recorder.stop();
+      uri = recorder.uri;
     } catch {}
     try {
       // Restore normal playback routing after the mic session.
       await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true });
     } catch {}
-    await sendRecording(recorder.uri);
+    await sendRecording(uri);
   }
 
   async function startRecording() {
