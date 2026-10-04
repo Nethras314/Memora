@@ -221,6 +221,114 @@ class VoiceInteractResponse(BaseModel):
     source: str # "sarvam_ai" or "local_nlu"
 
 # =========================================================
+# MOOD / BEHAVIOR (BPSD) SCHEMAS
+# =========================================================
+MOOD_VALUES = frozenset({"Calm", "Happy", "Anxious", "Agitated", "Confused", "Sad", "Irritable"})
+NOTE_TYPES = frozenset({"assessment", "plan", "general"})
+
+
+class MoodLogCreate(BaseModel):
+    patient_id: int = 1
+    mood: str = Field("Calm", example="Calm")
+    behavior_flags: Optional[List[str]] = None
+    note: Optional[str] = None
+
+
+class MoodLogResponse(BaseModel):
+    id: int
+    patient_id: int
+    mood: str
+    behavior_flags: List[str] = []
+    note: Optional[str] = None
+    recorded_by: Optional[str] = None
+    created_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class ClinicalNoteCreate(BaseModel):
+    patient_id: int = 1
+    note_type: str = Field("general", example="assessment")
+    body: str = Field(..., min_length=1, example="Patient is stable with mild memory decline.")
+
+
+class ClinicalNoteResponse(BaseModel):
+    id: int
+    patient_id: int
+    author_id: Optional[str] = None
+    note_type: str = "general"
+    body: str
+    created_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+# =========================================================
+# ACCESS GRANT (CONSENT) SCHEMAS
+# =========================================================
+class AccessGrantCreate(BaseModel):
+    patient_id: int
+    doctor_id: str = Field(..., example="demo-doctor-1")
+    reason: Optional[str] = None
+
+
+class AccessGrantResponse(BaseModel):
+    id: int
+    patient_id: int
+    doctor_id: str
+    granted_by: Optional[str] = None
+    reason: Optional[str] = None
+    status: str = "active"
+    created_at: Optional[datetime] = None
+    revoked_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+# =========================================================
+# COGNITIVE TRACKING (metric spine) SCHEMAS
+# =========================================================
+class DomainBreakdownItem(BaseModel):
+    domain: str
+    score: Optional[float] = None
+    weight: float  # composite group weight this domain contributes to
+    sample_count: int
+
+
+class CompositeTrendPoint(BaseModel):
+    date: str
+    score: Optional[float] = None
+    latency_ms: Optional[float] = None
+    index: Optional[float] = None
+
+
+class CaregiverGlanceResponse(BaseModel):
+    patient_id: int
+    patient_name: str
+    index: Optional[int] = None
+    index_delta: Optional[float] = None
+    status: str  # green | amber | red
+    routine_pct: int
+    flag: str
+    recommended_action: str
+    trend: List[CompositeTrendPoint] = []
+
+
+class DoctorPatientSummary(BaseModel):
+    patient_id: int
+    patient_name: str
+    age: Optional[int] = None
+    index: Optional[int] = None
+    delta_per_week: Optional[float] = None
+    status: str
+    last_visit: Optional[datetime] = None
+    sessions_since_visit: int = 0
+
+
+# =========================================================
 # CAREGIVER ANALYTICS SCHEMAS
 # =========================================================
 class CaregiverAnalyticsResponse(BaseModel):
@@ -233,3 +341,12 @@ class CaregiverAnalyticsResponse(BaseModel):
     recent_sessions_count: int
     recommended_focus: str
     cognitive_trend: List[Dict[str, Any]]
+    # --- new: composite index + domain spine (backward-compatible) ---
+    index: Optional[int] = None
+    index_delta: Optional[float] = None
+    status: Optional[str] = None
+    medication_adherence_pct: Optional[int] = None
+    domain_breakdown: List[DomainBreakdownItem] = []
+    weights: Dict[str, float] = {}
+    trend_30d: List[CompositeTrendPoint] = []
+    mood_recent: Optional[str] = None

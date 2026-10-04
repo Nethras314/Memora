@@ -10,6 +10,7 @@ import ActivitiesPage from './pages/ActivitiesPage';
 import ExercisePage from './pages/ExercisePage';
 import SleepPage from './pages/SleepPage';
 import CaregiverDashboard from './pages/CaregiverDashboard';
+import DoctorDashboard from './pages/DoctorDashboard';
 import AuthPage from './pages/AuthPage';
 import AdminPage from './pages/AdminPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -54,6 +55,7 @@ function Shell() {
   const [language, setLanguage] = useState('en-IN');
 
   const role = normalizeRole(user?.role);
+  const isClinician = ['doctor', 'admin'].includes(role);
 
   useEffect(() => {
     if (!user) return;
@@ -222,11 +224,21 @@ function Shell() {
           {activeTab === 'sleep' && <SleepPage language={language} />}
 
           {activeTab === 'caregiver' && canSeeCaregiver && (
-            <CaregiverDashboard
-              patients={patients}
-              currentPatient={currentPatient}
-              onSelectPatient={handleSelectPatient}
-            />
+            isClinician ? (
+              <DoctorDashboard
+                patients={patients}
+                currentPatient={currentPatient}
+                onSelectPatient={handleSelectPatient}
+                role={role}
+              />
+            ) : (
+              <CaregiverDashboard
+                patients={patients}
+                currentPatient={currentPatient}
+                onSelectPatient={handleSelectPatient}
+                language={language}
+              />
+            )
           )}
 
           {activeTab === 'admin' && canSeeAdmin && <AdminPage />}

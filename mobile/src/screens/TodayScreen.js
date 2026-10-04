@@ -5,15 +5,22 @@ import { api } from '../lib/api';
 import { speak } from '../lib/speech';
 import { BigButton, Card, Screen, SectionTitle } from '../components/ui';
 import { COLORS } from '../theme';
-import { t } from '../i18n';
+import { t, tCaregiver } from '../i18n';
+
+const RAG_COLORS = { green: COLORS.statusGreen, amber: COLORS.statusAmber, red: COLORS.statusRed };
+const STATUS_KEY = { green: 'stable', amber: 'watch', red: 'needsAttention' };
+const FLAG_KEY = { green: 'flagGreen', amber: 'flagAmber', red: 'flagRed' };
 
 export default function TodayScreen({ go, openVoice }) {
-  const { currentPatient } = useAuth();
+  const { user, currentPatient } = useAuth();
+  const role = (user?.role || 'caregiver').toLowerCase();
+  const isClinician = ['caregiver', 'doctor', 'admin'].includes(role === 'caretaker' ? 'caregiver' : role);
   const lang = currentPatient?.primary_language || 'en-IN';
   const [tasks, setTasks] = useState([]);
   const [reminders, setReminders] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [loadError, setLoadError] = useState(false);
+  const [glance, setGlance] = useState(null);
 
   const load = useCallback(async () => {
     setLoadError(false);
@@ -31,8 +38,20 @@ export default function TodayScreen({ go, openVoice }) {
 
   useEffect(() => { load(); }, [load]);
 
+  useEffect(() => {
+    if (!isClinician) return;
+    let active = true;
+    setGlance(null);
+    api.getCaregiverGlance(currentPatient?.id || 1)
+      .then((g) => { if (active) setGlance(g); })
+      .catch(() => { if (active) setGlance(null); });
+    return () => { active = false; };
+  }, [currentPatient, isClinician]);
+
   const done = tasks.filter((t) => t.done).length;
   const pct = tasks.length ? Math.round((done / tasks.length) * 100) : 0;
+  const status = glance?.status || 'amber';
+  const flagKey = FLAG_KEY[status] || 'flagAmber';
 
   return (
     <Screen style={refreshing ? { opacity: 0.85 } : null}>
@@ -49,6 +68,34 @@ export default function TodayScreen({ go, openVoice }) {
           <Text style={styles.pctSub}>{t(lang, 'dailyRoutineDone')}</Text>
         </View>
       </Card>
+
+      {isClinician ? (
+        <Card>
+          <SectionTitle
+            eyebrow={tCaregiver(lang, 'caregiverToday')}
+            title={glance ? `${glance.index ?? '—'}/100` : '…'}
+            sub={tCaregiver(lang, 'stabilityIndex')}
+          />
+          {glance ? (
+            <View style={{ gap: 12 }}>
+              <View style={styles.glanceRow}>
+                <View style={[styles.glanceDot, { backgroundColor: RAG_COLORS[status] || COLORS.statusAmber }]} />
+                <Text style={styles.glanceStatus}>{tCaregiver(lang, STATUS_KEY[status] || 'watch')}</Text>
+                <Text style={styles.glanceDelta}>
+                  {glance.index_delta != null ? `${glance.index_delta > 0 ? '+' : ''}${glance.index_delta}` : ''}
+                </Text>
+              </View>
+              <View>
+                <View style={styles.glanceBarWrap}>
+                  <View style={[styles.glanceBar, { width: `${Math.max(0, Math.min(100, glance.routine_pct || 0))}%` }]} />
+                </View>
+                <Text style={styles.glanceSub}>{tCaregiver(lang, 'routineAdherence')}: {glance.routine_pct ?? 0}%</Text>
+              </View>
+              <Text style={styles.glanceFlag}>{tCaregiver(lang, flagKey)}</Text>
+            </View>
+          ) : <Text style={styles.muted}>…</Text>}
+        </Card>
+      ) : null}
 
       {loadError ? (
         <Card style={{ alignItems: 'center', gap: 12 }}>
@@ -117,4 +164,12 @@ const styles = StyleSheet.create({
   done: { textDecorationLine: 'line-through', color: '#9aa1b2' },
   time: { fontSize: 16, color: COLORS.muted, fontWeight: '700' },
   muted: { fontSize: 17, color: COLORS.muted },
+  glanceRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  glanceDot: { width: 12, height: 12, borderRadius: 6 },
+  glanceStatus: { fontSize: 16, fontWeight: '800', color: COLORS.text, flex: 1 },
+  glanceDelta: { fontSize: 16, fontWeight: '800', color: COLORS.indigo },
+  glanceBarWrap: { height: 10, borderRadius: 5, backgroundColor: '#e5dfd4', overflow: 'hidden', marginBottom: 6 },
+  glanceBar: { height: 10, borderRadius: 5, backgroundColor: COLORS.green },
+  glanceSub: { fontSize: 15, color: COLORS.muted, fontWeight: '700' },
+  glanceFlag: { fontSize: 16, color: COLORS.text, lineHeight: 24 },
 });

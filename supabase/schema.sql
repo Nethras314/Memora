@@ -97,7 +97,7 @@ WHERE last_triggered >= '9999-01-01'::timestamptz;
 CREATE TABLE IF NOT EXISTS public.cognitive_sessions (
     id BIGSERIAL PRIMARY KEY,
     patient_id BIGINT NOT NULL REFERENCES public.patients(id) ON DELETE CASCADE,
-    game_type TEXT NOT NULL CHECK (game_type IN ('sequence_memory', 'general_knowledge', 'odd_one_out', 'task_sequencing')),
+    game_type TEXT NOT NULL CHECK (game_type IN ('sequence_memory', 'general_knowledge', 'odd_one_out', 'photo_recognition')),
     difficulty_level INTEGER DEFAULT 1 CHECK (difficulty_level BETWEEN 1 AND 10),
     score INTEGER NOT NULL,
     accuracy NUMERIC(4, 2) NOT NULL CHECK (accuracy BETWEEN 0.0 AND 1.0),

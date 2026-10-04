@@ -79,4 +79,5 @@ export const api = {
 
   voiceInteract: (payload) => req('post', '/voice/interact', payload),
   getProgress: (patientId = 1) => req('get', `/caregiver/analytics?patient_id=${patientId}`),
+  getCaregiverGlance: (patientId = 1) => req('get', `/caregiver/glance?patient_id=${patientId}`),
 };

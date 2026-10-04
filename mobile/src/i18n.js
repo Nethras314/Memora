@@ -239,3 +239,61 @@ export function t(lang, key) {
   const table = STRINGS[lang] || STRINGS[DEFAULT_LANGUAGE];
   return table[key] ?? STRINGS[DEFAULT_LANGUAGE][key] ?? key;
 }
+
+// Caregiver-facing "today glance" strings (family card stays localized).
+export const CAREGIVER_STRINGS = {
+  'en-IN': {
+    caregiverToday: "Today's glance",
+    caregiverSub: 'A gentle daily snapshot for you.',
+    stabilityIndex: 'Cognitive Stability Index',
+    routineAdherence: 'Routine adherence',
+    stable: 'Stable', watch: 'Watch', needsAttention: 'Needs attention',
+    flagGreen: 'Steady and doing well this week.',
+    flagAmber: 'A gentle dip in memory scores this week.',
+    flagRed: 'Memory is feeling harder recently. A check-in may help.',
+  },
+  'hi-IN': {
+    caregiverToday: 'आज की झलक',
+    caregiverSub: 'आपके लिए एक कोमल दैनिक स्नैपशॉट।',
+    stabilityIndex: 'संज्ञानात्मक स्थिरता सूचकांक',
+    routineAdherence: 'दिनचर्या का पालन',
+    stable: 'स्थिर', watch: 'निगरानी', needsAttention: 'ध्यान आवश्यक',
+    flagGreen: 'इस सप्ताह स्थिर और अच्छा प्रदर्शन।',
+    flagAmber: 'इस सप्ताह स्मृति स्कोर में हल्की गिरावट।',
+    flagRed: 'हाल ही में स्मृति कठिन लग रही है। जांच में मदद मिल सकती है।',
+  },
+  'ta-IN': {
+    caregiverToday: 'இன்றைய பார்வை',
+    caregiverSub: 'உங்களுக்கான மென்மையான தினசரி பார்வை.',
+    stabilityIndex: 'அறிவாற்றல் நிலைத்தன்மை குறியீடு',
+    routineAdherence: 'வழக்க பின்பற்றல்',
+    stable: 'நிலையானது', watch: 'கண்காணிப்பு', needsAttention: 'கவனம் தேவை',
+    flagGreen: 'இந்த வாரம் நிலையாகவும் நன்றாகவும் உள்ளது.',
+    flagAmber: 'இந்த வாரம் நினைவு மதிப்பெண்களில் லேசான சரிவு.',
+    flagRed: 'சமீபத்தில் நினைவு கடினமாக உள்ளது. ஒரு சோதனை உதவலாம்.',
+  },
+  'as-IN': {
+    caregiverToday: 'আজিৰ আভাস',
+    caregiverSub: 'আপোনাৰ বাবে এটা মৰমৰ দৈনিক দৃশ্য।',
+    stabilityIndex: 'জ্ঞানমূলক স্থিৰতা সূচক',
+    routineAdherence: 'দিনচৰ্যা পালন',
+    stable: 'স্থিৰ', watch: 'নিৰীক্ষণ', needsAttention: 'মনোযোগ প্ৰয়োজন',
+    flagGreen: 'এই সপ্তাহত স্থিৰ আৰু ভাল।',
+    flagAmber: 'এই সপ্তাহত স্মৃতি স্কোৰত অলপ হ্ৰাস।',
+    flagRed: 'শেহতীয়াকৈ স্মৃতি কঠিন হৈছে। এটা পৰীক্ষাই সহায় কৰিব পাৰে।',
+  },
+  'bn-IN': {
+    caregiverToday: 'আজকের আভাস',
+    caregiverSub: 'আপনার জন্য একটি মৃদু দৈনিক চিত্র।',
+    stabilityIndex: 'জ্ঞানীয় স্থিতিশীলতা সূচক',
+    routineAdherence: 'রুটিন পালন',
+    stable: 'স্থিতিশীল', watch: 'পর্যবেক্ষণ', needsAttention: 'মনোযোগ প্রয়োজন',
+    flagGreen: 'এই সপ্তাহে স্থির ও ভালো।',
+    flagAmber: 'এই সপ্তাহে স্মৃতি স্কোরে সামান্য পতন।',
+    flagRed: 'সম্প্রতি স্মৃতি কঠিন লাগছে। একটি পরীক্ষা সাহায্য করতে পারে।',
+  },
+};
+
+export function tCaregiver(lang, key) {
+  return CAREGIVER_STRINGS[lang]?.[key] ?? CAREGIVER_STRINGS[DEFAULT_LANGUAGE][key] ?? key;
+}

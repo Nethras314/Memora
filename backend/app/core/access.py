@@ -10,6 +10,32 @@ def _supabase() -> bool:
     return db_module.is_supabase_configured()
 
 
+# In-memory access grants for the demo/offline fallback store.
+DEMO_ACCESS_GRANTS: List[dict] = []
+
+
+async def _granted_patient_ids(doctor_id: str) -> set:
+    """Active patient ids a doctor has been explicitly granted access to."""
+    admin = db_module.get_supabase_admin()
+    if _supabase() and admin is not None:
+        try:
+            res = (
+                admin.table("access_grants")
+                .select("patient_id")
+                .eq("doctor_id", doctor_id)
+                .eq("status", "active")
+                .execute()
+            )
+            return {int(r["patient_id"]) for r in (res.data or []) if r.get("patient_id") is not None}
+        except Exception:
+            return set()
+    return {
+        int(g["patient_id"])
+        for g in DEMO_ACCESS_GRANTS
+        if g.get("doctor_id") == doctor_id and g.get("status") == "active"
+    }
+
+
 async def fetch_profile(user_id: str) -> dict:
     admin = db_module.get_supabase_admin()
     if admin is None:
@@ -26,8 +52,14 @@ async def list_accessible_patients(user: dict) -> List[dict]:
     admin = db_module.get_supabase_admin()
     if _supabase() and admin is not None:
         try:
-            if role in ("admin", "doctor"):
+            if role == "admin":
                 res = admin.table("patients").select("*").order("id").execute()
+                return res.data or []
+            if role == "doctor":
+                granted = await _granted_patient_ids(user["id"])
+                if not granted:
+                    return []
+                res = admin.table("patients").select("*").in_("id", list(granted)).order("id").execute()
                 return res.data or []
             if role == "patient":
                 profile = await fetch_profile(user["id"])
@@ -61,8 +93,11 @@ async def list_accessible_patients(user: dict) -> List[dict]:
     from backend.app.core.security import DEMO_USERS, _demo_seed_admin
 
     _demo_seed_admin()
-    if role in ("admin", "doctor"):
+    if role == "admin":
         return list(MOCK_PATIENTS)
+    if role == "doctor":
+        granted = await _granted_patient_ids(user["id"])
+        return [p for p in MOCK_PATIENTS if p.get("id") in granted]
     if role == "patient":
         linked = None
         for u in DEMO_USERS.values():

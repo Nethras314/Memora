@@ -10,7 +10,9 @@ from backend.app.api.routes import (
     routines,
     cognitive,
     voice,
-    caregiver
+    caregiver,
+    tracking,
+    grants,
 )
 
 app = FastAPI(
@@ -55,6 +57,8 @@ app.include_router(routines.router, prefix=settings.API_V1_STR)
 app.include_router(cognitive.router, prefix=settings.API_V1_STR)
 app.include_router(voice.router, prefix=settings.API_V1_STR)
 app.include_router(caregiver.router, prefix=settings.API_V1_STR)
+app.include_router(tracking.router, prefix=settings.API_V1_STR)
+app.include_router(grants.router, prefix=settings.API_V1_STR)
 
 @app.get("/api/health")
 async def health_check():

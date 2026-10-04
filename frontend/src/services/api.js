@@ -206,4 +206,74 @@ export const api = {
     const res = await request('get', `/caregiver/analytics?patient_id=${patientId}`);
     return res.data;
   },
+  getCaregiverGlance: async (patientId = 1) => {
+    const res = await request('get', `/caregiver/glance?patient_id=${patientId}`);
+    return res.data;
+  },
+  getCaregiverTrend: async (patientId = 1, windowDays = 30) => {
+    const res = await request('get', `/caregiver/trend?patient_id=${patientId}&window_days=${windowDays}`);
+    return res.data;
+  },
+  getCaregiverSummary: async () => {
+    const res = await request('get', '/caregiver/patients/summary');
+    return res.data;
+  },
+  exportAnalyticsCsv: async (patientId = 1) => {
+    const headers = await authHeaders();
+    const res = await axios.get(`${API_BASE}/caregiver/export?patient_id=${patientId}&format=csv`, {
+      headers,
+      responseType: 'blob',
+    });
+    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `memora_${patientId}_cognitive.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+    return true;
+  },
+
+  // Mood / behavior (BPSD)
+  getMoodLogs: async (patientId = 1) => {
+    const res = await request('get', `/tracking/mood?patient_id=${patientId}`);
+    return res.data;
+  },
+  createMoodLog: async (payload) => {
+    const res = await request('post', '/tracking/mood', payload);
+    return res.data;
+  },
+  deleteMoodLog: async (moodId, patientId = 1) => {
+    const res = await request('delete', `/tracking/mood/${moodId}?patient_id=${patientId}`);
+    return res.data;
+  },
+
+  // Clinical notes
+  getClinicalNotes: async (patientId = 1) => {
+    const res = await request('get', `/tracking/notes?patient_id=${patientId}`);
+    return res.data;
+  },
+  createClinicalNote: async (payload) => {
+    const res = await request('post', '/tracking/notes', payload);
+    return res.data;
+  },
+
+  // Doctor access grants
+  listGrants: async () => {
+    const res = await request('get', '/grants');
+    return res.data;
+  },
+  listDoctors: async () => {
+    const res = await request('get', '/grants/doctors');
+    return res.data;
+  },
+  grantAccess: async (payload) => {
+    const res = await request('post', '/grants', payload);
+    return res.data;
+  },
+  revokeAccess: async (grantId) => {
+    const res = await request('delete', `/grants/${grantId}`);
+    return res.data;
+  },
 };

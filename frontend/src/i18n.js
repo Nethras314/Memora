@@ -22,7 +22,7 @@ const STRINGS = {
     navToday: 'Today', navMemories: 'Memories', navRoutine: 'My Routine',
     navReminders: 'Reminders', navActivities: 'Activities & AI',
     navExercise: 'Exercise & Yoga', navSleep: 'Deep Sleep',
-    navCaregiver: 'Caregiver Portal', navAdmin: 'Admin Portal',
+    navCaregiver: 'Caregiver Portal', navClinical: 'Clinical Portal', navAdmin: 'Admin Portal',
     navProgress: 'My Progress', talkToMemora: 'Talk to MEMORA',
     voiceReady: 'Voice Ready', signOut: 'Sign out',
     greeting: 'Good morning,', heroSub: 'Ask me about family, your next reminder, or a fun activity.',
@@ -528,4 +528,88 @@ const STRINGS = {
 export function t(lang, key) {
   const table = STRINGS[lang] || STRINGS[DEFAULT_LANGUAGE];
   return table[key] ?? STRINGS[DEFAULT_LANGUAGE][key] ?? key;
+}
+
+// Caregiver-facing "today card" strings (separate from patient STRINGS so the
+// clinical portal can stay English-first while the family card stays localized).
+export const CAREGIVER_STRINGS = {
+  'en-IN': {
+    caregiverToday: "Today's glance",
+    caregiverSub: 'A gentle daily snapshot for you.',
+    stabilityIndex: 'Cognitive Stability Index',
+    routineAdherence: 'Routine adherence',
+    stable: 'Stable',
+    watch: 'Watch',
+    needsAttention: 'Needs attention',
+    actionGreen: "Maintain today's routine and daily memory games.",
+    actionAmber: 'Add a short memory game and encourage rest and water.',
+    actionRed: 'Consider a clinical review and keep routines gentle.',
+    flagGreen: 'Steady and doing well this week.',
+    flagAmber: 'A gentle dip in memory scores this week.',
+    flagRed: 'Memory is feeling harder recently. A check-in may help.',
+  },
+  'hi-IN': {
+    caregiverToday: 'आज की झलक',
+    caregiverSub: 'आपके लिए एक कोमल दैनिक स्नैपशॉट।',
+    stabilityIndex: 'संज्ञानात्मक स्थिरता सूचकांक',
+    routineAdherence: 'दिनचर्या का पालन',
+    stable: 'स्थिर',
+    watch: 'निगरानी',
+    needsAttention: 'ध्यान आवश्यक',
+    actionGreen: 'आज की दिनचर्या और दैनिक स्मृति खेल जारी रखें।',
+    actionAmber: 'एक छोटा स्मृति खेल जोड़ें और आराम व पानी को प्रोत्साहित करें।',
+    actionRed: 'चिकित्सकीय समीक्षा पर विचार करें और दिनचर्या कोमल रखें।',
+    flagGreen: 'इस सप्ताह स्थिर और अच्छा प्रदर्शन।',
+    flagAmber: 'इस सप्ताह स्मृति स्कोर में हल्की गिरावट।',
+    flagRed: 'हाल ही में स्मृति कठिन लग रही है। जांच में मदद मिल सकती है।',
+  },
+  'ta-IN': {
+    caregiverToday: 'இன்றைய பார்வை',
+    caregiverSub: 'உங்களுக்கான மென்மையான தினசரி பார்வை.',
+    stabilityIndex: 'அறிவாற்றல் நிலைத்தன்மை குறியீடு',
+    routineAdherence: 'வழக்க பின்பற்றல்',
+    stable: 'நிலையானது',
+    watch: 'கண்காணிப்பு',
+    needsAttention: 'கவனம் தேவை',
+    actionGreen: 'இன்றைய வழக்கத்தையும் தினசரி நினைவு விளையாட்டுகளையும் தொடரவும்.',
+    actionAmber: 'ஒரு சிறு நினைவு விளையாட்டைச் சேர்த்து ஓய்வையும் நீரையும் ஊக்குவிக்கவும்.',
+    actionRed: 'மருத்துவ மதிப்பீட்டைப் பரிசீலித்து வழக்கத்தை மென்மையாக வைக்கவும்.',
+    flagGreen: 'இந்த வாரம் நிலையாகவும் நன்றாகவும் உள்ளது.',
+    flagAmber: 'இந்த வாரம் நினைவு மதிப்பெண்களில் லேசான சரிவு.',
+    flagRed: 'சமீபத்தில் நினைவு கடினமாக உள்ளது. ஒரு சோதனை உதவலாம்.',
+  },
+  'as-IN': {
+    caregiverToday: 'আজিৰ আভাস',
+    caregiverSub: 'আপোনাৰ বাবে এটা মৰমৰ দৈনিক দৃশ্য।',
+    stabilityIndex: 'জ্ঞানমূলক স্থিৰতা সূচক',
+    routineAdherence: 'দিনচৰ্যা পালন',
+    stable: 'স্থিৰ',
+    watch: 'নিৰীক্ষণ',
+    needsAttention: 'মনোযোগ প্ৰয়োজন',
+    actionGreen: 'আজিৰ দিনচৰ্যা আৰু দৈনিক স্মৃতি খেল চলাই ৰাখক।',
+    actionAmber: 'এটা চুটি স্মৃতি খেল যোগ দিয়ক আৰু জিৰণি আৰু পানী উৎসাহিত কৰক।',
+    actionRed: 'চিকিৎসা পৰ্যালোচনা বিবেচনা কৰক আৰু দিনচৰ্যা মৰমেৰে ৰাখক।',
+    flagGreen: 'এই সপ্তাহত স্থিৰ আৰু ভাল।',
+    flagAmber: 'এই সপ্তাহত স্মৃতি স্কোৰত অলপ হ্ৰাস।',
+    flagRed: 'শেহতীয়াকৈ স্মৃতি কঠিন হৈছে। এটা পৰীক্ষাই সহায় কৰিব পাৰে।',
+  },
+  'bn-IN': {
+    caregiverToday: 'আজকের আভাস',
+    caregiverSub: 'আপনার জন্য একটি মৃদু দৈনিক চিত্র।',
+    stabilityIndex: 'জ্ঞানীয় স্থিতিশীলতা সূচক',
+    routineAdherence: 'রুটিন পালন',
+    stable: 'স্থিতিশীল',
+    watch: 'পর্যবেক্ষণ',
+    needsAttention: 'মনোযোগ প্রয়োজন',
+    actionGreen: 'আজকের রুটিন ও দৈনিক স্মৃতি খেলা চালিয়ে যান।',
+    actionAmber: 'একটি ছোট স্মৃতি খেলা যোগ করুন এবং বিশ্রাম ও পানি উৎসাহিত করুন।',
+    actionRed: 'চিকিৎসা পর্যালোচনা বিবেচনা করুন এবং রুটিন মৃদু রাখুন।',
+    flagGreen: 'এই সপ্তাহে স্থির ও ভালো।',
+    flagAmber: 'এই সপ্তাহে স্মৃতি স্কোরে সামান্য পতন।',
+    flagRed: 'সম্প্রতি স্মৃতি কঠিন লাগছে। একটি পরীক্ষা সাহায্য করতে পারে।',
+  },
+};
+
+export function tCaregiver(lang, key) {
+  return CAREGIVER_STRINGS[lang]?.[key] ?? CAREGIVER_STRINGS[DEFAULT_LANGUAGE][key] ?? key;
 }

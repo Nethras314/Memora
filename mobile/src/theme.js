@@ -11,6 +11,9 @@ export const COLORS = {
   gold: '#f3b642',
   peach: '#f9e7c5',
   danger: '#dc2626',
+  statusGreen: '#08b77b',
+  statusAmber: '#f3b642',
+  statusRed: '#dc2626',
 };
 
 export const TYPE = {

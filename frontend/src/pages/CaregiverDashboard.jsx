@@ -1,19 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { HeartHandshake, User, TrendingUp, CheckCircle, Clock, AlertCircle, ShieldCheck } from 'lucide-react';
+import { HeartHandshake, User, TrendingUp, TrendingDown, Minus, CheckCircle } from 'lucide-react';
 import { api } from '../services/api';
+import { tCaregiver } from '../i18n';
+import StatusBadge from '../components/StatusBadge';
+import MoodLog from '../components/MoodLog';
 
-export default function CaregiverDashboard({ patients, currentPatient, onSelectPatient }) {
-  const [analytics, setAnalytics] = useState(null);
+const STATUS_LABEL = { green: 'stable', amber: 'watch', red: 'needsAttention' };
+
+function DeltaArrow({ value }) {
+  if (value == null) return <Minus className="w-5 h-5 text-gray-400" />;
+  if (value > 0) return <TrendingUp className="w-5 h-5 text-emerald-600" />;
+  if (value < 0) return <TrendingDown className="w-5 h-5 text-red-500" />;
+  return <Minus className="w-5 h-5 text-gray-400" />;
+}
+
+export default function CaregiverDashboard({ patients, currentPatient, onSelectPatient, language = 'en-IN' }) {
+  const [glance, setGlance] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadAnalytics();
-  }, [currentPatient]);
-
-  const loadAnalytics = async () => {
+  const load = async () => {
+    setLoading(true);
     try {
-      const data = await api.getCaregiverAnalytics(currentPatient?.id || 1);
-      setAnalytics(data);
+      setGlance(await api.getCaregiverGlance(currentPatient?.id || 1));
     } catch (e) {
       console.error(e);
     } finally {
@@ -21,21 +29,27 @@ export default function CaregiverDashboard({ patients, currentPatient, onSelectP
     }
   };
 
+  useEffect(() => {
+    load();
+  }, [currentPatient]);
+
+  const status = glance?.status || 'amber';
+  const flagKey = status === 'red' ? 'flagRed' : status === 'amber' ? 'flagAmber' : 'flagGreen';
+  const actionKey = status === 'red' ? 'actionRed' : status === 'amber' ? 'actionAmber' : 'actionGreen';
+
   return (
-    <div className="space-y-8 max-w-6xl mx-auto">
-      {/* Header & Multi-Patient Switcher */}
+    <div className="space-y-8 max-w-5xl mx-auto">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold font-serif text-[#273047]">Caregiver & Clinical Portal</h1>
-          <p className="text-sm text-[#68738a] mt-1">
-            Real-time monitoring of patient routines, cognitive stability, and AI telemetry.
-          </p>
+          <h1 className="text-3xl font-bold font-serif text-[#273047] flex items-center gap-3">
+            <HeartHandshake className="w-8 h-8 text-[#4943a5]" /> {tCaregiver(language, 'caregiverToday')}
+          </h1>
+          <p className="text-sm text-[#68738a] mt-1">{tCaregiver(language, 'caregiverSub')}</p>
         </div>
 
-        {/* Patient Switcher */}
         <div className="flex items-center gap-2 bg-white p-2 rounded-2xl border border-[#e5dfd4] shadow-sm">
           <User className="w-5 h-5 text-[#4943a5] ml-2" />
-          <span className="text-xs font-bold text-gray-400 uppercase">Active Patient:</span>
+          <span className="text-xs font-bold text-gray-400 uppercase">Patient:</span>
           {(patients || []).length > 0 ? (
             <select
               value={currentPatient?.id}
@@ -43,119 +57,77 @@ export default function CaregiverDashboard({ patients, currentPatient, onSelectP
               className="bg-transparent font-bold text-sm text-[#273047] outline-none cursor-pointer pr-4"
             >
               {patients.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name} (Age {p.age})
-                </option>
+                <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
           ) : (
-            <span className="text-xs font-semibold text-gray-500 pr-2">No patients assigned yet</span>
+            <span className="text-xs font-semibold text-gray-500 pr-2">No patients assigned</span>
           )}
         </div>
       </div>
 
-      {/* Analytics KPI Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Cognitive Stability Index */}
-        <div className="bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm flex flex-col justify-between">
-          <div>
+      {loading ? (
+        <div className="text-sm text-gray-500">Loading…</div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Stability Index card */}
+          <div className="bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#68738a]">Cognitive Stability</span>
-              <TrendingUp className="w-5 h-5 text-[#4943a5]" />
+              <span className="text-xs font-bold uppercase tracking-wider text-[#68738a]">
+                {tCaregiver(language, 'stabilityIndex')}
+              </span>
+              <StatusBadge status={status} label={tCaregiver(language, STATUS_LABEL[status])} />
             </div>
-            <div className="text-5xl font-extrabold text-[#4943a5] mt-4 mb-1">
-              {analytics?.cognitive_stability_score || 78}/100
+            <div className="flex items-end gap-3 mt-4 mb-1">
+              <div className="text-5xl font-extrabold text-[#4943a5]">{glance?.index ?? '—'}</div>
+              <div className="text-sm text-gray-400 mb-2">/100</div>
+              <div className="ml-auto flex items-center gap-1 text-xs font-semibold text-[#68738a] mb-2">
+                <DeltaArrow value={glance?.index_delta} />
+                {glance?.index_delta != null ? `${glance.index_delta > 0 ? '+' : ''}${glance.index_delta}` : '—'}
+              </div>
             </div>
-            <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg">
-              ✓ Normal Sensory Latency
-            </span>
+            <p className="text-xs text-[#68738a] mt-4 leading-relaxed">{tCaregiver(language, flagKey)}</p>
           </div>
-          <p className="text-xs text-[#68738a] mt-4">
-            Calculated from DDA game reaction times (ms) and recall accuracy over recent sessions.
-          </p>
-        </div>
 
-        {/* Routine Adherence */}
-        <div className="bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm flex flex-col justify-between">
-          <div>
+          {/* Routine adherence card */}
+          <div className="bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#68738a]">Routine Adherence</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-[#68738a]">
+                {tCaregiver(language, 'routineAdherence')}
+              </span>
               <CheckCircle className="w-5 h-5 text-emerald-600" />
             </div>
-            <div className="text-5xl font-extrabold text-[#273047] mt-4 mb-2">
-              {analytics?.routine_completion_pct || 0}%
-            </div>
+            <div className="text-5xl font-extrabold text-[#273047] mt-4 mb-2">{glance?.routine_pct ?? 0}%</div>
             <div className="w-full bg-gray-200 h-2.5 rounded-full overflow-hidden">
-              <div
-                className="bg-emerald-500 h-2.5 rounded-full transition-all"
-                style={{ width: `${analytics?.routine_completion_pct || 0}%` }}
-              />
+              <div className="bg-emerald-500 h-2.5 rounded-full transition-all" style={{ width: `${glance?.routine_pct || 0}%` }} />
             </div>
+            <p className="text-xs text-[#68738a] mt-4 leading-relaxed">{tCaregiver(language, actionKey)}</p>
           </div>
-          <p className="text-xs text-[#68738a] mt-4">
-            {analytics?.completed_tasks || 0} of {analytics?.total_tasks || 0} routine tasks marked done today.
-          </p>
-        </div>
 
-        {/* Clinical Recommendation */}
-        <div className="bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#68738a]">Clinical Focus</span>
-              <ShieldCheck className="w-5 h-5 text-indigo-500" />
-            </div>
-            <h3 className="text-lg font-bold font-serif text-[#273047] mt-3 mb-2">Physician Guidance</h3>
-            <p className="text-xs text-[#526079] leading-relaxed">
-              {analytics?.recommended_focus || 'Routine adherence is high. Continue morning symbol sequence exercises.'}
-            </p>
-          </div>
-          <div className="text-[11px] text-gray-400 mt-4 border-t pt-2">
-            Aligned with WHO Cognitive Stimulation Therapy (CST) Guidelines.
-          </div>
-        </div>
-      </div>
-
-      {/* Longitudinal Session Telemetry Table */}
-      <div className="bg-[#fffefb] p-8 rounded-3xl border border-[#e5dfd4] shadow-sm">
-        <h2 className="text-xl font-bold font-serif text-[#273047] mb-4">Longitudinal AI Telemetry Log</h2>
-        <p className="text-sm text-[#68738a] mb-6">
-          Doctor-exportable session telemetry recording reaction latency and dynamic difficulty levels.
-        </p>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-[#e5dfd4] text-[#68738a] text-xs uppercase">
-                <th className="pb-3 font-bold">Date</th>
-                <th className="pb-3 font-bold">Game Type</th>
-                <th className="pb-3 font-bold">AI Level</th>
-                <th className="pb-3 font-bold">Reaction Latency</th>
-                <th className="pb-3 font-bold">Score</th>
-                <th className="pb-3 font-bold">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#f0ebe0]">
-              {analytics?.cognitive_trend?.map((row, i) => (
-                <tr key={i} className="hover:bg-[#faf8f2] transition">
-                  <td className="py-4 font-semibold text-[#273047]">{row.date}</td>
-                  <td className="py-4 text-[#546077]">Sequence Memory</td>
-                  <td className="py-4">
-                    <span className="bg-indigo-50 text-[#4943a5] text-xs font-bold px-2 py-1 rounded-md">
-                      Level {row.level}
-                    </span>
-                  </td>
-                  <td className="py-4 font-mono text-gray-600">{row.latency_sec}s</td>
-                  <td className="py-4 font-bold text-[#273047]">{row.score}%</td>
-                  <td className="py-4">
-                    <span className="text-emerald-700 bg-emerald-50 text-xs font-bold px-2.5 py-1 rounded-lg">
-                      Consistent
-                    </span>
-                  </td>
-                </tr>
+          {/* 7-day sparkline */}
+          <div className="bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm flex flex-col justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#68738a]">7 days</span>
+            <div className="flex items-end gap-2 h-28 mt-3">
+              {(glance?.trend || []).map((p, i) => (
+                <div key={i} className="flex-1 flex flex-col items-center justify-end h-full">
+                  <div
+                    className="w-full rounded-t-md bg-[#4943a5]/80"
+                    style={{ height: `${Math.max(4, Math.min(100, p.index ?? 40))}%` }}
+                    title={`${p.date}: ${p.index ?? '—'}`}
+                  />
+                  <span className="text-[10px] text-[#68738a] mt-1">{p.date?.slice(5)}</span>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </div>
         </div>
+      )}
+
+      {/* Mood quick-log */}
+      <div className="bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm">
+        <h2 className="text-lg font-bold font-serif text-[#273047] mb-1">How are they today?</h2>
+        <p className="text-xs text-[#68738a] mb-4">A 5-second check-in helps spot changes early.</p>
+        <MoodLog patientId={currentPatient?.id || 1} onSaved={load} />
       </div>
     </div>
   );

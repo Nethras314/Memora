@@ -15,7 +15,13 @@ export default function Sidebar({ activeTab, setActiveTab, currentPatient, onOpe
   // Patients see the essentials; staff see monitoring tools.
   const navItems = [
     ...baseItems,
-    ...(showCaregiver ? [{ id: 'caregiver', label: role === 'patient' ? t(language, 'navProgress') : t(language, 'navCaregiver'), icon: HeartHandshake }] : []),
+    ...(showCaregiver ? [{
+      id: 'caregiver',
+      label: role === 'patient'
+        ? t(language, 'navProgress')
+        : (role === 'doctor' || role === 'admin' ? t(language, 'navClinical') : t(language, 'navCaregiver')),
+      icon: HeartHandshake,
+    }] : []),
     ...(showAdmin ? [{ id: 'admin', label: t(language, 'navAdmin'), icon: ShieldCheck }] : []),
   ];
 

@@ -33,3 +33,15 @@ def test_cognitive_stability_score():
     ]
     score = DynamicDifficultyAdjustmentEngine.calculate_cognitive_stability_score(healthy_history)
     assert score >= 80
+
+
+def test_composite_index_distinct_from_games_only():
+    from backend.app.services import analytics_service as svc
+
+    sessions = [{"accuracy": 1.0, "reaction_time_ms": 2500} for _ in range(5)]
+    games = DynamicDifficultyAdjustmentEngine.calculate_cognitive_stability_score(sessions)
+
+    # Strong games but poor daily function drags the composite below games-only.
+    index, insufficient, _ = svc.composite_index(float(games), 20.0, 10.0, None)
+    assert insufficient is False
+    assert index < games
