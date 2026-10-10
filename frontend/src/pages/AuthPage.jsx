@@ -125,8 +125,9 @@ export default function AuthPage() {
         <div className="mt-6 text-xs text-gray-500 bg-[#faf8f2] border border-[#e8e2d5] rounded-2xl p-4 flex gap-2">
           <HeartHandshake className="w-4 h-4 text-[#4943a5] shrink-0 mt-0.5" />
           <span>
-            Demo admin: <b>admin@memora.local</b> / <b>admin123</b> (local demo mode). In Supabase mode, create users in
-            Supabase Auth — profiles and roles sync automatically.
+            Health Care : <b>caretaker@gmail.com</b> / <b>test1234</b>
+            <br />
+            Patient : <b>patient@gmail.com</b> / <b>test1234</b>
           </span>
         </div>
       </div>
