@@ -13,6 +13,7 @@ import { useAuth } from '../lib/auth';
 import { api } from '../lib/api';
 import { speak, stopSpeech } from '../lib/speech';
 import { BigButton, Card, Screen, SectionTitle } from '../components/ui';
+import CompanionCharacter from '../components/CompanionCharacter';
 import { COLORS } from '../theme';
 import { t } from '../i18n';
 
@@ -30,6 +31,30 @@ const MIME_BY_EXTENSION = {
   '3gp': 'audio/3gpp',
 };
 
+// Backend reply `mood` -> companion one-shot reaction. Unknown/neutral = no reaction.
+const MOOD_REACTIONS = {
+  happy: 'happy',
+  encourage: 'encourage',
+  cheer: 'encourage',
+};
+
+function moodToReaction(mood) {
+  return MOOD_REACTIONS[String(mood || '').toLowerCase()] || null;
+}
+
+// Rough on-screen "talking" duration for the companion while audio/voice plays.
+function estimateSpeechMs(text) {
+  const len = String(text || '').length;
+  return Math.min(9000, Math.max(1800, len * 95));
+}
+
+const COMPANION_CAPTION_KEY = {
+  idle: 'companionIdle',
+  listening: 'companionListening',
+  thinking: 'companionThinking',
+  speaking: 'companionSpeaking',
+};
+
 export default function VoiceScreen() {
   const { currentPatient } = useAuth();
   const pid = currentPatient?.id || 1;
@@ -38,8 +63,11 @@ export default function VoiceScreen() {
   const [reply, setReply] = useState(t(language, 'readyToListen'));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [speaking, setSpeaking] = useState(false);
+  const [reaction, setReaction] = useState(null);
   const playerRef = useRef(null);
   const autoStopRef = useRef(null);
+  const speakTimerRef = useRef(null);
 
   const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const recorderState = useAudioRecorderState(recorder, 200);
@@ -53,23 +81,45 @@ export default function VoiceScreen() {
   useEffect(() => () => {
     clearTimeout(autoStopRef.current);
     autoStopRef.current = null;
+    clearTimeout(speakTimerRef.current);
+    speakTimerRef.current = null;
     try { playerRef.current?.remove(); } catch {}
     playerRef.current = null;
   }, [recorder]);
 
-  function playBase64(b64) {
+  // Hold the companion in its "speaking" pose for the audio (or the TTS clip).
+  function beginSpeaking(text) {
+    setSpeaking(true);
+    clearTimeout(speakTimerRef.current);
+    speakTimerRef.current = setTimeout(() => setSpeaking(false), estimateSpeechMs(text));
+  }
+
+  function endSpeaking() {
+    clearTimeout(speakTimerRef.current);
+    speakTimerRef.current = null;
+    setSpeaking(false);
+  }
+
+  function playBase64(b64, text) {
     try {
       try { playerRef.current?.remove(); } catch {}
       const player = createAudioPlayer({ uri: `data:audio/wav;base64,${b64}` });
       playerRef.current = player;
+      try {
+        player.addListener?.('playbackStatusUpdate', (status) => {
+          if (status?.didJustFinish) endSpeaking();
+        });
+      } catch {}
       player.play();
     } catch {}
+    if (text) beginSpeaking(text);
   }
 
   async function call({ text, audioBase64, contentType }) {
     if (loading) return;
     setLoading(true);
     setError('');
+    setReaction(null);
     try {
       const res = await api.voiceInteract({
         patient_id: pid,
@@ -79,9 +129,15 @@ export default function VoiceScreen() {
         language_code: language,
       });
       setQuestion(res.transcription || text || '');
-      setReply(res.reply_text || 'I am here with you.');
-      if (res.audio_base64) playBase64(res.audio_base64);
-      else speak(res.reply_text, language);
+      const replyText = res.reply_text || 'I am here with you.';
+      setReply(replyText);
+      const react = moodToReaction(res.mood);
+      if (react) setReaction(react);
+      if (res.audio_base64) playBase64(res.audio_base64, replyText);
+      else {
+        beginSpeaking(replyText);
+        speak(replyText, language);
+      }
     } catch {
       setReply("I'm here with you. Please try asking again.");
     } finally {
@@ -151,10 +207,23 @@ export default function VoiceScreen() {
     else startRecording();
   }
 
+  const companionState = recording ? 'listening' : loading ? 'thinking' : speaking ? 'speaking' : 'idle';
+
   return (
     <Screen>
       <SectionTitle eyebrow="Sarvam AI voice" title="🎙 Talk to MEMORA" sub="Press the big button and speak. Or type below." />
       <Card>
+        <View style={styles.companion}>
+          <CompanionCharacter
+            state={companionState}
+            reaction={reaction}
+            size={220}
+            onReactionDone={() => setReaction(null)}
+          />
+          <Text style={styles.companionCaption}>
+            {t(language, COMPANION_CAPTION_KEY[companionState] || 'companionIdle')}
+          </Text>
+        </View>
         <TouchableOpacity
           style={[styles.mic, recording && styles.micOn]}
           onPress={toggleRecording}
@@ -175,8 +244,8 @@ export default function VoiceScreen() {
           <Text style={styles.replyText}>{loading ? 'Thinking gently…' : reply}</Text>
         </View>
         <View style={{ flexDirection: 'row', gap: 10 }}>
-          <View style={{ flex: 1 }}><BigButton title={`🔊 ${t(language, 'hearAgain')}`} variant="mint" onPress={() => speak(reply, language)} /></View>
-          <View style={{ flex: 1 }}><BigButton title={`🔇 ${t(language, 'stop')}`} variant="outline" onPress={stopSpeech} /></View>
+          <View style={{ flex: 1 }}><BigButton title={`🔊 ${t(language, 'hearAgain')}`} variant="mint" onPress={() => { beginSpeaking(reply); speak(reply, language); }} /></View>
+          <View style={{ flex: 1 }}><BigButton title={`🔇 ${t(language, 'stop')}`} variant="outline" onPress={() => { stopSpeech(); endSpeaking(); }} /></View>
         </View>
       </Card>
 
@@ -200,6 +269,8 @@ export default function VoiceScreen() {
 }
 
 const styles = StyleSheet.create({
+  companion: { alignItems: 'center', marginTop: 4, marginBottom: 8 },
+  companionCaption: { fontSize: 16, fontWeight: '700', color: COLORS.indigo, marginTop: 2, textAlign: 'center' },
   label: { fontSize: 13, fontWeight: '800', color: COLORS.text, marginBottom: 8 },
   mic: {
     backgroundColor: '#f5f2ea', borderWidth: 2, borderColor: COLORS.indigo, borderRadius: 22,

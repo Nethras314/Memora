@@ -82,7 +82,7 @@ async def voice_interaction(req: VoiceInteractRequest, user: dict = Depends(get_
     elif not question_text:
         question_text = "Who is my daughter?"
 
-    reply_text = SarvamAIService.resolve_conversational_reply(
+    reply_text, mood = SarvamAIService.resolve_conversational_reply_with_mood(
         question_text=question_text,
         language_code=req.language_code,
         patient_name=patient.get("name") or _patient_name(req.patient_id, user),
@@ -99,5 +99,6 @@ async def voice_interaction(req: VoiceInteractRequest, user: dict = Depends(get_
         transcription=question_text,
         reply_text=reply_text,
         audio_base64=audio_stream,
-        source="sarvam_ai" if audio_stream else "local_nlu"
+        source="sarvam_ai" if audio_stream else "local_nlu",
+        mood=mood
     )

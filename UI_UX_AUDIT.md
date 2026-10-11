@@ -144,3 +144,25 @@ claim.
   `dynamic import()`.
 - **No dark-mode/font-scaling toggle** and no PWA/offline support in the web app (offline is a
   separate backend/mobile workstream).
+
+## 11. Follow-up: sidebar / content alignment defect (fixed)
+
+**Symptom (from user screenshots):** on desktop the header and page content were pushed far down
+the page with a large blank area above them, and the sidebar's white panel ended partway down.
+
+**Root cause:** in the responsive rewrite the sidebar carried `lg:static`, which moved it out of
+`fixed` positioning and back into normal document flow as a full-width block. Because the parent
+container is a plain block (not flex/grid), the sidebar and the main content stacked vertically,
+so the content column (which only reserves space via `lg:pl-72`) was pushed below the sidebar.
+
+**Fix:** removed `lg:static lg:z-auto` from the sidebar (`frontend/src/components/Sidebar.jsx`), so
+it stays `fixed inset-y-0 left-0` at every breakpoint (`lg:translate-x-0` keeps it visible on
+desktop, `-translate-x-full` hides it on mobile), while the content column's `lg:pl-72` reserves
+its width. This restores the original fixed-sidebar + offset-content composition.
+
+**Verified in a real browser** (Vite dev server + mock API, `agent-browser`):
+- Desktop 1440×900 — caregiver view: sidebar beside content, header at top, no blank space.
+- Desktop 1440×900 — patient view ("My Progress"): same correct composition.
+- Desktop 1440×900 — "Today's glance" dashboard: cards aligned correctly.
+- Mobile 390×844 — sidebar hidden, hamburger present, full-width content, no horizontal overflow.
+- Mobile 390×844 — drawer opens over a dimmed backdrop with a close button.

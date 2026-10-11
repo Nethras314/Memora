@@ -4,6 +4,7 @@ import { useAuth } from '../lib/auth';
 import { api } from '../lib/api';
 import { speak } from '../lib/speech';
 import { BigButton, Card, Screen, SectionTitle } from '../components/ui';
+import CompanionCharacter from '../components/CompanionCharacter';
 import { COLORS } from '../theme';
 import { t, tCaregiver } from '../i18n';
 
@@ -21,6 +22,8 @@ export default function TodayScreen({ go, openVoice }) {
   const [refreshing, setRefreshing] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const [glance, setGlance] = useState(null);
+  // The companion waves hello the first time the home screen appears.
+  const [companionReaction, setCompanionReaction] = useState('wave');
 
   const load = useCallback(async () => {
     setLoadError(false);
@@ -59,7 +62,20 @@ export default function TodayScreen({ go, openVoice }) {
         <Text style={styles.heroDate}>TODAY • {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</Text>
         <Text style={styles.heroHi}>{t(lang, 'greeting')}{'\n'}{currentPatient?.name || 'friend'}.</Text>
         <Text style={styles.heroSub}>{t(lang, 'heroSub')}</Text>
-        <View style={{ height: 14 }} />
+        <TouchableOpacity
+          style={styles.heroCompanion}
+          onPress={openVoice}
+          accessibilityRole="button"
+          accessibilityLabel={t(lang, 'talkToMemora')}
+        >
+          <CompanionCharacter
+            state="idle"
+            reaction={companionReaction}
+            size={132}
+            onReactionDone={() => setCompanionReaction(null)}
+          />
+        </TouchableOpacity>
+        <View style={{ height: 6 }} />
         <BigButton title={`🎙 ${t(lang, 'talkToMemora')}`} variant="light" onPress={openVoice} />
         <View style={{ height: 10 }} />
         <BigButton title={t(lang, 'viewRoutine')} onPress={() => go('routine')} />
@@ -151,6 +167,16 @@ const styles = StyleSheet.create({
   heroDate: { color: '#dcd9ff', fontSize: 13, fontWeight: '800', letterSpacing: 2 },
   heroHi: { color: '#fff', fontSize: 34, fontWeight: '800', marginTop: 6, lineHeight: 40 },
   heroSub: { color: '#ecebff', fontSize: 18, marginTop: 8, lineHeight: 26 },
+  heroCompanion: {
+    alignItems: 'center',
+    alignSelf: 'center',
+    backgroundColor: 'rgba(255,255,255,0.94)',
+    borderRadius: 28,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    marginTop: 12,
+    marginBottom: 2,
+  },
   pctBox: { backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 20, padding: 16, alignItems: 'center', marginTop: 16 },
   pct: { color: '#fff', fontSize: 48, fontWeight: '800' },
   pctSub: { color: '#ddd9ff', fontSize: 15 },

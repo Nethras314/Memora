@@ -219,6 +219,8 @@ class VoiceInteractResponse(BaseModel):
     reply_text: str
     audio_base64: Optional[str] = None
     source: str # "sarvam_ai" or "local_nlu"
+    # Companion reaction hint for the client: "happy" | "encourage" | "neutral".
+    mood: Optional[str] = "neutral"
 
 # =========================================================
 # MOOD / BEHAVIOR (BPSD) SCHEMAS
