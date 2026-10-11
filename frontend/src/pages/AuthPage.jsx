@@ -34,23 +34,23 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f5f2ff] to-[#f8f4e9] p-4">
-      <div className="w-full max-w-md bg-white rounded-3xl border border-[#e5dfd4] shadow-xl p-8">
+    <div className="min-h-screen flex items-center justify-center bg-cream p-4">
+      <div className="w-full max-w-md bg-white rounded-3xl border border-[#e8ddcf] shadow-xl p-8">
         <div className="text-center mb-6">
-          <div className="w-14 h-14 rounded-2xl bg-[#4943a5] text-white flex items-center justify-center text-2xl mx-auto shadow-md">
+          <div className="w-14 h-14 rounded-2xl bg-[#b04a28] text-white flex items-center justify-center text-2xl mx-auto shadow-md">
             ♡
           </div>
           <h1 className="text-3xl font-bold font-serif mt-3">MEMORA</h1>
-          <p className="text-xs tracking-[3px] text-[#68738a] font-semibold">TOGETHER, EACH DAY</p>
+          <p className="text-xs tracking-[3px] text-[#6e6055] font-semibold">TOGETHER, EACH DAY</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 bg-[#faf8f2] p-1.5 rounded-2xl border border-[#e8e2d5] mb-6">
+        <div className="grid grid-cols-2 gap-2 bg-[#faf5ec] p-1.5 rounded-2xl border border-[#e8ddcf] mb-6">
           {['login', 'signup'].map((m) => (
             <button
               key={m}
               onClick={() => setMode(m)}
               className={`py-2.5 rounded-xl text-sm font-bold transition ${
-                mode === m ? 'bg-[#4943a5] text-white shadow' : 'text-[#68738a]'
+                mode === m ? 'bg-[#b04a28] text-white shadow' : 'text-[#6e6055]'
               }`}
             >
               {m === 'login' ? 'Sign In' : 'Create Account'}
@@ -61,29 +61,29 @@ export default function AuthPage() {
         <form onSubmit={submit} className="space-y-4">
           {mode === 'signup' && (
             <div>
-              <label className="block text-xs font-bold uppercase text-[#273047] mb-1">Full name</label>
+              <label className="block text-xs font-bold uppercase text-[#2a211b] mb-1">Full name</label>
               <input
                 required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="E.g., Anitha"
-                className="w-full px-4 py-3 rounded-xl border border-[#dcd6cc] bg-[#faf8f2] text-sm outline-none focus:border-[#4943a5]"
+                className="w-full px-4 py-3 rounded-xl border border-[#ddd2c3] bg-[#faf5ec] text-sm focus:border-[#b04a28]"
               />
             </div>
           )}
           <div>
-            <label className="block text-xs font-bold uppercase text-[#273047] mb-1">Email</label>
+            <label className="block text-xs font-bold uppercase text-[#2a211b] mb-1">Email</label>
             <input
               required
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full px-4 py-3 rounded-xl border border-[#dcd6cc] bg-[#faf8f2] text-sm outline-none focus:border-[#4943a5]"
+              className="w-full px-4 py-3 rounded-xl border border-[#ddd2c3] bg-[#faf5ec] text-sm focus:border-[#b04a28]"
             />
           </div>
           <div>
-            <label className="block text-xs font-bold uppercase text-[#273047] mb-1">Password</label>
+            <label className="block text-xs font-bold uppercase text-[#2a211b] mb-1">Password</label>
             <input
               required
               type="password"
@@ -91,16 +91,16 @@ export default function AuthPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Minimum 6 characters"
-              className="w-full px-4 py-3 rounded-xl border border-[#dcd6cc] bg-[#faf8f2] text-sm outline-none focus:border-[#4943a5]"
+              className="w-full px-4 py-3 rounded-xl border border-[#ddd2c3] bg-[#faf5ec] text-sm focus:border-[#b04a28]"
             />
           </div>
           {mode === 'signup' && (
             <div>
-              <label className="block text-xs font-bold uppercase text-[#273047] mb-1">I am a</label>
+              <label className="block text-xs font-bold uppercase text-[#2a211b] mb-1">I am a</label>
               <select
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-[#dcd6cc] bg-[#faf8f2] text-sm outline-none focus:border-[#4943a5]"
+                className="w-full px-4 py-3 rounded-xl border border-[#ddd2c3] bg-[#faf5ec] text-sm focus:border-[#b04a28]"
               >
                 <option value="caregiver">Caregiver / Caretaker</option>
                 <option value="patient">Patient</option>
@@ -115,15 +115,15 @@ export default function AuthPage() {
           <button
             type="submit"
             disabled={busy}
-            className="w-full py-3.5 bg-[#4943a5] text-white rounded-2xl font-bold hover:bg-[#3d378f] transition disabled:opacity-60 flex items-center justify-center gap-2"
+            className="w-full py-3.5 bg-[#b04a28] text-white rounded-2xl font-bold hover:bg-[#8a3a1e] transition disabled:opacity-60 flex items-center justify-center gap-2"
           >
             {mode === 'login' ? <LogIn className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
             <span>{busy ? 'Please wait…' : mode === 'login' ? 'Sign In to MEMORA' : 'Create Account'}</span>
           </button>
         </form>
 
-        <div className="mt-6 text-xs text-gray-500 bg-[#faf8f2] border border-[#e8e2d5] rounded-2xl p-4 flex gap-2">
-          <HeartHandshake className="w-4 h-4 text-[#4943a5] shrink-0 mt-0.5" />
+        <div className="mt-6 text-xs text-gray-500 bg-[#faf5ec] border border-[#e8ddcf] rounded-2xl p-4 flex gap-2">
+          <HeartHandshake className="w-4 h-4 text-[#b04a28] shrink-0 mt-0.5" />
           <span>
             Health Care : <b>caretaker@gmail.com</b> / <b>test1234</b>
             <br />

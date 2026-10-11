@@ -126,12 +126,12 @@ export default function RemindersPage({ currentPatient, language = 'en-IN' }) {
     <div className="space-y-8 max-w-5xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold font-serif text-[#273047]">{t(language, 'remindersTitle')}</h1>
-          <p className="text-sm text-[#68738a] mt-1">{t(language, 'remindersSub')}</p>
+          <h1 className="text-3xl font-bold font-serif text-[#2a211b]">{t(language, 'remindersTitle')}</h1>
+          <p className="text-sm text-[#6e6055] mt-1">{t(language, 'remindersSub')}</p>
         </div>
         <button
           onClick={handleOpenAdd}
-          className="px-4 py-2.5 bg-[#4943a5] hover:bg-[#3d378f] text-white rounded-2xl text-xs font-semibold flex items-center gap-1.5 shadow-md transition"
+          className="px-4 py-2.5 bg-[#b04a28] hover:bg-[#8a3a1e] text-white rounded-2xl text-xs font-semibold flex items-center gap-1.5 shadow-md transition"
         >
           <Plus className="w-4 h-4" />
           <span>{t(language, 'addReminder')}</span>
@@ -145,20 +145,20 @@ export default function RemindersPage({ currentPatient, language = 'en-IN' }) {
         </div>
       )}
 
-      <div className="bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm">
+      <div className="bg-[#fffdf9] p-6 rounded-3xl border border-[#e8ddcf] shadow-sm">
         {loading ? (
-          <div className="text-center py-12 text-[#68738a]">
-            <div className="animate-spin w-6 h-6 border-2 border-[#4943a5] border-t-transparent rounded-full mx-auto mb-2"></div>
+          <div className="text-center py-12 text-[#6e6055]">
+            <div className="animate-spin w-6 h-6 border-2 border-[#b04a28] border-t-transparent rounded-full mx-auto mb-2"></div>
             <p className="text-xs font-medium">{t(language, 'loadingReminders')}</p>
           </div>
         ) : reminders.length === 0 ? (
-          <div className="text-center py-14 text-[#68738a]">
+          <div className="text-center py-14 text-[#6e6055]">
             <Bell className="w-10 h-10 mx-auto mb-3 text-[#c5c0b6]" />
             <p className="text-sm font-medium">{t(language, 'noReminders')}</p>
             <p className="text-xs mt-1">{t(language, 'noRemindersHint')}</p>
             <button
               onClick={handleOpenAdd}
-              className="mt-4 text-xs font-bold text-[#4943a5] hover:underline"
+              className="mt-4 text-xs font-bold text-[#b04a28] hover:underline"
             >
               + {t(language, 'addAReminder')}
             </button>
@@ -171,21 +171,21 @@ export default function RemindersPage({ currentPatient, language = 'en-IN' }) {
                 className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
                   reminder.enabled === false
                     ? 'bg-gray-50 border-gray-200 opacity-75'
-                    : 'bg-[#faf8f2] border-[#e8e2d5]'
+                    : 'bg-[#faf5ec] border-[#e8ddcf]'
                 }`}
               >
                 <div className="min-w-0">
-                  <span className="text-[10px] font-bold uppercase tracking-wide text-[#4943a5] bg-indigo-50 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-bold uppercase tracking-wide text-[#b04a28] bg-indigo-50 px-2 py-0.5 rounded-full">
                     {reminder.category || 'Custom'}
                   </span>
-                  <p className={`mt-2 font-semibold text-base ${reminder.enabled === false ? 'text-gray-500' : 'text-[#273047]'}`}>
+                  <p className={`mt-2 font-semibold text-base ${reminder.enabled === false ? 'text-gray-500' : 'text-[#2a211b]'}`}>
                     {reminder.title}
                   </p>
-                  <p className="text-xs text-[#68738a] mt-1">{reminder.frequency || 'Daily'}</p>
+                  <p className="text-xs text-[#6e6055] mt-1">{reminder.frequency || 'Daily'}</p>
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
-                  <div className="flex items-center gap-1.5 text-sm font-mono text-[#546077] bg-white px-3 py-1.5 rounded-xl border border-gray-200">
+                  <div className="flex items-center gap-1.5 text-sm font-mono text-[#6e6055] bg-white px-3 py-1.5 rounded-xl border border-gray-200">
                     <Clock className="w-4 h-4 text-gray-400" />
                     <span>{reminder.reminder_time}</span>
                   </div>
@@ -194,7 +194,7 @@ export default function RemindersPage({ currentPatient, language = 'en-IN' }) {
                     title={reminder.enabled === false ? t(language, 'enableReminder') : t(language, 'disableReminder')}
                     className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 border transition ${
                       reminder.enabled === false
-                        ? 'bg-white text-[#68738a] border-gray-200 hover:bg-gray-50'
+                        ? 'bg-white text-[#6e6055] border-gray-200 hover:bg-gray-50'
                         : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
                     }`}
                   >
@@ -204,7 +204,7 @@ export default function RemindersPage({ currentPatient, language = 'en-IN' }) {
                   <button
                     onClick={() => handleOpenEdit(reminder)}
                     title={t(language, 'editReminderTitle')}
-                    className="p-2 text-gray-400 hover:text-[#4943a5] hover:bg-indigo-50 rounded-xl transition"
+                    className="p-2 text-gray-400 hover:text-[#b04a28] hover:bg-indigo-50 rounded-xl transition"
                   >
                     <Pencil className="w-4 h-4" />
                   </button>
@@ -224,7 +224,7 @@ export default function RemindersPage({ currentPatient, language = 'en-IN' }) {
 
       {showModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-[#e5dfd4] relative">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-[#e8ddcf] relative">
             <button
               onClick={() => {
                 setShowModal(false);
@@ -235,10 +235,10 @@ export default function RemindersPage({ currentPatient, language = 'en-IN' }) {
               <X className="w-5 h-5" />
             </button>
 
-            <h2 className="text-2xl font-bold font-serif text-[#273047] mb-1">
+            <h2 className="text-2xl font-bold font-serif text-[#2a211b] mb-1">
               {editing ? t(language, 'editReminder') : t(language, 'addReminderTitle')}
             </h2>
-            <p className="text-sm text-[#68738a] mb-6">{t(language, 'reminderHint')}</p>
+            <p className="text-sm text-[#6e6055] mb-6">{t(language, 'reminderHint')}</p>
 
             {errorMsg && (
               <div className="mb-4 bg-red-50 border border-red-200 text-red-700 text-xs px-3 py-2 rounded-xl flex items-center gap-2">
@@ -249,34 +249,34 @@ export default function RemindersPage({ currentPatient, language = 'en-IN' }) {
 
             <form onSubmit={handleSave} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-[#273047] uppercase mb-1">{t(language, 'title')}</label>
+                <label className="block text-xs font-bold text-[#2a211b] uppercase mb-1">{t(language, 'title')}</label>
                 <input
                   type="text"
                   required
                   placeholder="E.g., Take afternoon tablet"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-[#dcd6cc] bg-[#faf8f2] text-sm"
+                  className="w-full px-4 py-3 rounded-xl border border-[#ddd2c3] bg-[#faf5ec] text-sm"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-[#273047] uppercase mb-1">{t(language, 'time')}</label>
+                  <label className="block text-xs font-bold text-[#2a211b] uppercase mb-1">{t(language, 'time')}</label>
                   <input
                     type="time"
                     required
                     value={reminderTime}
                     onChange={(e) => setReminderTime(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-[#dcd6cc] bg-[#faf8f2] text-sm font-mono"
+                    className="w-full px-4 py-3 rounded-xl border border-[#ddd2c3] bg-[#faf5ec] text-sm font-mono"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-[#273047] uppercase mb-1">{t(language, 'repeat')}</label>
+                  <label className="block text-xs font-bold text-[#2a211b] uppercase mb-1">{t(language, 'repeat')}</label>
                   <select
                     value={frequency}
                     onChange={(e) => setFrequency(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-[#dcd6cc] bg-[#faf8f2] text-sm"
+                    className="w-full px-4 py-3 rounded-xl border border-[#ddd2c3] bg-[#faf5ec] text-sm"
                   >
                     {FREQUENCIES.map((item) => (
                       <option key={item} value={item}>{item}</option>
@@ -286,11 +286,11 @@ export default function RemindersPage({ currentPatient, language = 'en-IN' }) {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#273047] uppercase mb-1">{t(language, 'category')}</label>
+                <label className="block text-xs font-bold text-[#2a211b] uppercase mb-1">{t(language, 'category')}</label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-[#dcd6cc] bg-[#faf8f2] text-sm"
+                  className="w-full px-4 py-3 rounded-xl border border-[#ddd2c3] bg-[#faf5ec] text-sm"
                 >
                   {CATEGORIES.map((item) => (
                     <option key={item} value={item}>{item}</option>
@@ -312,7 +312,7 @@ export default function RemindersPage({ currentPatient, language = 'en-IN' }) {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="flex-1 py-3 bg-[#4943a5] text-white rounded-2xl font-bold text-sm hover:bg-[#3d378f] disabled:opacity-50 transition"
+                  className="flex-1 py-3 bg-[#b04a28] text-white rounded-2xl font-bold text-sm hover:bg-[#8a3a1e] disabled:opacity-50 transition"
                 >
                   {saving ? t(language, 'saving') : editing ? t(language, 'saveChanges') : t(language, 'addReminder')}
                 </button>
@@ -324,9 +324,9 @@ export default function RemindersPage({ currentPatient, language = 'en-IN' }) {
 
       {deletingId && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl border border-[#e5dfd4]">
-            <h3 className="text-xl font-bold font-serif text-[#273047]">{t(language, 'deleteReminderConfirm')}</h3>
-            <p className="text-sm text-[#68738a] mt-2">{t(language, 'cannotUndoReminder')}</p>
+          <div className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl border border-[#e8ddcf]">
+            <h3 className="text-xl font-bold font-serif text-[#2a211b]">{t(language, 'deleteReminderConfirm')}</h3>
+            <p className="text-sm text-[#6e6055] mt-2">{t(language, 'cannotUndoReminder')}</p>
             <div className="flex gap-3 pt-6">
               <button
                 onClick={() => setDeletingId(null)}

@@ -2,15 +2,106 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --indigo: #4943a5;
-  --cream: #faf8f2;
+@layer base {
+  :root {
+    --primary: #b04a28;
+    --primary-dark: #8a3a1e;
+    --ink: #2a211b;
+    --muted: #6e6055;
+    --cream: #faf5ec;
+    --paper: #fffdf9;
+    --line: #e8ddcf;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    font-family: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    color: #2a211b;
+    background-color: #faf5ec;
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Visible, consistent keyboard focus everywhere (never rely on color alone). */
+  :focus-visible {
+    outline: 2px solid #b04a28;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: #f3d8c7;
+    color: #2a211b;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
-body {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  margin: 0;
-  padding: 0;
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-colors;
+    min-height: 44px;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9375rem;
+  }
+  .btn-primary {
+    @apply btn bg-primary text-white hover:bg-primary-dark;
+  }
+  .btn-secondary {
+    @apply btn bg-white text-ink border border-line hover:bg-cream;
+  }
+  .btn-ghost {
+    @apply btn bg-transparent text-muted hover:bg-cream hover:text-ink;
+  }
+  .btn-danger {
+    @apply btn bg-danger text-white hover:opacity-90;
+  }
+
+  .card {
+    @apply bg-paper rounded-2xl border border-line shadow-soft;
+  }
+  .card-pad {
+    @apply p-6;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-line bg-paper px-4 py-3 text-[0.9375rem] text-ink;
+  }
+  .input:focus {
+    @apply border-primary;
+  }
+  .label {
+    @apply mb-1 block text-xs font-bold uppercase tracking-wide text-muted;
+  }
+
+  .icon-btn {
+    @apply inline-flex items-center justify-center rounded-lg text-muted transition-colors hover:bg-cream hover:text-ink;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .eyebrow {
+    @apply text-xs font-bold uppercase tracking-wider text-muted;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold;
+  }
 }
 
 @keyframes gentleBreathe {

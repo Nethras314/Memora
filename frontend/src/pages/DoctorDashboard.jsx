@@ -131,10 +131,10 @@ export default function DoctorDashboard({ patients, currentPatient, onSelectPati
     <div className="space-y-8 max-w-6xl mx-auto">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold font-serif text-[#273047] flex items-center gap-3">
-            <Stethoscope className="w-8 h-8 text-[#4943a5]" /> Clinical Portal
+          <h1 className="text-3xl font-bold font-serif text-[#2a211b] flex items-center gap-3">
+            <Stethoscope className="w-8 h-8 text-[#b04a28]" /> Clinical Portal
           </h1>
-          <p className="text-sm text-[#68738a] mt-1">
+          <p className="text-sm text-[#6e6055] mt-1">
             Longitudinal cognitive tracking across your patients, sorted by decline velocity.
           </p>
         </div>
@@ -142,7 +142,7 @@ export default function DoctorDashboard({ patients, currentPatient, onSelectPati
           <div className="flex gap-2">
             <button
               onClick={() => api.exportAnalyticsCsv(selectedId)}
-              className="px-4 py-2 rounded-2xl bg-[#4943a5] text-white text-sm font-bold hover:bg-[#3d378f] flex items-center gap-2"
+              className="px-4 py-2 rounded-2xl bg-[#b04a28] text-white text-sm font-bold hover:bg-[#8a3a1e] flex items-center gap-2"
             >
               <FileDown className="w-4 h-4" /> Export CSV
             </button>
@@ -156,9 +156,9 @@ export default function DoctorDashboard({ patients, currentPatient, onSelectPati
       )}
 
       {/* Cohort table */}
-      <div className="bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm overflow-x-auto">
-        <h2 className="text-xl font-bold font-serif text-[#273047] mb-4 flex items-center gap-2">
-          <Activity className="w-5 h-5 text-[#4943a5]" /> Patients ({summary.length})
+      <div className="bg-[#fffdf9] p-6 rounded-3xl border border-[#e8ddcf] shadow-sm overflow-x-auto">
+        <h2 className="text-xl font-bold font-serif text-[#2a211b] mb-4 flex items-center gap-2">
+          <Activity className="w-5 h-5 text-[#b04a28]" /> Patients ({summary.length})
         </h2>
         {loading ? (
           <div className="text-sm text-gray-500">Loading…</div>
@@ -169,7 +169,7 @@ export default function DoctorDashboard({ patients, currentPatient, onSelectPati
         ) : (
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-[#e5dfd4] text-[#68738a] text-xs uppercase">
+              <tr className="border-b border-[#e8ddcf] text-[#6e6055] text-xs uppercase">
                 <th className="pb-3 font-bold">Patient</th>
                 <th className="pb-3 font-bold">Age</th>
                 <th className="pb-3 font-bold">Index</th>
@@ -179,24 +179,24 @@ export default function DoctorDashboard({ patients, currentPatient, onSelectPati
                 <th className="pb-3 font-bold">Since visit</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#f0ebe0]">
+            <tbody className="divide-y divide-[#f0e8dc]">
               {summary.map((s) => (
                 <tr
                   key={s.patient_id}
                   onClick={() => selectPatient(s.patient_id)}
-                  className={`cursor-pointer hover:bg-[#faf8f2] transition ${selectedId === s.patient_id ? 'bg-indigo-50/50' : ''}`}
+                  className={`cursor-pointer hover:bg-[#faf5ec] transition ${selectedId === s.patient_id ? 'bg-indigo-50/50' : ''}`}
                 >
-                  <td className="py-3 font-semibold text-[#273047]">{s.patient_name}</td>
-                  <td className="py-3 text-[#546077]">{s.age ?? '—'}</td>
-                  <td className="py-3 font-bold text-[#273047]">{s.index ?? '—'}</td>
+                  <td className="py-3 font-semibold text-[#2a211b]">{s.patient_name}</td>
+                  <td className="py-3 text-[#6e6055]">{s.age ?? '—'}</td>
+                  <td className="py-3 font-bold text-[#2a211b]">{s.index ?? '—'}</td>
                   <td className={`py-3 font-semibold ${s.delta_per_week == null ? 'text-gray-400' : s.delta_per_week < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
                     {s.delta_per_week ?? '—'}
                   </td>
                   <td className="py-3"><StatusBadge status={s.status} /></td>
-                  <td className="py-3 text-[#546077]">
+                  <td className="py-3 text-[#6e6055]">
                     {s.last_visit ? new Date(s.last_visit).toLocaleDateString() : '—'}
                   </td>
-                  <td className="py-3 text-[#546077]">{s.sessions_since_visit}</td>
+                  <td className="py-3 text-[#6e6055]">{s.sessions_since_visit}</td>
                 </tr>
               ))}
             </tbody>
@@ -214,9 +214,9 @@ export default function DoctorDashboard({ patients, currentPatient, onSelectPati
               { label: 'Routine adherence', value: `${analytics.routine_completion_pct ?? 0}%`, sub: '' },
               { label: 'Medication adherence', value: `${analytics.medication_adherence_pct ?? '—'}%`, sub: '' },
             ].map((k) => (
-              <div key={k.label} className="bg-[#fffefb] p-5 rounded-3xl border border-[#e5dfd4] shadow-sm">
-                <div className="text-xs font-bold uppercase tracking-wider text-[#68738a]">{k.label}</div>
-                <div className="text-3xl font-extrabold text-[#4943a5] mt-2">
+              <div key={k.label} className="bg-[#fffdf9] p-5 rounded-3xl border border-[#e8ddcf] shadow-sm">
+                <div className="text-xs font-bold uppercase tracking-wider text-[#6e6055]">{k.label}</div>
+                <div className="text-3xl font-extrabold text-[#b04a28] mt-2">
                   {k.value} <span className="text-sm text-gray-400 font-semibold">{k.sub}</span>
                 </div>
               </div>
@@ -225,9 +225,9 @@ export default function DoctorDashboard({ patients, currentPatient, onSelectPati
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
             {/* Trend chart */}
-            <div className="md:col-span-8 bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm">
+            <div className="md:col-span-8 bg-[#fffdf9] p-6 rounded-3xl border border-[#e8ddcf] shadow-sm">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold font-serif text-[#273047]">Longitudinal trend</h2>
+                <h2 className="text-xl font-bold font-serif text-[#2a211b]">Longitudinal trend</h2>
                 <div className="flex gap-1.5">
                   {WINDOWS.map((w) => (
                     <button
@@ -235,8 +235,8 @@ export default function DoctorDashboard({ patients, currentPatient, onSelectPati
                       onClick={() => setWindowDays(w)}
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold border ${
                         windowDays === w
-                          ? 'bg-[#4943a5] text-white border-[#4943a5]'
-                          : 'bg-white text-[#546077] border-[#e5dfd4]'
+                          ? 'bg-[#b04a28] text-white border-[#b04a28]'
+                          : 'bg-white text-[#6e6055] border-[#e8ddcf]'
                       }`}
                     >
                       {w}d
@@ -248,8 +248,8 @@ export default function DoctorDashboard({ patients, currentPatient, onSelectPati
             </div>
 
             {/* Domain breakdown */}
-            <div className="md:col-span-4 bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm">
-              <h2 className="text-xl font-bold font-serif text-[#273047] mb-4">Domain breakdown</h2>
+            <div className="md:col-span-4 bg-[#fffdf9] p-6 rounded-3xl border border-[#e8ddcf] shadow-sm">
+              <h2 className="text-xl font-bold font-serif text-[#2a211b] mb-4">Domain breakdown</h2>
               <DomainBreakdown data={analytics.domain_breakdown} />
               <div className="text-[11px] text-gray-400 mt-4 border-t pt-2">
                 Composite weights: games 50% · routine 20% · medication 15% · mood 15%.
@@ -259,43 +259,43 @@ export default function DoctorDashboard({ patients, currentPatient, onSelectPati
 
           {/* Since last visit + session drill-down */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-            <div className="md:col-span-4 bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm">
-              <h2 className="text-xl font-bold font-serif text-[#273047] mb-3 flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-[#4943a5]" /> Since last visit
+            <div className="md:col-span-4 bg-[#fffdf9] p-6 rounded-3xl border border-[#e8ddcf] shadow-sm">
+              <h2 className="text-xl font-bold font-serif text-[#2a211b] mb-3 flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-[#b04a28]" /> Since last visit
               </h2>
-              <p className="text-sm text-[#546077]">
+              <p className="text-sm text-[#6e6055]">
                 {sel?.last_visit ? (
                   <>Last note: <strong>{new Date(sel.last_visit).toLocaleDateString()}</strong></>
                 ) : (
                   'No clinical note recorded yet.'
                 )}
               </p>
-              <p className="text-sm text-[#546077] mt-1">
+              <p className="text-sm text-[#6e6055] mt-1">
                 Sessions since: <strong>{sel?.sessions_since_visit ?? analytics.recent_sessions_count}</strong>
               </p>
-              <p className="text-xs text-[#68738a] mt-3">
+              <p className="text-xs text-[#6e6055] mt-3">
                 Most recent mood: <strong>{analytics.mood_recent || '—'}</strong>
               </p>
             </div>
 
-            <div className="md:col-span-8 bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm overflow-x-auto">
-              <h2 className="text-xl font-bold font-serif text-[#273047] mb-4">Recent sessions</h2>
+            <div className="md:col-span-8 bg-[#fffdf9] p-6 rounded-3xl border border-[#e8ddcf] shadow-sm overflow-x-auto">
+              <h2 className="text-xl font-bold font-serif text-[#2a211b] mb-4">Recent sessions</h2>
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b border-[#e5dfd4] text-[#68738a] text-xs uppercase">
+                  <tr className="border-b border-[#e8ddcf] text-[#6e6055] text-xs uppercase">
                     <th className="pb-3 font-bold">Date</th>
                     <th className="pb-3 font-bold">Level</th>
                     <th className="pb-3 font-bold">Latency</th>
                     <th className="pb-3 font-bold">Score</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#f0ebe0]">
+                <tbody className="divide-y divide-[#f0e8dc]">
                   {analytics.cognitive_trend?.map((r, i) => (
                     <tr key={i}>
-                      <td className="py-3 font-semibold text-[#273047]">{r.date}</td>
-                      <td className="py-3 text-[#546077]">Level {r.level}</td>
+                      <td className="py-3 font-semibold text-[#2a211b]">{r.date}</td>
+                      <td className="py-3 text-[#6e6055]">Level {r.level}</td>
                       <td className="py-3 font-mono text-gray-600">{r.latency_sec}s</td>
-                      <td className="py-3 font-bold text-[#273047]">{r.score}%</td>
+                      <td className="py-3 font-bold text-[#2a211b]">{r.score}%</td>
                     </tr>
                   ))}
                 </tbody>
@@ -304,9 +304,9 @@ export default function DoctorDashboard({ patients, currentPatient, onSelectPati
           </div>
 
           {/* Clinical notes */}
-          <div className="bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm">
-            <h2 className="text-xl font-bold font-serif text-[#273047] mb-4 flex items-center gap-2">
-              <ClipboardList className="w-5 h-5 text-[#4943a5]" /> Clinical notes
+          <div className="bg-[#fffdf9] p-6 rounded-3xl border border-[#e8ddcf] shadow-sm">
+            <h2 className="text-xl font-bold font-serif text-[#2a211b] mb-4 flex items-center gap-2">
+              <ClipboardList className="w-5 h-5 text-[#b04a28]" /> Clinical notes
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
               <div className="md:col-span-7 space-y-3">
@@ -314,14 +314,14 @@ export default function DoctorDashboard({ patients, currentPatient, onSelectPati
                   <div className="text-sm text-gray-400">No notes yet.</div>
                 ) : (
                   notes.map((n) => (
-                    <div key={n.id} className="border border-[#e5dfd4] rounded-2xl p-4">
+                    <div key={n.id} className="border border-[#e8ddcf] rounded-2xl p-4">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-[11px] font-bold uppercase tracking-wide text-[#4943a5]">{n.note_type}</span>
+                        <span className="text-[11px] font-bold uppercase tracking-wide text-[#b04a28]">{n.note_type}</span>
                         <span className="text-[11px] text-gray-400">
                           {n.created_at ? new Date(n.created_at).toLocaleString() : ''}
                         </span>
                       </div>
-                      <p className="text-sm text-[#273047]">{n.body}</p>
+                      <p className="text-sm text-[#2a211b]">{n.body}</p>
                     </div>
                   ))
                 )}
@@ -330,7 +330,7 @@ export default function DoctorDashboard({ patients, currentPatient, onSelectPati
                 <select
                   value={newNote.note_type}
                   onChange={(e) => setNewNote({ ...newNote, note_type: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-[#dcd6cc] bg-[#faf8f2] text-sm"
+                  className="w-full px-3 py-2 rounded-xl border border-[#ddd2c3] bg-[#faf5ec] text-sm"
                 >
                   <option value="assessment">Assessment</option>
                   <option value="plan">Plan</option>
@@ -341,12 +341,12 @@ export default function DoctorDashboard({ patients, currentPatient, onSelectPati
                   onChange={(e) => setNewNote({ ...newNote, body: e.target.value })}
                   placeholder="Write a clinical note…"
                   rows={3}
-                  className="w-full px-3 py-2 rounded-xl border border-[#dcd6cc] bg-[#faf8f2] text-sm"
+                  className="w-full px-3 py-2 rounded-xl border border-[#ddd2c3] bg-[#faf5ec] text-sm"
                 />
                 <button
                   onClick={addNote}
                   disabled={!newNote.body.trim()}
-                  className="px-4 py-2 rounded-2xl bg-[#4943a5] text-white text-sm font-bold disabled:opacity-50"
+                  className="px-4 py-2 rounded-2xl bg-[#b04a28] text-white text-sm font-bold disabled:opacity-50"
                 >
                   Add note
                 </button>
@@ -356,15 +356,15 @@ export default function DoctorDashboard({ patients, currentPatient, onSelectPati
 
           {/* Grants manager (admin only) */}
           {isAdmin && (
-            <div className="bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm">
-              <h2 className="text-xl font-bold font-serif text-[#273047] mb-4 flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-[#4943a5]" /> Doctor access
+            <div className="bg-[#fffdf9] p-6 rounded-3xl border border-[#e8ddcf] shadow-sm">
+              <h2 className="text-xl font-bold font-serif text-[#2a211b] mb-4 flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-[#b04a28]" /> Doctor access
               </h2>
               <div className="flex flex-wrap gap-4 items-end">
                 <select
                   value={grantForm.doctor_id}
                   onChange={(e) => setGrantForm({ ...grantForm, doctor_id: e.target.value })}
-                  className="px-3 py-2 rounded-xl border border-[#dcd6cc] bg-[#faf8f2] text-sm min-w-[220px]"
+                  className="px-3 py-2 rounded-xl border border-[#ddd2c3] bg-[#faf5ec] text-sm min-w-[220px]"
                 >
                   <option value="">Select doctor…</option>
                   {doctors.map((d) => (
@@ -375,12 +375,12 @@ export default function DoctorDashboard({ patients, currentPatient, onSelectPati
                   value={grantForm.reason}
                   onChange={(e) => setGrantForm({ ...grantForm, reason: e.target.value })}
                   placeholder="Reason (e.g. treating physician)"
-                  className="px-3 py-2 rounded-xl border border-[#dcd6cc] bg-[#faf8f2] text-sm flex-1 min-w-[200px]"
+                  className="px-3 py-2 rounded-xl border border-[#ddd2c3] bg-[#faf5ec] text-sm flex-1 min-w-[200px]"
                 />
                 <button
                   onClick={grant}
                   disabled={!grantForm.doctor_id}
-                  className="px-4 py-2 rounded-2xl bg-[#4943a5] text-white text-sm font-bold disabled:opacity-50"
+                  className="px-4 py-2 rounded-2xl bg-[#b04a28] text-white text-sm font-bold disabled:opacity-50"
                 >
                   Grant access
                 </button>
@@ -390,8 +390,8 @@ export default function DoctorDashboard({ patients, currentPatient, onSelectPati
                   <div className="text-sm text-gray-400">No active doctor grants for this patient.</div>
                 ) : (
                   grants.map((g) => (
-                    <div key={g.id} className="flex items-center justify-between border border-[#e5dfd4] rounded-2xl px-4 py-2">
-                      <span className="text-sm text-[#273047]">
+                    <div key={g.id} className="flex items-center justify-between border border-[#e8ddcf] rounded-2xl px-4 py-2">
+                      <span className="text-sm text-[#2a211b]">
                         Doctor <strong>{g.doctor_id}</strong>{g.reason ? ` · ${g.reason}` : ''}
                       </span>
                       <button onClick={() => revoke(g.id)} className="text-xs font-bold text-red-600 hover:underline">

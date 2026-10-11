@@ -32,7 +32,7 @@ export default function TodayDashboard({ currentPatient, language = 'en-IN', onO
   return (
     <div className="space-y-8 max-w-6xl mx-auto">
       {/* Hero Welcome Banner */}
-      <div className="bg-gradient-to-r from-[#4943a5] via-[#534cb3] to-[#6058c7] rounded-3xl p-8 md:p-10 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-8">
+      <div className="flex flex-col items-center justify-between gap-8 rounded-3xl bg-primary p-8 text-white shadow-lift md:flex-row md:p-10">
         <div className="space-y-3">
           <div className="text-xs uppercase tracking-widest text-indigo-200 font-bold">
             TODAY • {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -46,7 +46,7 @@ export default function TodayDashboard({ currentPatient, language = 'en-IN', onO
           <div className="flex gap-3 pt-2">
             <button
               onClick={onOpenVoiceModal}
-              className="bg-white text-[#4943a5] px-5 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-md hover:bg-indigo-50 transition"
+              className="bg-white text-[#b04a28] px-5 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-md hover:bg-indigo-50 transition"
             >
               <span>🎙 {t(language, 'talkToMemoraBtn')}</span>
               <ArrowRight className="w-4 h-4" />
@@ -70,17 +70,17 @@ export default function TodayDashboard({ currentPatient, language = 'en-IN', onO
       {/* Grid: Quick Actions + Today's Reminders */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         {/* Quick Actions */}
-        <div className="md:col-span-7 bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm">
-          <div className="text-xs uppercase tracking-wider font-bold text-[#68738a] mb-2">{t(language, 'quickActions')}</div>
-          <h2 className="text-2xl font-bold font-serif text-[#273047] mb-6">{t(language, 'easyToReach')}</h2>
+        <div className="md:col-span-7 bg-[#fffdf9] p-6 rounded-3xl border border-[#e8ddcf] shadow-sm">
+          <div className="text-xs uppercase tracking-wider font-bold text-[#6e6055] mb-2">{t(language, 'quickActions')}</div>
+          <h2 className="text-2xl font-bold font-serif text-[#2a211b] mb-6">{t(language, 'easyToReach')}</h2>
 
           <div className="grid grid-cols-2 gap-4">
             <button
               onClick={onOpenVoiceModal}
-              className="bg-[#dceee9] hover:bg-[#cee5df] p-5 rounded-2xl text-left border border-[#cbe2dc] transition flex flex-col justify-between h-28"
+              className="bg-[#e7efe9] hover:bg-[#cee5df] p-5 rounded-2xl text-left border border-[#d4e4da] transition flex flex-col justify-between h-28"
             >
               <span className="text-2xl">💬</span>
-              <strong className="text-[#204a43] text-sm flex items-center justify-between">
+              <strong className="text-[#3f6b52] text-sm flex items-center justify-between">
                 {t(language, 'askQuestion')} <span>→</span>
               </strong>
             </button>
@@ -95,7 +95,7 @@ export default function TodayDashboard({ currentPatient, language = 'en-IN', onO
                   setActiveTab('memories');
                 }
               }}
-              className="bg-[#eeece7] hover:bg-[#e4e1da] p-5 rounded-2xl text-left border border-[#dedad1] transition flex flex-col justify-between h-28"
+              className="bg-[#efe8dd] hover:bg-[#e8ddcf] p-5 rounded-2xl text-left border border-[#e8ddcf] transition flex flex-col justify-between h-28"
             >
               <span className="text-2xl">▣</span>
               <strong className="text-[#3b4353] text-sm flex items-center justify-between">
@@ -105,7 +105,7 @@ export default function TodayDashboard({ currentPatient, language = 'en-IN', onO
 
             <button
               onClick={() => setActiveTab('activities')}
-              className="bg-[#f9e7c5] hover:bg-[#f1dcaf] p-5 rounded-2xl text-left border border-[#ebd6a9] transition flex flex-col justify-between h-28"
+              className="bg-[#f7e3c8] hover:bg-[#f3d9ae] p-5 rounded-2xl text-left border border-[#eed3a5] transition flex flex-col justify-between h-28"
             >
               <span className="text-2xl">🧠</span>
               <strong className="text-[#654e20] text-sm flex items-center justify-between">
@@ -115,7 +115,7 @@ export default function TodayDashboard({ currentPatient, language = 'en-IN', onO
 
             <button
               onClick={() => setActiveTab('reminders')}
-              className="bg-[#f3f0ea] hover:bg-[#eae5dc] p-5 rounded-2xl text-left border border-[#dfd9ce] transition flex flex-col justify-between h-28"
+              className="bg-[#f0e8dc] hover:bg-[#e8ddcf] p-5 rounded-2xl text-left border border-[#e8ddcf] transition flex flex-col justify-between h-28"
             >
               <span className="text-2xl">♧</span>
               <strong className="text-[#3b4353] text-sm flex items-center justify-between">
@@ -126,21 +126,21 @@ export default function TodayDashboard({ currentPatient, language = 'en-IN', onO
         </div>
 
         {/* Reminders Mini Card */}
-        <div className="md:col-span-5 bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm flex flex-col justify-between">
+        <div className="md:col-span-5 bg-[#fffdf9] p-6 rounded-3xl border border-[#e8ddcf] shadow-sm flex flex-col justify-between">
           <div>
-            <div className="text-xs uppercase tracking-wider font-bold text-[#68738a] mb-2">{t(language, 'gentlePrompts')}</div>
-            <h2 className="text-2xl font-bold font-serif text-[#273047] mb-4">{t(language, 'todaysReminders')}</h2>
+            <div className="text-xs uppercase tracking-wider font-bold text-[#6e6055] mb-2">{t(language, 'gentlePrompts')}</div>
+            <h2 className="text-2xl font-bold font-serif text-[#2a211b] mb-4">{t(language, 'todaysReminders')}</h2>
 
-            <div className="divide-y divide-[#e5dfd4]">
+            <div className="divide-y divide-[#e8ddcf]">
               {reminders.filter((r) => r.enabled !== false).slice(0, 3).map((r) => (
                 <div key={r.id} className="py-3 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <span className={`w-3 h-3 rounded-full ${r.done ? 'bg-emerald-500' : 'bg-amber-400'}`} />
-                    <span className={`text-sm font-medium ${r.done ? 'line-through text-gray-400' : 'text-[#273047]'}`}>
+                    <span className={`text-sm font-medium ${r.done ? 'line-through text-gray-400' : 'text-[#2a211b]'}`}>
                       {r.title}
                     </span>
                   </div>
-                  <span className="text-xs font-mono text-[#68738a] bg-gray-100 px-2 py-1 rounded-md">
+                  <span className="text-xs font-mono text-[#6e6055] bg-gray-100 px-2 py-1 rounded-md">
                     {r.reminder_time}
                   </span>
                 </div>
@@ -150,7 +150,7 @@ export default function TodayDashboard({ currentPatient, language = 'en-IN', onO
 
           <button
             onClick={() => setActiveTab('reminders')}
-            className="w-full mt-4 py-3 rounded-2xl font-bold text-sm text-[#4943a5] bg-indigo-50 hover:bg-indigo-100 transition"
+            className="w-full mt-4 py-3 rounded-2xl font-bold text-sm text-[#b04a28] bg-indigo-50 hover:bg-indigo-100 transition"
           >
             {t(language, 'manageReminders')}
           </button>

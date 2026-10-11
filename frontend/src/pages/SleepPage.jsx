@@ -44,25 +44,25 @@ export default function SleepPage({ language = 'en-IN' }) {
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold font-serif text-[#273047]">{t(language, 'sleepTitle')}</h1>
-        <p className="text-sm text-[#68738a] mt-1">{t(language, 'sleepSub')}</p>
+        <h1 className="text-3xl font-bold font-serif text-[#2a211b]">{t(language, 'sleepTitle')}</h1>
+        <p className="text-sm text-[#6e6055] mt-1">{t(language, 'sleepSub')}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         {/* Sleep Meter */}
-        <div className="bg-[#fffefb] p-8 rounded-3xl border border-[#e5dfd4] shadow-sm text-center flex flex-col items-center">
-          <div className="text-xs uppercase tracking-wider font-bold text-[#68738a] mb-2">{t(language, 'sleepScore')}</div>
-          <h2 className="text-xl font-bold font-serif text-[#273047] mb-6">{t(language, 'restfulQuality')}</h2>
+        <div className="bg-[#fffdf9] p-8 rounded-3xl border border-[#e8ddcf] shadow-sm text-center flex flex-col items-center">
+          <div className="text-xs uppercase tracking-wider font-bold text-[#6e6055] mb-2">{t(language, 'sleepScore')}</div>
+          <h2 className="text-xl font-bold font-serif text-[#2a211b] mb-6">{t(language, 'restfulQuality')}</h2>
 
           <div
             className="w-48 h-48 rounded-full p-4 flex items-center justify-center mb-6 shadow-inner"
             style={{
-              background: `conic-gradient(#4943a5 0% ${sleepScore}%, #e9e5dc ${sleepScore}% 100%)`,
+              background: `conic-gradient(#b04a28 0% ${sleepScore}%, #e8ddcf ${sleepScore}% 100%)`,
             }}
           >
             <div className="w-36 h-36 bg-white rounded-full flex flex-col items-center justify-center shadow-sm">
-              <span className="text-4xl font-extrabold text-[#4943a5]">{sleepScore}%</span>
-              <span className="text-xs text-[#68738a] font-medium">{t(language, 'restful')}</span>
+              <span className="text-4xl font-extrabold text-[#b04a28]">{sleepScore}%</span>
+              <span className="text-xs text-[#6e6055] font-medium">{t(language, 'restful')}</span>
             </div>
           </div>
 
@@ -72,31 +72,31 @@ export default function SleepPage({ language = 'en-IN' }) {
             max="100"
             value={sleepScore}
             onChange={(e) => setSleepScore(e.target.value)}
-            className="w-4/5 accent-[#4943a5] cursor-pointer"
+            className="w-4/5 accent-[#b04a28] cursor-pointer"
           />
           <span className="text-xs text-gray-400 mt-2">{t(language, 'simulatedMeter')}</span>
         </div>
 
         {/* Wind Down Audio */}
-        <div className="bg-[#fffefb] p-8 rounded-3xl border border-[#e5dfd4] shadow-sm space-y-4">
-          <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-[#4943a5] flex items-center justify-center">
+        <div className="bg-[#fffdf9] p-8 rounded-3xl border border-[#e8ddcf] shadow-sm space-y-4">
+          <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-[#b04a28] flex items-center justify-center">
             <Moon className="w-6 h-6" />
           </div>
-          <h3 className="text-2xl font-bold font-serif text-[#273047]">{t(language, 'eveningCalmMode')}</h3>
-          <p className="text-sm text-[#5a657c] leading-relaxed">
+          <h3 className="text-2xl font-bold font-serif text-[#2a211b]">{t(language, 'eveningCalmMode')}</h3>
+          <p className="text-sm text-[#6e6055] leading-relaxed">
             {t(language, 'calmToneDesc')}
           </p>
 
           <button
             onClick={playCalmTone}
             disabled={isPlayingCalm}
-            className="w-full py-4 bg-[#4943a5] text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#3d378f] shadow-md transition disabled:opacity-50"
+            className="w-full py-4 bg-[#b04a28] text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#8a3a1e] shadow-md transition disabled:opacity-50"
           >
             <Volume2 className="w-5 h-5" />
             <span>{isPlayingCalm ? t(language, 'playingTone') : t(language, 'playCalmTone')}</span>
           </button>
 
-          <div className="text-xs text-[#205147] bg-[#e7f4f0] p-4 rounded-2xl border border-[#d2e8e0]">
+          <div className="text-xs text-[#3f6b52] bg-[#e7efe9] p-4 rounded-2xl border border-[#d4e4da]">
             {toneMessage}
           </div>
         </div>

@@ -5,6 +5,7 @@ Root notes. Detailed learnings live in category files:
 - `debugging/taste.md` — how to diagnose, verify, and clean up
 - `workflow/taste.md` — environment/toolchain habits
 - `communication/taste.md` — how to report back to the user
+- `design/taste.md` — UI/UX, accessibility, and mobile preferences
 
 ## User profile
 - Works on Windows (`cmd`-style shell, OneDrive-synced project paths, mixed FastAPI + Vite/React + Expo stack).

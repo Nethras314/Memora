@@ -50,7 +50,7 @@ export default function RoutinePage({ currentPatient, language = 'en-IN' }) {
       setTasks(tasks.filter((t) => t.id !== taskId));
     } catch (e) {
       console.error(e);
-      alert(t(language, 'failedDeleteTask'));
+      setErrorMsg(t(language, 'failedDeleteTask'));
     }
   };
 
@@ -61,7 +61,7 @@ export default function RoutinePage({ currentPatient, language = 'en-IN' }) {
       setTasks(refreshed || tasks.map((t) => ({ ...t, done: false })));
     } catch (e) {
       console.error(e);
-      alert(t(language, 'failedResetTasks'));
+      setErrorMsg(t(language, 'failedResetTasks'));
     }
   };
 
@@ -104,22 +104,22 @@ export default function RoutinePage({ currentPatient, language = 'en-IN' }) {
     <div className="space-y-8 max-w-5xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold font-serif text-[#273047]">{t(language, 'routineTitle')}</h1>
-          <p className="text-sm text-[#68738a] mt-1">{t(language, 'routineSub')}</p>
+          <h1 className="text-3xl font-bold font-serif text-[#2a211b]">{t(language, 'routineTitle')}</h1>
+          <p className="text-sm text-[#6e6055] mt-1">{t(language, 'routineSub')}</p>
         </div>
 
         <div className="flex items-center gap-3">
           <button
             onClick={handleResetTasks}
             title={t(language, 'resetRoutineTitle')}
-            className="px-4 py-2.5 bg-white hover:bg-gray-50 text-[#68738a] border border-[#e5dfd4] rounded-2xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition"
+            className="px-4 py-2.5 bg-white hover:bg-gray-50 text-[#6e6055] border border-[#e8ddcf] rounded-2xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition"
           >
             <RotateCcw className="w-4 h-4" />
             <span>{t(language, 'resetToday')}</span>
           </button>
           <button
             onClick={() => setShowAddTaskModal(true)}
-            className="px-4 py-2.5 bg-[#4943a5] hover:bg-[#3d378f] text-white rounded-2xl text-xs font-semibold flex items-center gap-1.5 shadow-md transition"
+            className="px-4 py-2.5 bg-[#b04a28] hover:bg-[#8a3a1e] text-white rounded-2xl text-xs font-semibold flex items-center gap-1.5 shadow-md transition"
           >
             <Plus className="w-4 h-4" />
             <span>{t(language, 'addRoutine')}</span>
@@ -127,27 +127,33 @@ export default function RoutinePage({ currentPatient, language = 'en-IN' }) {
         </div>
       </div>
 
+      {errorMsg && (
+        <div className="mb-4 rounded-2xl border border-danger-bg bg-danger-bg p-3 text-sm text-danger">
+          {errorMsg}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
         {/* Tasks Section */}
-        <div className="md:col-span-7 bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm">
+        <div className="md:col-span-7 bg-[#fffdf9] p-6 rounded-3xl border border-[#e8ddcf] shadow-sm">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold font-serif text-[#273047]">{t(language, 'todaysSchedule')}</h2>
-            <span className="text-xs font-bold text-[#4943a5] bg-indigo-50 px-3 py-1 rounded-full">
+            <h2 className="text-xl font-bold font-serif text-[#2a211b]">{t(language, 'todaysSchedule')}</h2>
+            <span className="text-xs font-bold text-[#b04a28] bg-indigo-50 px-3 py-1 rounded-full">
               {tasks.filter((t) => t.done).length} / {tasks.length} {t(language, 'completed')}
             </span>
           </div>
 
           {loading ? (
-            <div className="text-center py-12 text-[#68738a]">
-              <div className="animate-spin w-6 h-6 border-2 border-[#4943a5] border-t-transparent rounded-full mx-auto mb-2"></div>
+            <div className="text-center py-12 text-[#6e6055]">
+              <div className="animate-spin w-6 h-6 border-2 border-[#b04a28] border-t-transparent rounded-full mx-auto mb-2"></div>
               <p className="text-xs font-medium">{t(language, 'loadingSchedule')}</p>
             </div>
           ) : tasks.length === 0 ? (
-            <div className="text-center py-12 text-[#68738a]">
+            <div className="text-center py-12 text-[#6e6055]">
               <p className="text-sm">{t(language, 'noRoutineTasks')}</p>
               <button
                 onClick={() => setShowAddTaskModal(true)}
-                className="mt-3 text-xs font-bold text-[#4943a5] hover:underline"
+                className="mt-3 text-xs font-bold text-[#b04a28] hover:underline"
               >
                 + {t(language, 'addRoutineStep')}
               </button>
@@ -161,7 +167,7 @@ export default function RoutinePage({ currentPatient, language = 'en-IN' }) {
                   className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between group ${
                     task.done
                       ? 'bg-emerald-50/50 border-emerald-200 opacity-75'
-                      : 'bg-[#faf8f2] border-[#e8e2d5] hover:border-[#4943a5]'
+                      : 'bg-[#faf5ec] border-[#e8ddcf] hover:border-[#b04a28]'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -171,15 +177,15 @@ export default function RoutinePage({ currentPatient, language = 'en-IN' }) {
                       <Circle className="w-6 h-6 text-gray-400 shrink-0" />
                     )}
                     <div>
-                      <span className={`font-semibold text-base block ${task.done ? 'line-through text-gray-500' : 'text-[#273047]'}`}>
+                      <span className={`font-semibold text-base block ${task.done ? 'line-through text-gray-500' : 'text-[#2a211b]'}`}>
                         {task.title}
                       </span>
-                      <span className="text-xs text-[#68738a]">{task.category}</span>
+                      <span className="text-xs text-[#6e6055]">{task.category}</span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1.5 text-sm font-mono text-[#546077] bg-white px-3 py-1.5 rounded-xl border border-gray-200">
+                    <div className="flex items-center gap-1.5 text-sm font-mono text-[#6e6055] bg-white px-3 py-1.5 rounded-xl border border-gray-200">
                       <Clock className="w-4 h-4 text-gray-400" />
                       <span>{task.task_time}</span>
                     </div>
@@ -198,11 +204,11 @@ export default function RoutinePage({ currentPatient, language = 'en-IN' }) {
         </div>
 
         {/* Reminders Section */}
-        <div className="md:col-span-5 bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm">
-          <h2 className="text-xl font-bold font-serif text-[#273047] mb-6">{t(language, 'gentleAlerts')}</h2>
+        <div className="md:col-span-5 bg-[#fffdf9] p-6 rounded-3xl border border-[#e8ddcf] shadow-sm">
+          <h2 className="text-xl font-bold font-serif text-[#2a211b] mb-6">{t(language, 'gentleAlerts')}</h2>
           <div className="space-y-3">
             {reminders.length === 0 ? (
-              <p className="text-sm text-[#68738a] py-6 text-center">{t(language, 'noGentleAlerts')}</p>
+              <p className="text-sm text-[#6e6055] py-6 text-center">{t(language, 'noGentleAlerts')}</p>
             ) : (
               reminders.map((rem) => (
               <div
@@ -211,16 +217,16 @@ export default function RoutinePage({ currentPatient, language = 'en-IN' }) {
                 className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
                   rem.done
                     ? 'bg-emerald-50/50 border-emerald-200 opacity-75'
-                    : 'bg-[#faf8f2] border-[#e8e2d5] hover:border-amber-400'
+                    : 'bg-[#faf5ec] border-[#e8ddcf] hover:border-amber-400'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <span className={`w-3 h-3 rounded-full ${rem.done ? 'bg-emerald-500' : 'bg-amber-400'}`} />
-                  <span className={`text-sm font-medium ${rem.done ? 'line-through text-gray-400' : 'text-[#273047]'}`}>
+                  <span className={`text-sm font-medium ${rem.done ? 'line-through text-gray-400' : 'text-[#2a211b]'}`}>
                     {rem.title}
                   </span>
                 </div>
-                <span className="text-xs font-mono text-[#68738a]">{rem.reminder_time}</span>
+                <span className="text-xs font-mono text-[#6e6055]">{rem.reminder_time}</span>
               </div>
               ))
             )}
@@ -231,7 +237,7 @@ export default function RoutinePage({ currentPatient, language = 'en-IN' }) {
       {/* Add Task Modal */}
       {showAddTaskModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-[#e5dfd4] relative">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-[#e8ddcf] relative">
             <button
               onClick={() => setShowAddTaskModal(false)}
               className="absolute top-5 right-5 text-gray-400 hover:text-gray-600 p-2 rounded-full"
@@ -239,8 +245,8 @@ export default function RoutinePage({ currentPatient, language = 'en-IN' }) {
               <X className="w-5 h-5" />
             </button>
 
-            <h2 className="text-2xl font-bold font-serif text-[#273047] mb-1">{t(language, 'addRoutineStepTitle')}</h2>
-            <p className="text-sm text-[#68738a] mb-6">{t(language, 'addRoutineStepSub')}</p>
+            <h2 className="text-2xl font-bold font-serif text-[#2a211b] mb-1">{t(language, 'addRoutineStepTitle')}</h2>
+            <p className="text-sm text-[#6e6055] mb-6">{t(language, 'addRoutineStepSub')}</p>
 
             {errorMsg && (
               <div className="mb-4 bg-red-50 border border-red-200 text-red-700 text-xs px-3 py-2 rounded-xl flex items-center gap-2">
@@ -251,35 +257,35 @@ export default function RoutinePage({ currentPatient, language = 'en-IN' }) {
 
             <form onSubmit={handleAddTask} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-[#273047] uppercase mb-1">{t(language, 'routineTitleLabel')}</label>
+                <label className="block text-xs font-bold text-[#2a211b] uppercase mb-1">{t(language, 'routineTitleLabel')}</label>
                 <input
                   type="text"
                   required
                   placeholder="E.g., Morning Walk in Courtyard"
                   value={taskTitle}
                   onChange={(e) => setTaskTitle(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-[#dcd6cc] bg-[#faf8f2] text-sm"
+                  className="w-full px-4 py-3 rounded-xl border border-[#ddd2c3] bg-[#faf5ec] text-sm"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-[#273047] uppercase mb-1">{t(language, 'time')}</label>
+                  <label className="block text-xs font-bold text-[#2a211b] uppercase mb-1">{t(language, 'time')}</label>
                   <input
                     type="time"
                     required
                     value={taskTime}
                     onChange={(e) => setTaskTime(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-[#dcd6cc] bg-[#faf8f2] text-sm font-mono"
+                    className="w-full px-4 py-3 rounded-xl border border-[#ddd2c3] bg-[#faf5ec] text-sm font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#273047] uppercase mb-1">{t(language, 'category')}</label>
+                  <label className="block text-xs font-bold text-[#2a211b] uppercase mb-1">{t(language, 'category')}</label>
                   <select
                     value={taskCategory}
                     onChange={(e) => setTaskCategory(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-[#dcd6cc] bg-[#faf8f2] text-sm"
+                    className="w-full px-4 py-3 rounded-xl border border-[#ddd2c3] bg-[#faf5ec] text-sm"
                   >
                     <option value="Routine">Routine</option>
                     <option value="Daily">Daily</option>
@@ -301,7 +307,7 @@ export default function RoutinePage({ currentPatient, language = 'en-IN' }) {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="flex-1 py-3 bg-[#4943a5] text-white rounded-2xl font-bold text-sm hover:bg-[#3d378f] disabled:opacity-50 transition"
+                  className="flex-1 py-3 bg-[#b04a28] text-white rounded-2xl font-bold text-sm hover:bg-[#8a3a1e] disabled:opacity-50 transition"
                 >
                   {saving ? t(language, 'saving') : t(language, 'addStep')}
                 </button>

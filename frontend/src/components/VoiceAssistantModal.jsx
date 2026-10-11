@@ -53,7 +53,7 @@ export default function VoiceAssistantModal({ isOpen, onClose, currentPatient, l
 
   const handleStartListening = () => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      alert("Browser speech recognition isn't available. Please type your question below.");
+      setReply("Browser speech recognition isn't available. Please type your question below.");
       return;
     }
 
@@ -85,24 +85,30 @@ export default function VoiceAssistantModal({ isOpen, onClose, currentPatient, l
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl border border-[#e5dfd4] relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Voice assistant"
+        className="relative w-full max-w-lg rounded-3xl border border-[#e8ddcf] bg-white p-8 shadow-2xl"
+      >
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 text-gray-400 hover:text-gray-600 p-2 rounded-full"
+          aria-label="Close"
+          className="absolute right-5 top-5 rounded-full p-2 text-gray-400 hover:text-gray-600"
         >
-          <X className="w-6 h-6" />
+          <X className="h-6 w-6" />
         </button>
 
         {/* Header */}
         <div className="flex items-center justify-between mb-6 pr-8">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-[#4943a5] text-white flex items-center justify-center">
+            <div className="w-12 h-12 rounded-2xl bg-[#b04a28] text-white flex items-center justify-center">
               <Mic className="w-6 h-6 text-amber-300" />
             </div>
             <div>
-              <h2 className="text-xl font-bold font-serif text-[#273047]">{t(language, 'voiceTitle')}</h2>
-              <p className="text-xs text-[#68738a]">{t(language, 'poweredBy')}</p>
+              <h2 className="text-xl font-bold font-serif text-[#2a211b]">{t(language, 'voiceTitle')}</h2>
+              <p className="text-xs text-[#6e6055]">{t(language, 'poweredBy')}</p>
             </div>
           </div>
         </div>
@@ -110,13 +116,13 @@ export default function VoiceAssistantModal({ isOpen, onClose, currentPatient, l
         {/* Dynamic Speech Display */}
         <div className="space-y-4 mb-6">
           {transcription && (
-            <div className="p-4 rounded-2xl bg-[#f5f3ff] text-sm text-[#4943a5] border border-indigo-100">
+            <div className="p-4 rounded-2xl bg-[#faeae0] text-sm text-[#b04a28] border border-indigo-100">
               <span className="font-bold block text-xs uppercase mb-1">{t(language, 'youAsked')}</span>
               "{transcription}"
             </div>
           )}
 
-          <div className="p-5 rounded-2xl bg-[#dceee9] text-[#1c473f] text-lg font-medium shadow-sm border border-[#c1e2d9] min-h-[90px] flex items-center">
+          <div className="p-5 rounded-2xl bg-[#e7efe9] text-[#3f6b52] text-lg font-medium shadow-sm border border-[#d4e4da] min-h-[90px] flex items-center">
             {loading ? (
               <div className="flex items-center gap-3">
                 <span className="animate-spin text-2xl">⏳</span>
@@ -135,7 +141,7 @@ export default function VoiceAssistantModal({ isOpen, onClose, currentPatient, l
             className={`w-24 h-24 rounded-full flex flex-col items-center justify-center gap-1 shadow-lg transition-all active:scale-95 ${
               isRecording
                 ? 'bg-red-500 text-white animate-pulse'
-                : 'bg-[#4943a5] hover:bg-[#3d378f] text-white'
+                : 'bg-[#b04a28] hover:bg-[#8a3a1e] text-white'
             }`}
           >
             {isRecording ? <MicOff className="w-8 h-8" /> : <Mic className="w-8 h-8" />}
@@ -151,11 +157,11 @@ export default function VoiceAssistantModal({ isOpen, onClose, currentPatient, l
             onChange={(e) => setTypedInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSendQuestion(typedInput)}
             placeholder={t(language, 'typePlaceholder')}
-            className="flex-1 px-4 py-3 rounded-2xl border border-[#dcd6cc] bg-[#faf8f2] text-sm outline-none focus:border-[#4943a5]"
+            className="flex-1 rounded-2xl border border-[#ddd2c3] bg-[#faf5ec] px-4 py-3 text-sm focus:border-[#b04a28]"
           />
           <button
             onClick={() => handleSendQuestion(typedInput)}
-            className="px-5 bg-[#4943a5] text-white rounded-2xl font-semibold hover:bg-[#3d378f] transition"
+            className="px-5 bg-[#b04a28] text-white rounded-2xl font-semibold hover:bg-[#8a3a1e] transition"
           >
             <Send className="w-4 h-4" />
           </button>

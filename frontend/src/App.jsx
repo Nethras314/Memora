@@ -16,7 +16,7 @@ import AdminPage from './pages/AdminPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { api } from './services/api';
 import { SUPPORTED_LANGUAGES, t } from './i18n';
-import { Globe, Volume2, LogOut } from 'lucide-react';
+import { Globe, Volume2, LogOut, Menu } from 'lucide-react';
 
 const LANG_CACHE_PREFIX = 'memora_lang_';
 
@@ -53,6 +53,7 @@ function Shell() {
   const [pinVerified, setPinVerified] = useState(false);
   const [loadError, setLoadError] = useState('');
   const [language, setLanguage] = useState('en-IN');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const role = normalizeRole(user?.role);
   const isClinician = ['doctor', 'admin'].includes(role);
@@ -79,8 +80,6 @@ function Shell() {
     loadPatients();
   }, [user]);
 
-  // Single source of truth for language: the selected patient's preference
-  // (cached locally first, then the server value, then English).
   useEffect(() => {
     const pid = currentPatient?.id;
     if (!pid) {
@@ -102,19 +101,22 @@ function Shell() {
     }
   };
 
-  // Default landing tab per role
   useEffect(() => {
     if (role === 'admin') setActiveTab('admin');
-    else if (role === 'patient') setActiveTab('today');
     else setActiveTab('today');
   }, [role]);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center text-sm text-gray-500">Loading MEMORA…</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center text-sm text-muted">
+        <span className="animate-pulse">Loading MEMORA…</span>
+      </div>
+    );
   }
   if (!user) return <AuthPage />;
 
   const handleOpenPin = () => {
+    setSidebarOpen(false);
     if (pinVerified) setActiveTab('memories');
     else setIsPinModalOpen(true);
   };
@@ -133,15 +135,19 @@ function Shell() {
     }
   };
 
-  // Role-based tabs: patients get a focused view; doctors read analytics; admins manage users.
+  const handleNav = (tab) => {
+    setActiveTab(tab);
+    setSidebarOpen(false);
+  };
+
   const canSeeCaregiver = ['caregiver', 'doctor', 'admin', 'patient'].includes(role);
   const canSeeAdmin = role === 'admin';
 
   return (
-    <div className="flex min-h-screen bg-[#faf8f2]">
+    <div className="min-h-screen bg-cream">
       <Sidebar
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={handleNav}
         currentPatient={currentPatient}
         onOpenPinModal={handleOpenPin}
         onOpenVoiceModal={() => setIsVoiceModalOpen(true)}
@@ -150,24 +156,46 @@ function Shell() {
         language={language}
         showCaregiver={canSeeCaregiver}
         showAdmin={canSeeAdmin}
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
       />
 
-      <div className="ml-72 flex-1 flex flex-col min-h-screen">
-        <header className="h-16 bg-[#fffdfa] border-b border-[#e5dfd4] px-8 flex items-center justify-between sticky top-0 z-10">
-          <div className="flex items-center gap-2 text-xs font-bold text-[#5c687f]">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>
-              {user?.full_name || user?.email} · <span className="uppercase">{role}</span>
-            </span>
+      {sidebarOpen && (
+        <button
+          type="button"
+          aria-label="Close navigation"
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 z-30 bg-black/40 lg:hidden"
+        />
+      )}
+
+      <div className="flex min-h-screen flex-col lg:pl-72">
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-line bg-paper px-4 md:px-8">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(true)}
+              className="icon-btn lg:hidden"
+              aria-label="Open navigation"
+            >
+              <Menu className="h-6 w-6" />
+            </button>
+            <div className="flex items-center gap-2 text-xs font-semibold text-muted">
+              <span className="h-2.5 w-2.5 rounded-full bg-success" aria-hidden="true" />
+              <span className="hidden sm:inline">
+                {user?.full_name || user?.email} · <span className="uppercase">{role}</span>
+              </span>
+              <span className="sm:hidden uppercase">{role}</span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1.5 bg-[#e8f3ef] text-[#22574c] px-2 py-1 rounded-full">
-              <Globe className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-2 sm:gap-4">
+            <div className="flex items-center gap-1.5 rounded-full bg-mint px-2 py-1 text-sage">
+              <Globe className="h-3.5 w-3.5" aria-hidden="true" />
               <select
                 value={language}
                 onChange={(e) => handleLanguageChange(e.target.value)}
-                className="bg-transparent text-xs font-semibold text-[#22574c] outline-none cursor-pointer"
+                className="cursor-pointer bg-transparent text-xs font-semibold text-sage"
                 aria-label="Choose language"
               >
                 {SUPPORTED_LANGUAGES.map((l) => (
@@ -178,25 +206,25 @@ function Shell() {
 
             <button
               onClick={() => setIsVoiceModalOpen(true)}
-              className="text-xs font-bold text-[#4943a5] hover:underline flex items-center gap-1"
+              className="flex items-center gap-1 text-xs font-bold text-primary hover:underline"
             >
-              <Volume2 className="w-4 h-4" />
-              <span>{t(language, 'voiceReady')}</span>
+              <Volume2 className="h-4 w-4" aria-hidden="true" />
+              <span className="hidden sm:inline">{t(language, 'voiceReady')}</span>
             </button>
 
             <button
               onClick={logout}
-              className="text-xs font-bold text-gray-500 hover:text-red-600 flex items-center gap-1"
+              className="flex items-center gap-1 text-xs font-bold text-muted hover:text-danger"
             >
-              <LogOut className="w-4 h-4" />
-              <span>{t(language, 'signOut')}</span>
+              <LogOut className="h-4 w-4" aria-hidden="true" />
+              <span className="hidden sm:inline">{t(language, 'signOut')}</span>
             </button>
           </div>
         </header>
 
-        <main className="flex-1 p-8 md:p-10 max-w-7xl mx-auto w-full">
+        <main className="mx-auto w-full max-w-7xl flex-1 p-4 md:p-8 lg:p-10">
           {loadError && (
-            <div className="mb-6 text-sm text-amber-800 bg-amber-50 border border-amber-200 p-4 rounded-2xl">
+            <div className="mb-6 rounded-2xl border border-warning-bg bg-warning-bg p-4 text-sm text-warning">
               {loadError}
             </div>
           )}
@@ -210,19 +238,12 @@ function Shell() {
               setActiveTab={setActiveTab}
             />
           )}
-
           {activeTab === 'memories' && <MemoriesPage currentPatient={currentPatient} language={language} />}
-
           {activeTab === 'routine' && <RoutinePage currentPatient={currentPatient} language={language} />}
-
           {activeTab === 'reminders' && <RemindersPage currentPatient={currentPatient} language={language} />}
-
           {activeTab === 'activities' && <ActivitiesPage currentPatient={currentPatient} language={language} />}
-
           {activeTab === 'exercise' && <ExercisePage language={language} />}
-
           {activeTab === 'sleep' && <SleepPage language={language} />}
-
           {activeTab === 'caregiver' && canSeeCaregiver && (
             isClinician ? (
               <DoctorDashboard
@@ -240,12 +261,11 @@ function Shell() {
               />
             )
           )}
-
           {activeTab === 'admin' && canSeeAdmin && <AdminPage />}
         </main>
 
-        <footer className="py-6 text-center text-xs text-[#7d879c] border-t border-[#e5dfd4]">
-          MEMORA © 2026 • AI-Based Cognitive & Daily-Life Assistance Platform • SIH26003 (Team VERTEX)
+        <footer className="border-t border-line py-6 text-center text-xs text-faint">
+          MEMORA © 2026 · Cognitive & Daily-Life Companion · SIH26003 (Team VERTEX)
         </footer>
       </div>
 

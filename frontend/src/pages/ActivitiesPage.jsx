@@ -129,36 +129,36 @@ export default function ActivitiesPage({ currentPatient, language = 'en-IN' }) {
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold font-serif text-[#273047]">{t(language, 'activitiesTitle')}</h1>
-        <p className="text-sm text-[#68738a] mt-1">
+        <h1 className="text-3xl font-bold font-serif text-[#2a211b]">{t(language, 'activitiesTitle')}</h1>
+        <p className="text-sm text-[#6e6055] mt-1">
           {t(language, 'activitiesSub')}
         </p>
       </div>
 
       {/* 1. Dynamic Difficulty Memory Game */}
-      <div className="bg-[#fffefb] p-8 rounded-3xl border border-[#e5dfd4] shadow-sm">
+      <div className="bg-[#fffdf9] p-8 rounded-3xl border border-[#e8ddcf] shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Brain className="w-6 h-6 text-[#4943a5]" />
-            <h2 className="text-2xl font-bold font-serif text-[#273047]">{t(language, 'memorySequenceGame')}</h2>
+            <Brain className="w-6 h-6 text-[#b04a28]" />
+            <h2 className="text-2xl font-bold font-serif text-[#2a211b]">{t(language, 'memorySequenceGame')}</h2>
           </div>
           {gameConfig && (
-            <span className="text-xs font-bold uppercase tracking-wider bg-indigo-50 text-[#4943a5] px-3 py-1.5 rounded-xl border border-indigo-100">
+            <span className="text-xs font-bold uppercase tracking-wider bg-indigo-50 text-[#b04a28] px-3 py-1.5 rounded-xl border border-indigo-100">
               {t(language, 'aiDifficultyLevel')}: {gameConfig.difficulty_level}
             </span>
           )}
         </div>
 
-        <p className="text-sm text-[#68738a] mb-6">
+        <p className="text-sm text-[#6e6055] mb-6">
           {gameConfig?.guidance_cue || t(language, 'watchSymbols')}
         </p>
 
         {/* Display Area */}
-        <div className="min-h-[120px] bg-[#faf8f2] rounded-2xl border border-[#e8e2d5] flex items-center justify-center p-6 mb-6">
+        <div className="min-h-[120px] bg-[#faf5ec] rounded-2xl border border-[#e8ddcf] flex items-center justify-center p-6 mb-6">
           {gameState === 'idle' && (
             <button
               onClick={startMemoryGame}
-              className="bg-[#4943a5] text-white px-6 py-3 rounded-2xl font-bold hover:bg-[#3d378f] shadow-md transition"
+              className="bg-[#b04a28] text-white px-6 py-3 rounded-2xl font-bold hover:bg-[#8a3a1e] shadow-md transition"
             >
               {t(language, 'startGame')} →
             </button>
@@ -176,7 +176,7 @@ export default function ActivitiesPage({ currentPatient, language = 'en-IN' }) {
 
           {gameState === 'playing' && (
             <div className="text-center">
-              <div className="text-sm font-semibold text-[#4943a5] mb-2">
+              <div className="text-sm font-semibold text-[#b04a28] mb-2">
                 {t(language, 'selectedOf')} {userInput.length} / {gameConfig?.sequence?.length}:
               </div>
               <div className="flex gap-2 justify-center text-3xl min-h-[48px]">
@@ -192,12 +192,12 @@ export default function ActivitiesPage({ currentPatient, language = 'en-IN' }) {
               <div className={`text-xl font-bold ${gameResult.success ? 'text-emerald-600' : 'text-amber-600'}`}>
                 {gameResult.success ? '✓ ' + t(language, 'wonderfulPerfect') : t(language, 'goodAttempt')}
               </div>
-              <div className="text-xs text-[#68738a]">
+              <div className="text-xs text-[#6e6055]">
                 {t(language, 'reactionTime')}: {(gameResult.latencyMs / 1000).toFixed(1)}s
               </div>
               <button
                 onClick={loadNextGame}
-                className="bg-[#4943a5] text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-[#3d378f]"
+                className="bg-[#b04a28] text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-[#8a3a1e]"
               >
                 {t(language, 'nextAiRound')} →
               </button>
@@ -224,17 +224,17 @@ export default function ActivitiesPage({ currentPatient, language = 'en-IN' }) {
       {/* 2. General Knowledge & Attention Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* GK */}
-        <div className="bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm">
-          <div className="text-xs uppercase tracking-wider font-bold text-[#68738a] mb-2">{t(language, 'memoryRecall')}</div>
-          <h3 className="text-xl font-bold font-serif text-[#273047] mb-3">{t(language, 'generalKnowledge')}</h3>
-          <p className="text-sm font-medium text-[#273047] mb-4">{gkQuestion?.question || t(language, 'loadingQuestion')}</p>
+        <div className="bg-[#fffdf9] p-6 rounded-3xl border border-[#e8ddcf] shadow-sm">
+          <div className="text-xs uppercase tracking-wider font-bold text-[#6e6055] mb-2">{t(language, 'memoryRecall')}</div>
+          <h3 className="text-xl font-bold font-serif text-[#2a211b] mb-3">{t(language, 'generalKnowledge')}</h3>
+          <p className="text-sm font-medium text-[#2a211b] mb-4">{gkQuestion?.question || t(language, 'loadingQuestion')}</p>
 
           <div className="grid grid-cols-3 gap-2 mb-4">
             {gkQuestion?.options?.map((opt, i) => (
               <button
                 key={i}
                 onClick={() => setGkFeedback(opt === gkQuestion.answer ? '✓ ' + t(language, 'correctRecall') : t(language, 'tryAgain'))}
-                className="py-3 px-2 bg-[#faf8f2] hover:bg-indigo-50 text-sm font-semibold rounded-xl border border-[#e8e2d5] transition"
+                className="py-3 px-2 bg-[#faf5ec] hover:bg-indigo-50 text-sm font-semibold rounded-xl border border-[#e8ddcf] transition"
               >
                 {opt}
               </button>
@@ -245,10 +245,10 @@ export default function ActivitiesPage({ currentPatient, language = 'en-IN' }) {
         </div>
 
         {/* Attention Odd-One-Out */}
-        <div className="bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm">
-          <div className="text-xs uppercase tracking-wider font-bold text-[#68738a] mb-2">{t(language, 'visualFocus')}</div>
-          <h3 className="text-xl font-bold font-serif text-[#273047] mb-3">{t(language, 'oddOneOut')}</h3>
-          <p className="text-sm font-medium text-[#273047] mb-4">{attentionQuestion?.question || t(language, 'spotDifference')}</p>
+        <div className="bg-[#fffdf9] p-6 rounded-3xl border border-[#e8ddcf] shadow-sm">
+          <div className="text-xs uppercase tracking-wider font-bold text-[#6e6055] mb-2">{t(language, 'visualFocus')}</div>
+          <h3 className="text-xl font-bold font-serif text-[#2a211b] mb-3">{t(language, 'oddOneOut')}</h3>
+          <p className="text-sm font-medium text-[#2a211b] mb-4">{attentionQuestion?.question || t(language, 'spotDifference')}</p>
 
           <div className="grid grid-cols-3 gap-2 mb-4">
             {attentionQuestion?.options?.map((opt, i) => (
@@ -259,7 +259,7 @@ export default function ActivitiesPage({ currentPatient, language = 'en-IN' }) {
                     opt === attentionQuestion.answer ? `✓ ${t(language, 'exactlyRight')} ${attentionQuestion.explanation}` : t(language, 'tryOnceMore')
                   )
                 }
-                className="py-3 px-2 bg-[#faf8f2] hover:bg-indigo-50 text-sm font-semibold rounded-xl border border-[#e8e2d5] transition"
+                className="py-3 px-2 bg-[#faf5ec] hover:bg-indigo-50 text-sm font-semibold rounded-xl border border-[#e8ddcf] transition"
               >
                 {opt}
               </button>

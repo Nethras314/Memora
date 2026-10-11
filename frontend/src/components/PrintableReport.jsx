@@ -27,13 +27,13 @@ export default function PrintableReport({ patient, analytics, notes }) {
 
     w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>MEMORA Cognitive Report</title>
       <style>
-        body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; color: #273047; margin: 40px; }
-        h1 { font-size: 24px; } h2 { font-size: 16px; margin-top: 28px; border-bottom: 1px solid #e5dfd4; padding-bottom: 6px; }
-        .muted { color: #68738a; font-size: 13px; }
+        body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; color: #2a211b; margin: 40px; }
+        h1 { font-size: 24px; } h2 { font-size: 16px; margin-top: 28px; border-bottom: 1px solid #e8ddcf; padding-bottom: 6px; }
+        .muted { color: #6e6055; font-size: 13px; }
         .badge { display:inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; }
         table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
-        th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #f0ebe0; }
-        th { color: #68738a; text-transform: uppercase; font-size: 11px; }
+        th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #f0e8dc; }
+        th { color: #6e6055; text-transform: uppercase; font-size: 11px; }
         ul { font-size: 13px; }
         .note { font-size: 11px; color: #888; margin-top: 40px; }
       </style></head><body>
@@ -57,7 +57,7 @@ export default function PrintableReport({ patient, analytics, notes }) {
   return (
     <button
       onClick={print}
-      className="px-4 py-2 rounded-2xl bg-white border border-[#e5dfd4] text-sm font-bold text-[#273047] hover:bg-[#f3f0e8]"
+      className="px-4 py-2 rounded-2xl bg-white border border-[#e8ddcf] text-sm font-bold text-[#2a211b] hover:bg-[#f0e8dc]"
     >
       Print / Save PDF
     </button>

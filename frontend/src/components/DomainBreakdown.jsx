@@ -21,14 +21,14 @@ export default function DomainBreakdown({ data }) {
       {rows.map((d) => (
         <div key={d.domain}>
           <div className="flex justify-between items-baseline text-xs mb-1">
-            <span className="font-semibold text-[#273047]">{DOMAIN_LABELS[d.domain] || d.domain}</span>
-            <span className="text-[#68738a]">
+            <span className="font-semibold text-[#2a211b]">{DOMAIN_LABELS[d.domain] || d.domain}</span>
+            <span className="text-[#6e6055]">
               {d.score}/100 · {Math.round((d.weight || 0) * 100)}% weight
             </span>
           </div>
           <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
             <div
-              className="h-2 rounded-full bg-[#4943a5] transition-all"
+              className="h-2 rounded-full bg-[#b04a28] transition-all"
               style={{ width: `${Math.max(0, Math.min(100, d.score))}%` }}
             />
           </div>

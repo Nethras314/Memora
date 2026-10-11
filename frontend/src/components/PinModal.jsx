@@ -1,11 +1,20 @@
-import React, { useState } from 'react';
-import { Lock, X, Check } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Lock, X } from 'lucide-react';
 import { api } from '../services/api';
 
 export default function PinModal({ isOpen, onClose, onSuccess, patientId = 1 }) {
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -41,21 +50,27 @@ export default function PinModal({ isOpen, onClose, onSuccess, patientId = 1 }) 
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl border border-[#e5dfd4] relative text-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Enter your PIN"
+        className="relative w-full max-w-sm rounded-3xl border border-[#e8ddcf] bg-white p-8 text-center shadow-2xl"
+      >
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 text-gray-400 hover:text-gray-600 p-2 rounded-full"
+          aria-label="Close"
+          className="absolute right-5 top-5 rounded-full p-2 text-gray-400 hover:text-gray-600"
         >
-          <X className="w-6 h-6" />
+          <X className="h-6 w-6" />
         </button>
 
-        <div className="w-16 h-16 bg-[#eef0fc] text-[#4943a5] rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl shadow-inner">
+        <div className="w-16 h-16 bg-[#faeae0] text-[#b04a28] rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl shadow-inner">
           <Lock className="w-8 h-8" />
         </div>
 
-        <h2 className="text-2xl font-bold font-serif text-[#273047] mb-1">Private Memory Bank</h2>
-        <p className="text-sm text-[#68738a] mb-6">Enter your 4-digit PIN to open familiar moments.</p>
+        <h2 className="text-2xl font-bold font-serif text-[#2a211b] mb-1">Private Memory Bank</h2>
+        <p className="text-sm text-[#6e6055] mb-6">Enter your 4-digit PIN to open familiar moments.</p>
 
         {/* PIN Dots */}
         <div className="flex justify-center gap-4 mb-6">
@@ -63,7 +78,7 @@ export default function PinModal({ isOpen, onClose, onSuccess, patientId = 1 }) 
             <div
               key={i}
               className={`w-4 h-4 rounded-full border-2 transition-all ${
-                pin.length > i ? 'bg-[#4943a5] border-[#4943a5] scale-110' : 'border-gray-300'
+                pin.length > i ? 'bg-[#b04a28] border-[#b04a28] scale-110' : 'border-gray-300'
               }`}
             />
           ))}
@@ -77,7 +92,7 @@ export default function PinModal({ isOpen, onClose, onSuccess, patientId = 1 }) 
             <button
               key={n}
               onClick={() => handleDigit(n.toString())}
-              className="h-16 text-2xl font-semibold bg-[#faf8f2] hover:bg-[#ece8dc] text-[#273047] rounded-2xl border border-[#e8e2d5] transition active:scale-95 flex items-center justify-center"
+              className="h-16 text-2xl font-semibold bg-[#faf5ec] hover:bg-[#f0e8dc] text-[#2a211b] rounded-2xl border border-[#e8ddcf] transition active:scale-95 flex items-center justify-center"
             >
               {n}
             </button>
@@ -90,11 +105,11 @@ export default function PinModal({ isOpen, onClose, onSuccess, patientId = 1 }) 
           </button>
           <button
             onClick={() => handleDigit('0')}
-            className="h-16 text-2xl font-semibold bg-[#faf8f2] hover:bg-[#ece8dc] text-[#273047] rounded-2xl border border-[#e8e2d5] transition active:scale-95 flex items-center justify-center"
+            className="h-16 text-2xl font-semibold bg-[#faf5ec] hover:bg-[#f0e8dc] text-[#2a211b] rounded-2xl border border-[#e8ddcf] transition active:scale-95 flex items-center justify-center"
           >
             0
           </button>
-          <div className="h-16 flex items-center justify-center text-xs text-[#8e9aa8] font-medium tracking-wide">
+          <div className="h-16 flex items-center justify-center text-xs text-[#8f8378] font-medium tracking-wide">
             4 digits
           </div>
         </div>

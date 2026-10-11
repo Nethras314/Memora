@@ -46,10 +46,10 @@ export default function AdminPage() {
   return (
     <div className="space-y-8 max-w-6xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold font-serif text-[#273047] flex items-center gap-3">
-          <ShieldCheck className="w-8 h-8 text-[#4943a5]" /> Admin Portal
+        <h1 className="text-3xl font-bold font-serif text-[#2a211b] flex items-center gap-3">
+          <ShieldCheck className="w-8 h-8 text-[#b04a28]" /> Admin Portal
         </h1>
-        <p className="text-sm text-[#68738a] mt-1">Manage patients, caregivers, doctors and platform usage.</p>
+        <p className="text-sm text-[#6e6055] mt-1">Manage patients, caregivers, doctors and platform usage.</p>
       </div>
 
       {overview && (
@@ -59,18 +59,18 @@ export default function AdminPage() {
             { label: 'Total Users', value: overview.total_users },
             { label: 'Cognitive Sessions', value: overview.total_sessions },
           ].map((k) => (
-            <div key={k.label} className="bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm">
-              <div className="text-xs font-bold uppercase tracking-wider text-[#68738a]">{k.label}</div>
-              <div className="text-4xl font-extrabold text-[#4943a5] mt-2">{k.value}</div>
+            <div key={k.label} className="bg-[#fffdf9] p-6 rounded-3xl border border-[#e8ddcf] shadow-sm">
+              <div className="text-xs font-bold uppercase tracking-wider text-[#6e6055]">{k.label}</div>
+              <div className="text-4xl font-extrabold text-[#b04a28] mt-2">{k.value}</div>
             </div>
           ))}
         </div>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-        <div className="md:col-span-5 bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm">
+        <div className="md:col-span-5 bg-[#fffdf9] p-6 rounded-3xl border border-[#e8ddcf] shadow-sm">
           <h2 className="text-xl font-bold font-serif mb-4 flex items-center gap-2">
-            <UserPlus className="w-5 h-5 text-[#4943a5]" /> Create user
+            <UserPlus className="w-5 h-5 text-[#b04a28]" /> Create user
           </h2>
           <form onSubmit={createUser} className="space-y-3">
             <input
@@ -78,7 +78,7 @@ export default function AdminPage() {
               placeholder="Full name"
               value={form.full_name}
               onChange={(e) => setForm({ ...form, full_name: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-[#dcd6cc] bg-[#faf8f2] text-sm"
+              className="w-full px-4 py-3 rounded-xl border border-[#ddd2c3] bg-[#faf5ec] text-sm"
             />
             <input
               required
@@ -86,7 +86,7 @@ export default function AdminPage() {
               placeholder="Email"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-[#dcd6cc] bg-[#faf8f2] text-sm"
+              className="w-full px-4 py-3 rounded-xl border border-[#ddd2c3] bg-[#faf5ec] text-sm"
             />
             <input
               required
@@ -95,19 +95,19 @@ export default function AdminPage() {
               placeholder="Password"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-[#dcd6cc] bg-[#faf8f2] text-sm"
+              className="w-full px-4 py-3 rounded-xl border border-[#ddd2c3] bg-[#faf5ec] text-sm"
             />
             <select
               value={form.role}
               onChange={(e) => setForm({ ...form, role: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-[#dcd6cc] bg-[#faf8f2] text-sm"
+              className="w-full px-4 py-3 rounded-xl border border-[#ddd2c3] bg-[#faf5ec] text-sm"
             >
               <option value="patient">Patient</option>
               <option value="caregiver">Caregiver / Caretaker</option>
               <option value="doctor">Doctor</option>
               <option value="admin">Admin</option>
             </select>
-            <button className="w-full py-3 bg-[#4943a5] text-white rounded-2xl font-bold text-sm hover:bg-[#3d378f]">
+            <button className="w-full py-3 bg-[#b04a28] text-white rounded-2xl font-bold text-sm hover:bg-[#8a3a1e]">
               Create account
             </button>
           </form>
@@ -115,18 +115,18 @@ export default function AdminPage() {
           {err && <div className="text-xs text-red-700 bg-red-50 p-3 rounded-xl mt-3">{err}</div>}
         </div>
 
-        <div className="md:col-span-7 bg-[#fffefb] p-6 rounded-3xl border border-[#e5dfd4] shadow-sm">
+        <div className="md:col-span-7 bg-[#fffdf9] p-6 rounded-3xl border border-[#e8ddcf] shadow-sm">
           <h2 className="text-xl font-bold font-serif mb-4 flex items-center gap-2">
-            <Users className="w-5 h-5 text-[#4943a5]" /> All users ({users.length})
+            <Users className="w-5 h-5 text-[#b04a28]" /> All users ({users.length})
           </h2>
-          <div className="divide-y divide-[#f0ebe0] max-h-[420px] overflow-auto">
+          <div className="divide-y divide-[#f0e8dc] max-h-[420px] overflow-auto">
             {users.map((u) => (
               <div key={u.id} className="py-3 flex items-center justify-between">
                 <div>
-                  <div className="font-semibold text-sm text-[#273047]">{u.full_name || u.email}</div>
+                  <div className="font-semibold text-sm text-[#2a211b]">{u.full_name || u.email}</div>
                   <div className="text-xs text-gray-500">{u.email}</div>
                 </div>
-                <span className="text-[11px] font-bold uppercase tracking-wide bg-indigo-50 text-[#4943a5] px-2.5 py-1 rounded-lg">
+                <span className="text-[11px] font-bold uppercase tracking-wide bg-indigo-50 text-[#b04a28] px-2.5 py-1 rounded-lg">
                   {u.role}
                 </span>
               </div>
